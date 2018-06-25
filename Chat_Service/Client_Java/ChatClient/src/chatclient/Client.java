@@ -3,11 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package clients;
+package chatclient;
 
 import java.net.*;
 import java.io.*;
-import clients.Global;
+import chatclient.Global;
 /**
  *
  * @author shawry
