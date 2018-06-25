@@ -16,6 +16,13 @@ public class ChatClient {
      */
     public static void main(String[] args) {
         // TODO code application logic here
+         clients.Client cl = new clients.Client();
+        if( cl.ConnectToServer() == true)
+            System.out.println("Connect successes");
+        //while(true);
+        
+        
+        
     }
     
 }
