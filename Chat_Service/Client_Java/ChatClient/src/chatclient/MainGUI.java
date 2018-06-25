@@ -151,20 +151,30 @@ public class MainGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         sUser=txtUser.getText();
         sPass=txtPass.getText();
+        if(sUser.equals("") )
+            {
+                int mc = JOptionPane.WARNING_MESSAGE;
+                JOptionPane.showMessageDialog (null, "Blank USER", "Warning", mc);
+            }
+            else if(sUser.equals("")){
+                int mc2 = JOptionPane.WARNING_MESSAGE;
+                JOptionPane.showMessageDialog (null, "Blank PASS", "Warning", mc2);
+            }
+            else{
         if(Global.cl.GetStatus())
         {
         
         
-            if(sUser.equals("")||sUser.equals("") )
-            {
-                int mc = JOptionPane.WARNING_MESSAGE;
-                JOptionPane.showMessageDialog (null, "Blank", "Warning", mc);
+            
+            
+        }
+        else
+        {
+            int mcServer = JOptionPane.WARNING_MESSAGE;
+                JOptionPane.showMessageDialog (null, "Blank PASS", "Warning", mcServer);
+        }
             }
-            }
-            else
-            {
-                
-            }
+            
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
