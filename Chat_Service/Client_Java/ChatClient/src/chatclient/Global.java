@@ -12,4 +12,5 @@ package chatclient;
 public class Global {
     public static final String SERVERIP = "localhost";
     public static final int SERVERPORT = 9000;
+    public static Client cl = new Client();
 }

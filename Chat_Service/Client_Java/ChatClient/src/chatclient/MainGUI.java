@@ -1,10 +1,15 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ 
+*Function : MainGUI
+*Description: Main Interfaces. Login to Chat Server or Sign Up Account.
+*Argument: Nope!
+*Return: Nope!
+Note: First Interface 
+
  */
 package chatclient;
-import chatclient.Global;
+
+import javax.swing.*;
 
 /**
  *
@@ -15,8 +20,11 @@ public class MainGUI extends javax.swing.JFrame {
     /**
      * Creates new form MainGUI
      */
+    public String sUser,sPass;
+    
     public MainGUI() {
         initComponents();
+        
     }
 
     /**
@@ -34,8 +42,8 @@ public class MainGUI extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        txtUser = new javax.swing.JTextField();
+        txtPass = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
@@ -44,12 +52,17 @@ public class MainGUI extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jButton1.setText("Sign In");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Sign Up");
 
         jLabel2.setText("Need an account? Register now!!!");
 
-        jLabel1.setText("Power by VERMOUNTH");
+        jLabel1.setText("Powered by VERMOUNTH");
 
         jLabel3.setText("Username");
 
@@ -87,10 +100,10 @@ public class MainGUI extends javax.swing.JFrame {
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                                 .addGroup(layout.createSequentialGroup()
                                     .addContainerGap()
-                                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(txtPass, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                     .addGap(72, 72, 72)
-                                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
                                 .addComponent(jLabel2)
@@ -115,11 +128,11 @@ public class MainGUI extends javax.swing.JFrame {
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jLabel5)
                         .addGap(18, 18, 18)))
-                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel4)
                 .addGap(10, 10, 10)
-                .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtPass, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -133,6 +146,27 @@ public class MainGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        sUser=txtUser.getText();
+        sPass=txtPass.getText();
+        if(Global.cl.GetStatus())
+        {
+        
+        
+            if(sUser.equals("")||sUser.equals("") )
+            {
+                int mc = JOptionPane.WARNING_MESSAGE;
+                JOptionPane.showMessageDialog (null, "Blank", "Warning", mc);
+            }
+            }
+            else
+            {
+                
+            }
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -180,7 +214,7 @@ public class MainGUI extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JTextField txtPass;
+    private javax.swing.JTextField txtUser;
     // End of variables declaration//GEN-END:variables
 }
