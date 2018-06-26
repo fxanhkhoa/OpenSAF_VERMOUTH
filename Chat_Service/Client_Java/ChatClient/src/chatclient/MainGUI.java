@@ -148,7 +148,8 @@ public class MainGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        
+        Global g = Global.getInstance();
         sUser=txtUser.getText();
         sPass=txtPass.getText();
         if(sUser.equals("") )
@@ -161,11 +162,9 @@ public class MainGUI extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog (null, "Blank PASS", "Warning", mc2);
             }
             else{
-        if(Global.cl.GetStatus())
-        {
-        
-                 Global.cl.Send();
-            
+        if(g.client.GetStatus())
+        {        
+                 g.client.Send();
         }
         else
         {

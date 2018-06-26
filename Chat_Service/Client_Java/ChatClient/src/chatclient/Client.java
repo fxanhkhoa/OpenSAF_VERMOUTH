@@ -31,7 +31,8 @@ Note: First Interface
     {
         try
         {
-            this.socket = new Socket(Global.SERVERIP,Global.SERVERPORT);
+            Global g = Global.getInstance();
+            this.socket = new Socket(g.GetServerIP(),g.GetServerPORT());
             os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             status=true;
@@ -59,7 +60,7 @@ Note: First Interface
     }
     public boolean GetStatus()
     {
-
+        
         return status;
     }
     public void SignIn()
