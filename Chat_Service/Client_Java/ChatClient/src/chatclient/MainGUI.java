@@ -156,7 +156,7 @@ public class MainGUI extends javax.swing.JFrame {
                 int mc = JOptionPane.WARNING_MESSAGE;
                 JOptionPane.showMessageDialog (null, "Blank USER", "Warning", mc);
             }
-            else if(sUser.equals("")){
+            else if(sPass.equals("")){
                 int mc2 = JOptionPane.WARNING_MESSAGE;
                 JOptionPane.showMessageDialog (null, "Blank PASS", "Warning", mc2);
             }
@@ -164,14 +164,13 @@ public class MainGUI extends javax.swing.JFrame {
         if(Global.cl.GetStatus())
         {
         
-        
-            
+                 Global.cl.Send();
             
         }
         else
         {
             int mcServer = JOptionPane.WARNING_MESSAGE;
-                JOptionPane.showMessageDialog (null, "Blank PASS", "Warning", mcServer);
+                JOptionPane.showMessageDialog (null, "Cann't connect to Server", "Warning", mcServer);
         }
             }
             
