@@ -10,6 +10,7 @@ Note: First Interface
 package chatclient;
 
 import javax.swing.*;
+import javax.xml.ws.spi.Invoker;
 
 /**
  *
@@ -162,23 +163,40 @@ public class MainGUI extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog (null, "Blank PASS", "Warning", mc2);
             }
             else{
-                ClientGUI clientGui = new ClientGUI();
-                clientGui.setVisible(true);
-                this.dispose();  
-                System.out.println("Join to Client GUI");
                 
-                /* GET RESPONE SERVER
-        if(g.client.GetStatus())
-        {
-        
-                 g.client.Send();
-            
-        }
-        else
-        {
-            int mcServer = JOptionPane.WARNING_MESSAGE;
-                JOptionPane.showMessageDialog (null, "Cann't connect to Server", "Warning", mcServer);
-        }*/
+                
+                // GET RESPONE SERVER
+                if(g.client.GetStatus())
+                {                 
+                    if (g.client.StartReceive() == 1){
+                        String temp = "SVSIGNIN*" + sUser + "*" + sPass + "\n";
+                        g.client.Send(temp);
+                    }
+                    Thread wait = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while (true){
+                            if (g.client.ReceiveData().contains("CLSIGNOK"))
+                            {
+                                int mcServer = JOptionPane.WARNING_MESSAGE;
+                                JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
+                                ClientGUI clientGui = new ClientGUI();
+                                clientGui.setVisible(true);
+                                MainGUI.this.dispose();
+                                System.out.println("Join to Client GUI");
+                                //wait.interrupt();
+                                //wait.interrupt();
+                            }
+                         }
+                        }
+                    });
+                    wait.start();
+                }
+                else
+                {
+                   int mcServer = JOptionPane.WARNING_MESSAGE;
+                   JOptionPane.showMessageDialog (null, "Cann't connect to Server", "Warning", mcServer);
+                }
                 
             }
             
@@ -216,6 +234,7 @@ public class MainGUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new MainGUI().setVisible(true);
+                //Global g = Global.getInstance();
             }
         });
     }
