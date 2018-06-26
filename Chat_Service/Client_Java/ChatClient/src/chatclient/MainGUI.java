@@ -22,10 +22,31 @@ public class MainGUI extends javax.swing.JFrame {
      * Creates new form MainGUI
      */
     public String sUser,sPass;
+    Global g = Global.getInstance();
+    Thread waitthr;
     
     public MainGUI() {
         initComponents();
-        
+        waitthr = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while (true){
+                                try{
+                                if (g.client.GetCommandCode() == g.client.SIGNOK){
+                                    int mcServer = JOptionPane.WARNING_MESSAGE;
+                                    JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
+                                    ClientGUI clientGui = new ClientGUI();
+                                    clientGui.setVisible(true);
+                                    MainGUI.this.dispose();
+                                    System.out.println("Join to Client GUI");   
+                                    waitthr.stop();
+                                }
+                                }catch (Exception e){
+                                    
+                                }
+                            }
+                        }
+                    });
     }
 
     /**
@@ -150,7 +171,7 @@ public class MainGUI extends javax.swing.JFrame {
 
     private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
         // TODO add your handling code here:
-        Global g = Global.getInstance();
+        
         sUser=txtUser.getText();
         sPass=txtPass.getText();
         if(sUser.equals("") )
@@ -171,26 +192,8 @@ public class MainGUI extends javax.swing.JFrame {
                     if (g.client.StartReceive() == 1){
                         String temp = "SVSIGNIN*" + sUser + "*" + sPass + "\n";
                         g.client.Send(temp);
+                        waitthr.start();
                     }
-                    Thread wait = new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            while (true){
-                            if (g.client.ReceiveData().contains("CLSIGNOK"))
-                            {
-                                int mcServer = JOptionPane.WARNING_MESSAGE;
-                                JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
-                                ClientGUI clientGui = new ClientGUI();
-                                clientGui.setVisible(true);
-                                MainGUI.this.dispose();
-                                System.out.println("Join to Client GUI");
-                                //wait.interrupt();
-                                //wait.interrupt();
-                            }
-                         }
-                        }
-                    });
-                    wait.start();
                 }
                 else
                 {

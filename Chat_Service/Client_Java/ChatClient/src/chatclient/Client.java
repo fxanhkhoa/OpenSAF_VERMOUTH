@@ -20,6 +20,7 @@ public class Client {
     public static final int OK = 1;
     private static String SERVERIP = "localhost";
     private static int SERVERPORT = 1234;
+    public final int SIGNOK = 2;
     
     /*
     Private Variables
@@ -42,13 +43,14 @@ public class Client {
             public void run() {
                 while (true){
                     try {
-                        recvData = "";
+                        //recvData = "";
                         recvData = is.readLine();
                         if (recvData != null){
                             recvData.trim();
                             recvData.replace("null", "");
                             isDataReceived = 1;
                             Send(recvData);
+                            //if (recvData.contains("CLSIGNOK")) status = false;
                         }
                         if (recvData == null){
                             System.err.println("Server error");
@@ -70,7 +72,7 @@ public class Client {
     *Return: Nope!
     Note: First Interface 
 
-     */
+    */
     private boolean ConnectToServer()
     {
         try
@@ -217,5 +219,22 @@ public class Client {
     public void NewGroupDM()
     {
         
+    }
+    
+    /*
+    Function name: GetCommandCode()
+    Description: get Command code
+    Argument: None
+    Return: INt
+    Note:
+    */
+    public int GetCommandCode()
+    {
+        if (recvData.contains("CLSIGNOK"))
+        {
+            return SIGNOK;
+        }
+        
+        return OK;
     }
 }
