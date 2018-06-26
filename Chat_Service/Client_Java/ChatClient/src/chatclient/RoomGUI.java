@@ -10,6 +10,7 @@ Note: Comment!
 package chatclient;
 
 import java.awt.event.KeyEvent;
+import javax.swing.*;
 
 /**
  *
@@ -109,7 +110,10 @@ public class RoomGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        // TODO add your handling code here:      
+      
+        int mc = JOptionPane.INFORMATION_MESSAGE;
+	String str = JOptionPane.showInputDialog (null, "Type User", "Add USer to Private Chat", mc);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtChatKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtChatKeyPressed

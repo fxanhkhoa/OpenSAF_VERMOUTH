@@ -33,6 +33,8 @@ public class Client {
     private int isDataReceived;
     private static Thread readMessage;
     
+    
+    
     /*
     Constructor Function
     */
