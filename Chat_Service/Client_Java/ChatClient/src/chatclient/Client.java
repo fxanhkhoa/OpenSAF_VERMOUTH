@@ -248,14 +248,18 @@ public class Client {
     {
         return Send("SVRDEL*" + usr);
     }
-    public void RemoveFriend()
+     /*
+    Function name: RemoveFriend()
+    Description: Remove a friend from my list
+    Argument: String username
+    Return: Int
+    Note:
+    */
+    public int RemoveFriend(String username)
     {
-        
+        return Send("SVDEL*"+username);
     }
-    public void AddFriendToDM()
-    {
-        
-    }
+ 
     public void NewGroupDM()
     {
         
@@ -289,7 +293,56 @@ public class Client {
         if (recvData.contains("CLRDELOK"))
         {
             return RDELOK;
+	}
+        if (recvData.contains("DELOK"))
+        {
+            return DELOK;
+        }
+        if (recvData.contains("ROOMOK"))
+        {
+            return ROOMOK;
+        }
+        if (recvData.contains("RADDOK"))
+        {
+            return RADDOK;
+        }
+        if (recvData.contains("ADDROOMOK"))
+        {
+            return ADDROOMOK;
         }
         return OK;
+    }
+    /*
+    Function name: SendMsgToRoom()
+    Description: Send message to a specific room
+    Argument: String roomname, string message
+    Return: Int
+    Note:
+    */
+    public int SendMsgToRoom(String room, String msg)
+    {
+        return Send("SVROOM*"+room+"*"+msg);    
+    }
+     /*
+    Function name: AddFriendToRoom()
+    Description: Add new user to a specific room
+    Argument: String roomname, string user
+    Return: Int
+    Note:
+    */
+    public int AddFriendToRoom(String room, String usr)
+    {
+        return Send("SVRADD*"+room+"*"+usr);    
+    }
+      /*
+    Function name: AddNewRoom()
+    Description: Add new room
+    Argument: String roomname
+    Return: Int
+    Note:
+    */
+    public int AddNewRoom(String room)
+    {
+        return Send("SVRADDROOM*"+room);    
     }
 }
