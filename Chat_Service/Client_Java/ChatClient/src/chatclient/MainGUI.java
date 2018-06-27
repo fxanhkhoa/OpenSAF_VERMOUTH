@@ -32,6 +32,10 @@ public class MainGUI extends javax.swing.JFrame {
                         public void run() {
                             while (true){
                                 try{
+                                    if (g.client.IsDataReceived() == 1)
+                                        {
+                                            btnSignIn.setEnabled(true);
+                                        }
                                 if (g.client.GetCommandCode() == g.client.SIGNINOK){
                                     int mcServer = JOptionPane.INFORMATION_MESSAGE;
                                     JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
@@ -39,22 +43,6 @@ public class MainGUI extends javax.swing.JFrame {
                                     clientGui.setVisible(true);
                                     MainGUI.this.dispose();
                                     System.out.println("Join to Client GUI");   
-                                    waitthr.stop();
-                                }
-                                if (g.client.GetCommandCode() == g.client.DELOK)
-                                {
-                                    waitthr.stop();
-                                }
-                                if (g.client.GetCommandCode() == g.client.ROOMOK)
-                                {
-                                    waitthr.stop();
-                                }
-                                if (g.client.GetCommandCode() == g.client.RADDOK)
-                                {
-                                    waitthr.stop();
-                                }
-                                if (g.client.GetCommandCode() == g.client.ADDROOMOK)
-                                {
                                     waitthr.stop();
                                 }
                                 }catch (Exception e){
@@ -210,6 +198,7 @@ public class MainGUI extends javax.swing.JFrame {
                         g.client.SignIn(sUser, sPass);
                         if (!waitthr.isAlive())
                             waitthr.start();
+                        btnSignIn.setEnabled(false);
                     }
                 }
                 else

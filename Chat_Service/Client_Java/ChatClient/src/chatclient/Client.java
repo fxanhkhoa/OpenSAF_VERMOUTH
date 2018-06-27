@@ -303,19 +303,19 @@ public class Client {
         {
             return RDELOK;
 	}
-        if (recvData.contains("DELOK"))
+        if (recvData.contains("CLDELOK"))
         {
             return DELOK;
         }
-        if (recvData.contains("ROOMOK"))
+        if (recvData.contains("CLROOMOK"))
         {
             return ROOMOK;
         }
-        if (recvData.contains("RADDOK"))
+        if (recvData.contains("CLRADDOK"))
         {
             return RADDOK;
         }
-        if (recvData.contains("ADDROOMOK"))
+        if (recvData.contains("CLADDROOMOK"))
         {
             return ADDROOMOK;
         }
