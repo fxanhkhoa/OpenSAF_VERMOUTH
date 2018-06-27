@@ -33,6 +33,7 @@ public class ClientGUI extends javax.swing.JFrame {
      */
     Global g = Global.getInstance();
     Thread waitThr;
+    Thread MessThr;
     
     public ClientGUI() {
         initComponents();
@@ -50,6 +51,16 @@ public class ClientGUI extends javax.swing.JFrame {
                             int mcServer = JOptionPane.INFORMATION_MESSAGE;
                             JOptionPane.showMessageDialog (null, "PRV", "Warning", mcServer);
                             waitThr.stop();
+                        }
+                        if (g.client.GetCommandCode() == g.client.RECVPRV){
+                            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                            JOptionPane.showMessageDialog (null,"PRV " + g.client.GetName() + g.client.GetMessage(), "Warning", mcServer);
+                            g.client.ClearData();
+                        }
+                        if (g.client.GetCommandCode() == g.client.RECVROOM){
+                            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                            JOptionPane.showMessageDialog (null,"ROOM " + g.client.GetName() + g.client.GetMessage(), "Warning", mcServer);
+                            g.client.ClearData();
                         }
                     } catch (Exception e) {
                     }
@@ -212,6 +223,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void lbRoom2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbRoom2MouseClicked
         // TODO add your handling code here:
+        waitThr.start();
         if(evt.getClickCount() % 2 == 0)
         {
             // Open Function Room

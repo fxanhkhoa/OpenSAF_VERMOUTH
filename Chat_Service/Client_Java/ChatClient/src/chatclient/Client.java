@@ -18,6 +18,7 @@ public class Client {
     Constant status of function return
     */
     public static final int OK = 1;
+    public static final int ERROR = -1;
     private static String SERVERIP = "localhost";
     private static int SERVERPORT = 1234;
     public final int ADDOK = 2;
@@ -29,6 +30,8 @@ public class Client {
     public final int RADDOK = 8;
     public final int RDELOK = 9;
     public final int ADDROOMOK = 10;
+    public final int RECVPRV = 11;
+    public final int RECVROOM = 12;
     
     /*
     Private Variables
@@ -40,7 +43,8 @@ public class Client {
     private boolean status;
     private int isDataReceived;
     private static Thread readMessage;
-    
+    private String Name;
+    private String Message;
     /*
     Constructor Function
     */
@@ -114,6 +118,10 @@ public class Client {
     public boolean GetStatus()
     {
         return status;
+    }
+    public void ClearData()
+    {
+        recvData = "";
     }
     public int SignIn(String usr, String pass)
     {
@@ -310,7 +318,49 @@ public class Client {
         {
             return ADDROOMOK;
         }
+        if (recvData.contains("CLRECVPRV"))
+        {
+            Split();
+            return RECVPRV;
+        }
+        if (recvData.contains("CLRECVROOM"))
+        {
+            Split();
+            return RECVROOM;
+        }
         return OK;
+    }
+    
+    /*
+    Function name: SplitName()
+    Description: Get Name from Receive message
+    Argument: None
+    Return: Int
+    Note:
+    */
+    private int Split()
+    {
+        String temp = recvData;
+        //Name = temp.substring(temp.indexOf("*"), temp.indexOf("*",temp.indexOf("*") + 1));
+        //Message = temp.substring(temp.indexOf("*",temp.indexOf("*") + 1), temp.length() - 1);
+        Name = temp.substring(temp.indexOf("*") + 1, temp.lastIndexOf("*"));
+        Message = temp.substring(temp.lastIndexOf("*") + 1, temp.length());
+        if ((Name != null) && (Message != null))
+        {
+            //recvData = "";
+            return OK;
+        }
+        return ERROR;
+    }
+    
+    public String GetName()
+    {
+        return Name;
+    }
+    
+    public String GetMessage()
+    {
+        return Message;
     }
     /*
     Function name: SendMsgToRoom()
