@@ -21,6 +21,7 @@ public class RoomGUI extends javax.swing.JFrame {
     /**
      * Creates new form RoomGUI
      */
+    Global g = Global.getInstance();
     public RoomGUI() {
         initComponents();
     }
@@ -55,6 +56,11 @@ public class RoomGUI extends javax.swing.JFrame {
         });
 
         btnAddUser.setText("KickUser");
+        btnAddUser.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddUserActionPerformed(evt);
+            }
+        });
 
         txtChat.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
@@ -114,6 +120,7 @@ public class RoomGUI extends javax.swing.JFrame {
       
         int mc = JOptionPane.INFORMATION_MESSAGE;
 	String str = JOptionPane.showInputDialog (null, "Type User", "Add USer to Private Chat", mc);
+        System.out.println(str);
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void txtChatKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtChatKeyPressed
@@ -125,6 +132,13 @@ public class RoomGUI extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_txtChatKeyPressed
+
+    private void btnAddUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddUserActionPerformed
+        // TODO add your handling code here:
+        int mc = JOptionPane.INFORMATION_MESSAGE;
+	String str = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
+        System.out.println(str);
+    }//GEN-LAST:event_btnAddUserActionPerformed
 
     /**
      * @param args the command line arguments
