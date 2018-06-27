@@ -20,7 +20,7 @@ public class Client {
     public static final int OK = 1;
     private static String SERVERIP = "localhost";
     private static int SERVERPORT = 1234;
-    public final int SIGNOK = 2;
+    public final int SIGNINOK = 7;
     
     /*
     Private Variables
@@ -49,7 +49,7 @@ public class Client {
                             recvData.trim();
                             recvData.replace("null", "");
                             isDataReceived = 1;
-                            Send(recvData);
+                            //Send(recvData);
                             //if (recvData.contains("CLSIGNOK")) status = false;
                         }
                         if (recvData == null){
@@ -107,9 +107,9 @@ public class Client {
     {
         return status;
     }
-    public void SignIn()
+    public int SignIn(String usr, String pass)
     {
-        
+        return Send("SVSIGNIN*" + usr + "*" + pass);
     }
     public void SignUp()
     {
@@ -138,7 +138,7 @@ public class Client {
     Return: Acceptable
     Note:
     */
-    public int Send(String str)
+    private int Send(String str)
     {
         try{
             os.write(str);
@@ -232,9 +232,12 @@ public class Client {
     {
         if (recvData.contains("CLSIGNOK"))
         {
-            return SIGNOK;
+            return SIGNINOK;
         }
-        
+        if (recvData.contains("CLSIGNOUT"))
+        {
+            return 3;
+        }
         return OK;
     }
 }
