@@ -18,19 +18,51 @@ import java.awt.event.KeyEvent;
 import javax.swing.JButton;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import javax.swing.JPanel;
 /**
  *
  * @author hieupham
  */
+
 public class ClientGUI extends javax.swing.JFrame {
 
     /**
      * Creates new form ClientGUI
      */
+    Global g = Global.getInstance();
+    Thread waitthr;
     public ClientGUI() {
         initComponents();
+        waitthr = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while (true){
+                                try{
+                                
+                                if (g.client.GetCommandCode() == g.client.DELOK)
+                                {
+                                    waitthr.stop();
+                                }
+                                if (g.client.GetCommandCode() == g.client.ROOMOK)
+                                {
+                                    waitthr.stop();
+                                }
+                                if (g.client.GetCommandCode() == g.client.RADDOK)
+                                {
+                                    waitthr.stop();
+                                }
+                                if (g.client.GetCommandCode() == g.client.ADDROOMOK)
+                                {
+                                    waitthr.stop();
+                                }
+                                }catch (Exception e){
+                                    
+                                }
+                            }
+                        }
+                    });
     }
 
     /**

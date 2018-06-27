@@ -21,6 +21,11 @@ public class Client {
     private static String SERVERIP = "localhost";
     private static int SERVERPORT = 1234;
     public final int SIGNINOK = 7;
+    public final int DELOK = 3;
+    public final int ROOMOK = 5;
+    public final int SIGNOUTOK = 6;
+    public final int RADDOK = 8;
+    public final int ADDROOMOK = 10;
     
     /*
     Private Variables
@@ -208,14 +213,18 @@ public class Client {
     {
         
     }
-    public void RemoveFriend()
+     /*
+    Function name: RemoveFriend()
+    Description: Remove a friend from my list
+    Argument: String username
+    Return: Int
+    Note:
+    */
+    public int RemoveFriend(String username)
     {
-        
+        return Send("SVDEL*"+username);
     }
-    public void AddFriendToDM()
-    {
-        
-    }
+ 
     public void NewGroupDM()
     {
         
@@ -230,14 +239,63 @@ public class Client {
     */
     public int GetCommandCode()
     {
-        if (recvData.contains("CLSIGNOK"))
+        if (recvData.contains("SIGNINOK"))
         {
             return SIGNINOK;
         }
-        if (recvData.contains("CLSIGNOUT"))
+        if (recvData.contains("SIGNOUTOK"))
         {
-            return 3;
+            return SIGNOUTOK;
+        }
+        if (recvData.contains("DELOK"))
+        {
+            return DELOK;
+        }
+        if (recvData.contains("ROOMOK"))
+        {
+            return ROOMOK;
+        }
+        if (recvData.contains("RADDOK"))
+        {
+            return RADDOK;
+        }
+        if (recvData.contains("ADDROOMOK"))
+        {
+            return ADDROOMOK;
         }
         return OK;
+    }
+    /*
+    Function name: SendMsgToRoom()
+    Description: Send message to a specific room
+    Argument: String roomname, string message
+    Return: Int
+    Note:
+    */
+    public int SendMsgToRoom(String room, String msg)
+    {
+        return Send("SVROOM*"+room+"*"+msg);    
+    }
+     /*
+    Function name: AddFriendToRoom()
+    Description: Add new user to a specific room
+    Argument: String roomname, string user
+    Return: Int
+    Note:
+    */
+    public int AddFriendToRoom(String room, String usr)
+    {
+        return Send("SVRADD*"+room+"*"+usr);    
+    }
+      /*
+    Function name: AddNewRoom()
+    Description: Add new room
+    Argument: String roomname
+    Return: Int
+    Note:
+    */
+    public int AddNewRoom(String room)
+    {
+        return Send("SVRADDROOM*"+room);    
     }
 }

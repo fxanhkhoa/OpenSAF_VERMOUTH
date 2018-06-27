@@ -41,6 +41,22 @@ public class MainGUI extends javax.swing.JFrame {
                                     System.out.println("Join to Client GUI");   
                                     waitthr.stop();
                                 }
+                                if (g.client.GetCommandCode() == g.client.DELOK)
+                                {
+                                    waitthr.stop();
+                                }
+                                if (g.client.GetCommandCode() == g.client.ROOMOK)
+                                {
+                                    waitthr.stop();
+                                }
+                                if (g.client.GetCommandCode() == g.client.RADDOK)
+                                {
+                                    waitthr.stop();
+                                }
+                                if (g.client.GetCommandCode() == g.client.ADDROOMOK)
+                                {
+                                    waitthr.stop();
+                                }
                                 }catch (Exception e){
                                     
                                 }
