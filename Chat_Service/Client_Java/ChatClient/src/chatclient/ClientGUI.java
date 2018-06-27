@@ -18,6 +18,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.JButton;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import javax.swing.JPanel;
 /**
@@ -29,8 +30,31 @@ public class ClientGUI extends javax.swing.JFrame {
     /**
      * Creates new form ClientGUI
      */
+    Global g = Global.getInstance();
+    Thread waitThr;
+    
     public ClientGUI() {
         initComponents();
+        waitThr = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        if (g.client.GetCommandCode() == g.client.ADDOK){
+                            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                            JOptionPane.showMessageDialog (null, "Got", "Warning", mcServer);
+                            waitThr.stop();
+                        }
+                        if (g.client.GetCommandCode() == g.client.PRVOK){
+                            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                            JOptionPane.showMessageDialog (null, "PRV", "Warning", mcServer);
+                            waitThr.stop();
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -165,6 +189,10 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void lbRoom1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbRoom1MouseClicked
         // TODO add your handling code here:
+        //g.client.AddFriend("zzz");
+        g.client.SendPrivateMessage("fxanhkhoa", "gogogo");
+        if (!waitThr.isAlive())
+            waitThr.start();
         JPanel pnBox=new JPanel();
         if(evt.getClickCount() % 2 == 0)
         {

@@ -20,7 +20,15 @@ public class Client {
     public static final int OK = 1;
     private static String SERVERIP = "localhost";
     private static int SERVERPORT = 1234;
+    public final int ADDOK = 2;
+    public final int DELOK = 3;
+    public final int PRVOK = 4;
+    public final int ROOMOK = 5;
+    public final int SIGNOUTOK = 6;
     public final int SIGNINOK = 7;
+    public final int RADDOK = 8;
+    public final int RDELOK = 9;
+    public final int ADDROOMOK = 10;
     
     /*
     Private Variables
@@ -115,9 +123,9 @@ public class Client {
     {
         
     }
-    public void SignOut()
+    public int SignOut()
     {
-        
+        return Send("SVSIGNOUT");
     }
     public void GetOnlineList()
     {
@@ -148,6 +156,18 @@ public class Client {
             System.out.println(e);
         }
         return OK;
+    }
+    
+    /*
+    Function name: SendPrivateMessage(String usr)
+    Description: Send message to a user
+    Argument: String user, String message
+    Return: int error code
+    Note:
+    */
+    public int SendPrivateMessage(String usr, String message)
+    {
+        return Send("SVPRV*" + usr + "*" + message);
     }
     
     /*
@@ -204,9 +224,29 @@ public class Client {
         }
         return OK;
     }
-    public void AddFriend()
+    
+    /*
+    Function name: AddFriend()
+    Description: Send add friend command to server
+    Argument: String username
+    Return: Int
+    Note:
+    */
+    public int AddFriend(String usr)
     {
-        
+        return Send("SVADD*" + usr);
+    }
+    
+    /*
+    Function name: RemoveFriendFromRoom(String usr)
+    Description: Send Remove friend command to server
+    Argument: String username
+    Return: Int
+    Note:
+    */
+    public int RemoveFriendFromRoom(String usr)
+    {
+        return Send("SVRDEL*" + usr);
     }
     public void RemoveFriend()
     {
@@ -225,18 +265,30 @@ public class Client {
     Function name: GetCommandCode()
     Description: get Command code
     Argument: None
-    Return: INt
+    Return: Int
     Note:
     */
     public int GetCommandCode()
     {
-        if (recvData.contains("CLSIGNOK"))
+        if (recvData.contains("CLADDOK"))
+        {
+            return ADDOK;
+        }
+        if (recvData.contains("CLPRVOK"))
+        {
+            return PRVOK;
+        }
+        if (recvData.contains("CLSIGNOUTOK"))
+        {
+            return SIGNOUTOK;
+        }
+        if (recvData.contains("CLSIGNINOK"))
         {
             return SIGNINOK;
         }
-        if (recvData.contains("CLSIGNOUT"))
+        if (recvData.contains("CLRDELOK"))
         {
-            return 3;
+            return RDELOK;
         }
         return OK;
     }
