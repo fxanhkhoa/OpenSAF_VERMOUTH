@@ -45,11 +45,12 @@ public class Client {
     private static Thread readMessage;
     private String Name;
     private String Message;
- 
+    private Global g;
     /*
     Constructor Function
     */
     public Client(){
+        g = Global.getInstance();
         status = ConnectToServer();
         readMessage = new Thread(new Runnable() {
             @Override
@@ -62,7 +63,7 @@ public class Client {
                             recvData.trim();
                             recvData.replace("null", "");
                             isDataReceived = 1;
-                            //Send(recvData);
+                            Send(recvData);
                             //if (recvData.contains("CLSIGNOK")) status = false;
                         }
                         if (recvData == null){

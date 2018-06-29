@@ -37,8 +37,9 @@ public class MainGUI extends javax.swing.JFrame {
                                             btnSignIn.setEnabled(true);
                                         }
                                 if (g.client.GetCommandCode() == g.client.SIGNINOK){
-                                    int mcServer = JOptionPane.INFORMATION_MESSAGE;
-                                    JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
+                                    //int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                                    //JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
+                                    g.SetUserName(txtUser.getText());
                                     ClientGUI clientGui = new ClientGUI();
                                     clientGui.setVisible(true);
                                     MainGUI.this.dispose();

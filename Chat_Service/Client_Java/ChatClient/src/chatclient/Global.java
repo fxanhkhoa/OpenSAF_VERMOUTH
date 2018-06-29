@@ -22,7 +22,7 @@ public class Global {
     private static String SERVERIP = "localhost";
     private static int SERVERPORT = 9000;
     private static Global instance;
-    
+    private static String userName;
     /*
     public variables
     */
@@ -56,6 +56,14 @@ public class Global {
     
     public int GetServerPORT(){
         return SERVERPORT;
+    }
+    
+    public void SetUserName(String usr){
+        userName = usr;
+    }
+    
+    public String GetUserName(){
+        return userName;
     }
     
     public static synchronized Global getInstance(){

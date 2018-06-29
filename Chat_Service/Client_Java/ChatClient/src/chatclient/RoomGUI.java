@@ -34,7 +34,7 @@ public class RoomGUI extends javax.swing.JFrame {
      */
     private DefaultListModel listModel;
     Thread waitThr;
-    String sUser;
+    private String sUser;
      
     Global g = Global.getInstance();
     private boolean checkUser=true;
@@ -57,10 +57,23 @@ public class RoomGUI extends javax.swing.JFrame {
                             if (g.client.GetCommandCode() == g.client.RADDOK){
                                 listModel.addElement(sUser);
                                 if (true){
-                                   //listUser.setModel(listModel);
                                    listUser.setModel(listModel);
-            
+                                   sUser = "";
                                 }
+                                g.client.ClearData();
+                            }
+                            else if (g.client.GetCommandCode() == g.client.RECVROOM){
+                                if (lbRoomName.getText().contains(g.client.GetName())){
+                                    txtContent.append(g.client.GetMessage() + "\n");
+                                }
+                                g.client.ClearData();
+                            }
+                            else if (g.client.GetCommandCode() == g.client.RDELOK){
+                                if (true){
+                                    listModel.removeElement(sUser);
+                                    listUser.setModel(listModel);
+                                }
+                                g.client.ClearData();
                             }
                         } catch (Exception e) {
                         }
@@ -190,7 +203,7 @@ public class RoomGUI extends javax.swing.JFrame {
       
         int mc = JOptionPane.INFORMATION_MESSAGE;
 	sUser = JOptionPane.showInputDialog (null, "Type User", "Add USer to Private Chat", mc);
-        System.out.println(sUser);
+        //System.out.println(sUser);
         
         g.client.AddFriendToRoom(lbRoomName.getText(),sUser); //sUser
         
@@ -202,7 +215,7 @@ public class RoomGUI extends javax.swing.JFrame {
         {
             if (listUser.getModel().getSize() > 0){
                 txtContent.append(txtChat.getText() + "\n");
-                g.client.SendMsgToRoom(lbRoomName.getText(), txtChat.getText());
+                g.client.SendMsgToRoom(lbRoomName.getText(),g.GetUserName() + ": " +txtChat.getText());
                 //System.out.println("SEND ");
                 txtChat.setText("");
             }
@@ -218,16 +231,9 @@ public class RoomGUI extends javax.swing.JFrame {
     private void btnKickUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnKickUserActionPerformed
         // TODO add your handling code here:
         int mc = JOptionPane.INFORMATION_MESSAGE;
-	String sUser = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
+	sUser = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
         
-        
-        
-        if(true)
-        {
-            listModel.removeElement(sUser);
-            listUser.setModel(listModel);
-        }
-        
+        g.client.RemoveFriendFromRoom(sUser);
     }//GEN-LAST:event_btnKickUserActionPerformed
 
     /*public boolean checkAbleUser(String sUser)
