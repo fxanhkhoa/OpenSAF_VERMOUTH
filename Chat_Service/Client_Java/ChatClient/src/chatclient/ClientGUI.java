@@ -35,15 +35,17 @@ public class ClientGUI extends javax.swing.JFrame {
     /**
      * Creates new form ClientGUI
      */
-    Global g = Global.getInstance();
+    Global g;
     Thread waitThr;
     //Thread MessThr;
-    private String sName;
+    private int sName;
+    private String sNewUser;
     private DefaultListModel listModel,listModelUserPrv;
     RoomGUI roomNew;
     
     public ClientGUI() {
         initComponents();
+        g = Global.getInstance();
         listRoom.setModel(new DefaultListModel());
         listModel = new DefaultListModel();
         listUserPrv.setModel(new DefaultListModel());
@@ -85,7 +87,7 @@ public class ClientGUI extends javax.swing.JFrame {
                             if(true){
            
                                 listRoom.setModel(listModel);
-                                sName = "";
+                                
                             }
                             g.client.ClearData();
                         }
@@ -111,8 +113,6 @@ public class ClientGUI extends javax.swing.JFrame {
         txtChat = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
-        lbRoom1 = new javax.swing.JLabel();
-        lbRoom2 = new javax.swing.JLabel();
         btnCreateRoom = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         listRoom = new javax.swing.JList<>();
@@ -136,20 +136,6 @@ public class ClientGUI extends javax.swing.JFrame {
         });
 
         jLabel2.setText("User Avaiable");
-
-        lbRoom1.setText("Room N1");
-        lbRoom1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lbRoom1MouseClicked(evt);
-            }
-        });
-
-        lbRoom2.setText("Room N2");
-        lbRoom2.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                lbRoom2MouseClicked(evt);
-            }
-        });
 
         btnCreateRoom.setText("CreateRoom");
         btnCreateRoom.addActionListener(new java.awt.event.ActionListener() {
@@ -208,16 +194,10 @@ public class ClientGUI extends javax.swing.JFrame {
                                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 140, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(lbRoom1)
-                                        .addGap(0, 0, Short.MAX_VALUE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                            .addComponent(lbRoom2)
-                                            .addComponent(btnCreateRoom))
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jScrollPane3))))
+                                    .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(btnCreateRoom))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jScrollPane3))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel2)
@@ -242,10 +222,7 @@ public class ClientGUI extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(lbRoom1)
-                                .addGap(11, 11, 11)
-                                .addComponent(lbRoom2)
-                                .addGap(4, 4, 4)
+                                .addGap(49, 49, 49)
                                 .addComponent(btnCreateRoom)
                                 .addGap(77, 77, 77)
                                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 8, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -263,53 +240,6 @@ public class ClientGUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void lbRoom1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbRoom1MouseClicked
-        // TODO add your handling code here:
-        //g.client.AddFriend("zzz");
-        //g.client.SendPrivateMessage("fxanhkhoa", "gogogo");
-        //if (!waitThr.isAlive())
-            //waitThr.start();
-        JPanel pnBox=new JPanel();
-        if(evt.getClickCount() % 2 == 0)
-        {
-            // Open Function Room
-            
-            RoomGUI room1 = new RoomGUI("Room1");
-           
-           room1.setVisible(true);
-            listModel.addElement("Room1");
-        if(true)
-        {
-           
-           listRoom.setModel(listModel);
-            
-        }
-            //
-        }
-    }//GEN-LAST:event_lbRoom1MouseClicked
-
-    private void lbRoom2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_lbRoom2MouseClicked
-        // TODO add your handling code here:
-
-        if(evt.getClickCount() % 2 == 0)
-        {
-            // Open Function Room
-            RoomGUI room2 = new RoomGUI("Room2");           
-            room2.setVisible(true);
-            listModel.addElement("Room2");
-        if(true)
-        {
-           
-           listRoom.setModel(listModel);
-            
-        }
-             
-            System.out.println("Double click !!");
-            
-            //
-        }
-    }//GEN-LAST:event_lbRoom2MouseClicked
 
     private void txtChatKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtChatKeyPressed
         // TODO add your handling code here:
@@ -331,21 +261,26 @@ public class ClientGUI extends javax.swing.JFrame {
     private void btnCreateRoomActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCreateRoomActionPerformed
         // TODO add your handling code here:
         int mc = JOptionPane.INFORMATION_MESSAGE;
-	sName = JOptionPane.showInputDialog (null, "Type Room's Name", "Create Room to Chat Private", mc);
-        g.client.AddNewRoom(sName);             
+	sName = Integer.parseInt(JOptionPane.showInputDialog (null, "Type Room's Name", "Create Room to Chat Private (0-2000000)", mc));
+        if ((sName < 2000000) || (sName > 0)){
+            g.client.AddNewRoom(sName);
+        }
+        else{
+            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+            JOptionPane.showMessageDialog (null,"Error", "Warning", mcServer);
+        }
     }//GEN-LAST:event_btnCreateRoomActionPerformed
 
     private void addUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUserActionPerformed
         // TODO add your handling code here:
         int mc = JOptionPane.INFORMATION_MESSAGE;
-	sName = JOptionPane.showInputDialog (null, "Type User", "Create Room to Chat Private", mc);
-        g.client.AddFriend(sName);
-        listModelUserPrv.addElement(sName);
+	sNewUser = JOptionPane.showInputDialog (null, "Type User", "Create Room to Chat Private", mc);
+        g.client.AddFriend(sNewUser);
+        listModelUserPrv.addElement(sNewUser);
         if(true)
         {
            
            listUserPrv.setModel(listModelUserPrv);
-           sName = "";
         }
     }//GEN-LAST:event_addUserActionPerformed
 
@@ -354,7 +289,7 @@ public class ClientGUI extends javax.swing.JFrame {
         if (evt.getClickCount() == 2){
             //Double-click detected
             int index = listRoom.locationToIndex(evt.getPoint());
-            RoomGUI roomNew = new RoomGUI(listRoom.getSelectedValue());           
+            RoomGUI roomNew = new RoomGUI(Integer.parseInt(listRoom.getSelectedValue()));           
             roomNew.setVisible(true);
         }
     }//GEN-LAST:event_listRoomMouseClicked
@@ -416,8 +351,6 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel lbRoom1;
-    private javax.swing.JLabel lbRoom2;
     private javax.swing.JList<String> listRoom;
     private javax.swing.JList<String> listUserPrv;
     private javax.swing.JTextField txtChat;

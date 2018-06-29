@@ -22,31 +22,36 @@ public class MainGUI extends javax.swing.JFrame {
      * Creates new form MainGUI
      */
     public String sUser,sPass;
-    Global g = Global.getInstance();
+    Global g ;
     Thread waitthr;
+    ProtocolCS p ;
     
     public MainGUI() {
         initComponents();
+        g = Global.getInstance();
+        p = new ProtocolCS();
         waitthr = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             while (true){
                                 try{
-                                    if (g.client.IsDataReceived() == 1)
-                                        {
-                                            btnSignIn.setEnabled(true);
-                                        }
-                                if (g.client.GetCommandCode() == g.client.SIGNINOK){
-                                    //int mcServer = JOptionPane.INFORMATION_MESSAGE;
-                                    //JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
-                                    g.SetUserName(txtUser.getText());
-                                    g.SetPass(txtPass.getText());
-                                    ClientGUI clientGui = new ClientGUI();
-                                    clientGui.setVisible(true);
-                                    MainGUI.this.dispose();
-                                    System.out.println("Join to Client GUI");   
-                                    waitthr.stop();
-                                }
+                                    if (g.client.IsDataReceived() == 1){
+                                        btnSignIn.setEnabled(true);
+                                    }
+                                    if (g.client.GetCommandCode() == g.client.SIGNINOK){
+                                        //int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                                        //JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
+                                        g.SetUserName(txtUser.getText());
+                                        g.SetPass(txtPass.getText());
+                                        p.username = txtUser.getText();
+                                        p.password = txtPass.getText();
+                                        g.client.ClearData();
+                                        ClientGUI clientGui = new ClientGUI();
+                                        clientGui.setVisible(true);
+                                        MainGUI.this.dispose();
+                                        System.out.println("Join to Client GUI");   
+                                        waitthr.stop();
+                                    }
                                 }catch (Exception e){
                                     
                                 }
@@ -193,21 +198,24 @@ public class MainGUI extends javax.swing.JFrame {
                 
                 
                 // GET RESPONE SERVER
-                if(g.client.GetStatus())
+                if(g.client.GetStatus() == true)
                 {                 
-                    if (g.client.StartReceive() == 1){
-                        
+                    //if (g.client.StartReceive() == 1){
+                    
                         g.client.SignIn(sUser, sPass);
+                        //System.out.println("as");
                         if (!waitthr.isAlive())
                             waitthr.start();
-                        btnSignIn.setEnabled(false);
-                    }
+                        
+                    btnSignIn.setEnabled(false);
+                    //}
                 }
                 else
                 {
                    int mcServer = JOptionPane.WARNING_MESSAGE;
                    JOptionPane.showMessageDialog (null, "Cann't connect to Server", "Warning", mcServer);
                 }
+                
                 
             }
 

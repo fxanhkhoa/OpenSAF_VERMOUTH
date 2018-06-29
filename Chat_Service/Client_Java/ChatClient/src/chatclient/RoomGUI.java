@@ -35,18 +35,20 @@ public class RoomGUI extends javax.swing.JFrame {
     private DefaultListModel listModel;
     Thread waitThr;
     private String sUser;
+    private int IDRoom;
      
     Global g = Global.getInstance();
     private boolean checkUser=true;
      /**
      * End line
      */
-    public RoomGUI(String Name) {
+    public RoomGUI(int Name) {
         initComponents();
             
             listUser.setModel(new DefaultListModel());
             listModel = new DefaultListModel();
-            lbRoomName.setText(Name);
+            lbRoomName.setText(String.valueOf(Name));
+            IDRoom = Name;
             
             waitThr = new Thread(new Runnable() {
                 @Override
@@ -233,7 +235,7 @@ public class RoomGUI extends javax.swing.JFrame {
         int mc = JOptionPane.INFORMATION_MESSAGE;
 	sUser = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
         
-        g.client.RemoveFriendFromRoom(sUser, lbRoomName.getText(), "");
+        g.client.RemoveFriendFromRoom(sUser, IDRoom, "");
     }//GEN-LAST:event_btnKickUserActionPerformed
 
     /*public boolean checkAbleUser(String sUser)
@@ -295,7 +297,7 @@ public class RoomGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new RoomGUI("New").setVisible(true);
+                new RoomGUI(1).setVisible(true);
             }
         });
     }

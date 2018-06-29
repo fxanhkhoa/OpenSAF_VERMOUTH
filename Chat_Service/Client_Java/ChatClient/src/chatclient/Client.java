@@ -39,44 +39,43 @@ public class Client {
     private Socket socket;
     private BufferedWriter os;
     private BufferedReader is;
-    private String recvData;
-    private boolean status;
-    private int isDataReceived;
+    private String recvData = "";
+    private boolean status = false;
+    private int isDataReceived = 0;
     private static Thread readMessage;
     private String Name;
     private String Message;
-    private Global g;
     private ProtocolCS blockToSend;
     /*
     Constructor Function
     */
     public Client(){
-        g = Global.getInstance();
         status = ConnectToServer();
+        blockToSend = new ProtocolCS();
         readMessage = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true){
                     try {
-                        //recvData = "";
+//                        //recvData = "";
                         recvData = is.readLine();
                         if (recvData != null){
-                            recvData.trim();
+//                            recvData.trim();
                             recvData.replace("null", "");
                             isDataReceived = 1;
-                            Send(recvData);
-                            //if (recvData.contains("CLSIGNOK")) status = false;
+                            //Send(recvData);
+//                            //if (recvData.contains("CLSIGNOK")) status = false;
                         }
-                        if (recvData == null){
+                        else if (recvData == null){
                             System.err.println("Server error");
-                            readMessage.stop();
+                           readMessage.stop();
                         }
                     } catch (Exception e) {
                     }
                 }
             }
         });
-        System.err.println("aa");
+        readMessage.start();
     }
     
     /*
@@ -152,9 +151,9 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.SignOut.ordinal();
         blockToSend.IDRoom = 0;
-        blockToSend.ownUsername = g.GetUserName();
+        blockToSend.ownUsername = blockToSend.username;
         blockToSend.desUsername = "";
-        blockToSend.ownPassword = g.GetPassword();
+        blockToSend.ownPassword = blockToSend.password;
         blockToSend.roomPassword = "";
         blockToSend.message = "";
         return Send(blockToSend.GetText());
@@ -201,7 +200,7 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.PrivateChat.ordinal();
         blockToSend.IDRoom = 0;
-        blockToSend.ownUsername = g.GetUserName();
+        blockToSend.ownUsername = blockToSend.username;
         blockToSend.desUsername = desusr;
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
@@ -233,6 +232,10 @@ public class Client {
         isDataReceived = 0;
         return temp;
     }
+    
+    public void SetDataReceived(){
+        
+    }
     /*
     Function name: StartReceive()
     Description: Start Receive thread
@@ -245,6 +248,7 @@ public class Client {
         try {
             readMessage.start();
         } catch (Exception e) {
+            return ERROR;
         }
         return OK;
     }
@@ -288,7 +292,7 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.InviteToRoom.ordinal();
         blockToSend.IDRoom = roomID;
-        blockToSend.ownUsername = g.GetUserName();
+        blockToSend.ownUsername = blockToSend.username;
         blockToSend.desUsername = desusr;
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = roomPass;
@@ -430,8 +434,16 @@ public class Client {
     Return: Int
     Note:
     */
-    public int AddNewRoom(String room)
+    public int AddNewRoom(int roomID)
     {
-        return Send("SVRADDROOM*"+room);    
+        blockToSend.command = ProtocolCS.commandCode.CreateRoom.ordinal();
+        blockToSend.IDRoom = roomID;
+        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = "";
+        blockToSend.message = "";
+        //System.out.println(blockToSend.ownUsername.length());
+        return Send(blockToSend.GetText());
     }
 }
