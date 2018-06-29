@@ -46,6 +46,7 @@ public class Client {
     private String Name;
     private String Message;
     private Global g;
+    private ProtocolCS blockToSend;
     /*
     Constructor Function
     */
@@ -80,11 +81,11 @@ public class Client {
     
     /*
  
-    *Function : MainGUI
-    *Description: Main Interfaces. Login to Chat Server or Sign Up Account.
-    *Argument: Nope!
-    *Return: Nope!
-    Note: First Interface 
+    *Function : ConnectToServer()
+    *Description: Connect to a server with defined IP and Port.
+    *Argument: Nope
+    *Return: boolean
+    Note:  
 
     */
     private boolean ConnectToServer()
@@ -127,15 +128,36 @@ public class Client {
     }
     public int SignIn(String usr, String pass)
     {
-        return Send("SVSIGNIN*" + usr + "*" + pass);
+        blockToSend.command = ProtocolCS.commandCode.Signin.ordinal();
+        blockToSend.IDRoom = 0;
+        blockToSend.ownUsername = usr;
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = pass;
+        blockToSend.roomPassword = "";
+        blockToSend.message = "";
+        return Send(blockToSend.GetText());
     }
-    public void SignUp()
+    public int SignUp(String usr, String pass)
     {
-        
+        blockToSend.command = ProtocolCS.commandCode.Signup.ordinal();
+        blockToSend.IDRoom = 0;
+        blockToSend.ownUsername = usr;
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = pass;
+        blockToSend.roomPassword = "";
+        blockToSend.message = "";
+        return Send(blockToSend.GetText());
     }
     public int SignOut()
     {
-        return Send("SVSIGNOUT");
+        blockToSend.command = ProtocolCS.commandCode.SignOut.ordinal();
+        blockToSend.IDRoom = 0;
+        blockToSend.ownUsername = g.GetUserName();
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = g.GetPassword();
+        blockToSend.roomPassword = "";
+        blockToSend.message = "";
+        return Send(blockToSend.GetText());
     }
     public void GetOnlineList()
     {
@@ -153,7 +175,7 @@ public class Client {
     Function name: Send(string str)
     Description: Send string to server
     Argument: String 
-    Return: Acceptable
+    Return: int error code
     Note:
     */
     private int Send(String str)
@@ -175,9 +197,16 @@ public class Client {
     Return: int error code
     Note:
     */
-    public int SendPrivateMessage(String usr, String message)
+    public int SendPrivateMessage(String desusr, String message)
     {
-        return Send("SVPRV*" + usr + "*" + message);
+        blockToSend.command = ProtocolCS.commandCode.PrivateChat.ordinal();
+        blockToSend.IDRoom = 0;
+        blockToSend.ownUsername = g.GetUserName();
+        blockToSend.desUsername = desusr;
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = "";
+        blockToSend.message = message;
+        return Send(blockToSend.GetText());
     }
     
     /*
@@ -244,6 +273,7 @@ public class Client {
     */
     public int AddFriend(String usr)
     {
+        
         return Send("SVADD*" + usr);
     }
     
@@ -254,9 +284,16 @@ public class Client {
     Return: Int
     Note:
     */
-    public int RemoveFriendFromRoom(String usr)
+    public int RemoveFriendFromRoom(String desusr, int roomID, String roomPass)
     {
-        return Send("SVRDEL*" + usr);
+        blockToSend.command = ProtocolCS.commandCode.InviteToRoom.ordinal();
+        blockToSend.IDRoom = roomID;
+        blockToSend.ownUsername = g.GetUserName();
+        blockToSend.desUsername = desusr;
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = roomPass;
+        blockToSend.message = "";
+        return Send(blockToSend.GetText());
     }
      /*
     Function name: RemoveFriend()

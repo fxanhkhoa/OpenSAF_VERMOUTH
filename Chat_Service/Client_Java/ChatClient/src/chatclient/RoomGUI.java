@@ -233,7 +233,7 @@ public class RoomGUI extends javax.swing.JFrame {
         int mc = JOptionPane.INFORMATION_MESSAGE;
 	sUser = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
         
-        g.client.RemoveFriendFromRoom(sUser);
+        g.client.RemoveFriendFromRoom(sUser, lbRoomName.getText(), "");
     }//GEN-LAST:event_btnKickUserActionPerformed
 
     /*public boolean checkAbleUser(String sUser)

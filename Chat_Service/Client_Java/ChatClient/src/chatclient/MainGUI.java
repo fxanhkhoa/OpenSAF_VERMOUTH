@@ -40,6 +40,7 @@ public class MainGUI extends javax.swing.JFrame {
                                     //int mcServer = JOptionPane.INFORMATION_MESSAGE;
                                     //JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
                                     g.SetUserName(txtUser.getText());
+                                    g.SetPass(txtPass.getText());
                                     ClientGUI clientGui = new ClientGUI();
                                     clientGui.setVisible(true);
                                     MainGUI.this.dispose();

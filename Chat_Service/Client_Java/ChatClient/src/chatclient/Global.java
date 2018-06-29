@@ -23,6 +23,7 @@ public class Global {
     private static int SERVERPORT = 9000;
     private static Global instance;
     private static String userName;
+    private static String pass;
     /*
     public variables
     */
@@ -64,6 +65,14 @@ public class Global {
     
     public String GetUserName(){
         return userName;
+    }
+    
+    public void SetPass(String password){
+        pass = password;
+    }
+    
+    public String GetPassword(){
+        return pass;
     }
     
     public static synchronized Global getInstance(){
