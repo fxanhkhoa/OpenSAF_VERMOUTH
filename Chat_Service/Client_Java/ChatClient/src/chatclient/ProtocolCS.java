@@ -46,31 +46,29 @@ public class ProtocolCS {
         this.message = message;
     }
     
-    public String GetText(){
-        int k = 98;
-        char cm = (char) k;
-        char rid = (char)(IDRoom);
+    public char[] GetText(){
+        char[] cbuf = new char[1016];
         int tempLength = 0;
         tempLength = ownUsername.length();
-        for (int i = 0; i < 30 - tempLength; i++){
-            ownUsername += ' ';
+        for (int i = 0; i < tempLength; i++){
+            cbuf[0 + i] = ownUsername.charAt(i);
         }
         tempLength = desUsername.length();
-        for (int i = 0; i < 30 - tempLength; i++){
-            desUsername += ' ';
+        for (int i = 0; i < tempLength; i++){
+            cbuf[30 + i] = desUsername.charAt(i);
         }
         tempLength = ownPassword.length();
-        for (int i = 0; i < 30 - tempLength; i++){
-            ownPassword += ' ';
+        for (int i = 0; i < tempLength; i++){
+            cbuf[60 + i] = ownPassword.charAt(i);
         }
         tempLength = roomPassword.length();
-        for (int i = 0; i < 30 - tempLength; i++){
-            roomPassword += ' ';
+        for (int i = 0; i < tempLength; i++){
+            cbuf[90 + i] = roomPassword.charAt(i);
         }
         tempLength = message.length();
-        for (int i = 0; i < 896 - tempLength; i++){
-            message += ' ';
+        for (int i = 0; i < tempLength; i++){
+            cbuf[120 + i] = message.charAt(i);
         }
-        return cm + rid + ownUsername + desUsername + ownPassword + roomPassword + message;
+        return cbuf;
     }
  }
