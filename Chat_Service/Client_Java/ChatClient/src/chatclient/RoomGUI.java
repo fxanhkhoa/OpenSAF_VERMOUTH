@@ -65,9 +65,9 @@ public class RoomGUI extends javax.swing.JFrame {
                                 g.client.ClearData();
                             }
                             else if (g.client.GetCommandCode() == g.client.RECVROOM){
-                                if (lbRoomName.getText().contains(g.client.GetName())){
-                                    txtContent.append(g.client.GetMessage() + "\n");
-                                }
+//                                if (lbRoomName.getText().contains(g.client.GetName())){
+//                                    txtContent.append(g.client.GetMessage() + "\n");
+//                                }
                                 g.client.ClearData();
                             }
                             else if (g.client.GetCommandCode() == g.client.RDELOK){

@@ -5,6 +5,8 @@
  */
 package chatclient;
 
+import java.nio.ByteBuffer;
+
 /**
  *
  * @author ubuntu
@@ -47,27 +49,48 @@ public class ProtocolCS {
     }
     
     public char[] GetText(){
-        char[] cbuf = new char[1016];
+        char[] cbuf = new char[1024];
+        char[] number_cmd = new char[4];
+        char[] number_room = new char[4];
+        //number_cmd = Character.toChars(command);
+        //number_cmd = Character.allocate(4).putInt(command).array();
+        //number_room = Character.toChars(IDRoom);
+        //number_room = ByteBuffer.allocate(4).putInt(IDRoom).array();
+        number_cmd[0] = (char) ((command >> 0) & 0xFF);//
+        number_cmd[1] = (char) ((command >> 8) & 0xFF);
+        number_cmd[2] = (char) ((command >> 16) & 0xFF);
+        number_cmd[3] = (char) ((command >> 24) & 0xFF);
+        
+        number_room[0] = (char) ((IDRoom >> 0) & 0xFF);
+        number_room[1] = (char) ((IDRoom >> 8) & 0xFF);
+        number_room[2] = (char) ((IDRoom >> 16) & 0xFF);
+        number_room[3] = (char) ((IDRoom >> 24) & 0xFF);
+        for (int i = 0; i < 4; i++){
+            cbuf[0 + i] = number_cmd[i];
+        }
+        for (int i = 0; i < 4; i++){
+            cbuf[4 + i] = number_room[i];
+        }
         int tempLength = 0;
         tempLength = ownUsername.length();
         for (int i = 0; i < tempLength; i++){
-            cbuf[0 + i] = ownUsername.charAt(i);
+            cbuf[8 + i] =  ownUsername.charAt(i);
         }
         tempLength = desUsername.length();
         for (int i = 0; i < tempLength; i++){
-            cbuf[30 + i] = desUsername.charAt(i);
+            cbuf[38 + i] = desUsername.charAt(i);
         }
         tempLength = ownPassword.length();
         for (int i = 0; i < tempLength; i++){
-            cbuf[60 + i] = ownPassword.charAt(i);
+            cbuf[68 + i] = ownPassword.charAt(i);
         }
         tempLength = roomPassword.length();
         for (int i = 0; i < tempLength; i++){
-            cbuf[90 + i] = roomPassword.charAt(i);
+            cbuf[98 + i] = roomPassword.charAt(i);
         }
         tempLength = message.length();
         for (int i = 0; i < tempLength; i++){
-            cbuf[120 + i] = message.charAt(i);
+            cbuf[128 + i] = message.charAt(i);
         }
         return cbuf;
     }

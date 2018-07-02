@@ -75,8 +75,13 @@ public class ClientGUI extends javax.swing.JFrame {
                         else if (g.client.GetCommandCode() == g.client.RECVPRV){
                             //int mcServer = JOptionPane.INFORMATION_MESSAGE;
                             //JOptionPane.showMessageDialog (null,"PRV " + g.client.GetName() + g.client.GetMessage(), "Warning", mcServer);
-                            if (listUserPrv.getSelectedValue().contains(g.client.GetName())){
-                                txtContent.append(g.client.GetName() + ": " + g.client.GetMessage() + "\n");
+//                            if (listUserPrv.getSelectedValue().contains(g.client.GetName())){
+//                                txtContent.append(g.client.GetName() + ": " + g.client.GetMessage() + "\n");
+//                            }
+                            // Destination User is me
+                            if (String.valueOf(g.client.GetDesName()).contains(g.GetUserName())){
+                                txtContent.append(String.valueOf(g.client.GetName()) + ": " + String.valueOf(g.client.GetMessage()) + "\n");
+                                g.client.ClearData();
                             }
                             g.client.ClearData();
                         }
@@ -249,6 +254,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 txtContent.append(txtChat.getText() + "\n");
                 g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
                 //System.out.println("SEND ");
+                g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
                 txtChat.setText("");
             }
             else{

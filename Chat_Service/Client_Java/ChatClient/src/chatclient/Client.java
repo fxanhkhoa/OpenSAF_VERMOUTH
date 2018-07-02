@@ -20,16 +20,16 @@ public class Client {
     public static final int OK = 1;
     public static final int ERROR = -1;
     private static String SERVERIP = "localhost";
-    private static int SERVERPORT = 1234;
+    private static int SERVERPORT = 8888;
     public final int ADDOK = 2;
     public final int DELOK = 3;
     public final int PRVOK = 4;
     public final int ROOMOK = 5;
     public final int SIGNOUTOK = 6;
-    public final int SIGNINOK = 7;
+    public final int SIGNINOK = 101;
     public final int RADDOK = 8;
     public final int RDELOK = 9;
-    public final int ADDROOMOK = 10;
+    public final int ADDROOMOK = 107;
     public final int RECVPRV = 11;
     public final int RECVROOM = 12;
     
@@ -39,13 +39,15 @@ public class Client {
     private Socket socket;
     private BufferedWriter os;
     private BufferedReader is;
-    private String recvData = "";
+    private char[] recvData = new char[1024];
     private boolean status = false;
     private int isDataReceived = 0;
     private static Thread readMessage;
-    private String Name;
-    private String Message;
+    private char[] desUser = new char[30];
+    private char[] curUser = new char[30];
+    private char[] Message = new char[896];
     private ProtocolCS blockToSend;
+    private int len;
     /*
     Constructor Function
     */
@@ -58,17 +60,19 @@ public class Client {
                 while (true){
                     try {
 //                        //recvData = "";
-                        recvData = is.readLine();
-                        if (recvData != null){
+                        len = is.read(recvData);
+                        if (len > 0){
 //                            recvData.trim();
-                            recvData.replace("null", "");
-                            isDataReceived = 1;
+                            //recvData.replace("null", "");
+                            //isDataReceived = 1;
                             //Send(recvData);
 //                            //if (recvData.contains("CLSIGNOK")) status = false;
+                            System.out.println(len);
+                            System.out.println(recvData);
                         }
-                        else if (recvData == null){
+                        else if (len < 0){
                             System.err.println("Server error");
-                           readMessage.stop();
+                           //readMessage.stop();
                         }
                     } catch (Exception e) {
                     }
@@ -102,19 +106,7 @@ public class Client {
             System.err.println("Can't connect to server" + e.getMessage());
             return false;
             
-        }
-        try
-        {
-            os.write("Hello");
-            os.newLine();
-            os.flush();
-            
-            
-        }
-        catch (IOException e)
-        {
-            System.err.println("Can't send hello server" + e.getMessage());
-        }
+        }    
         return true;
     }
     public boolean GetStatus()
@@ -123,7 +115,8 @@ public class Client {
     }
     public void ClearData()
     {
-        recvData = "";
+        recvData = new char[1024];
+        //recvData = "";
     }
     public int SignIn(String usr, String pass)
     {
@@ -180,11 +173,14 @@ public class Client {
     private int Send(char[] str)
     {
         try{
-            os.write(blockToSend.command);
-            os.write(blockToSend.IDRoom);
+            //String temp = str.toString();
+            
             os.write(str);
             os.newLine();
             os.flush();
+            //System.out.print(blockToSend.command + blockToSend.IDRoom );
+            System.out.print(str);
+            //System.out.println("zzzzz");
         } catch(IOException e){
             System.out.println(e);
         }
@@ -217,7 +213,7 @@ public class Client {
     Return: String
     Note:
     */
-    public String ReceiveData()
+    public char[] ReceiveData()
     {
         return recvData;
     }
@@ -228,11 +224,10 @@ public class Client {
     Return: int
     Note:
     */
-    public int IsDataReceived()
-    {   
-        int temp = isDataReceived;
-        isDataReceived = 0;
-        return temp;
+    public int IsDataReceived(){   
+        if (isDataReceived > 0)
+            return OK;
+        return ERROR;
     }
     
     public void SetDataReceived(){
@@ -318,6 +313,17 @@ public class Client {
         
     }
     
+    private int RebuildCmd(char[] input){
+        int temp = (int)((input[0]) | (input[1] << 8) | (input[2] << 16) | (input[3] << 24));
+          
+          System.out.flush();
+//        System.out.print((int)input[0]);
+//        System.out.print((int)input[1]);
+//        System.out.print((int)input[2]);
+//        System.out.println((int)input[3]);
+        return ((input[0]) | (input[1] << 8) | (input[2] << 16) | (input[3] << 24));
+    }
+    
     /*
     Function name: GetCommandCode()
     Description: get Command code
@@ -327,52 +333,64 @@ public class Client {
     */
     public int GetCommandCode()
     {
-        if (recvData.contains("CLADDOK"))
-        {
-            return ADDOK;
-        }
-        if (recvData.contains("CLPRVOK"))
-        {
-            return PRVOK;
-        }
-        if (recvData.contains("CLSIGNOUTOK"))
-        {
-            return SIGNOUTOK;
-        }
-        if (recvData.contains("CLSIGNINOK"))
-        {
+        int temp = RebuildCmd(recvData);
+        //System.out.println(temp);
+        if (temp == SIGNINOK){
             return SIGNINOK;
         }
-        if (recvData.contains("CLRDELOK"))
-        {
-            return RDELOK;
-	}
-        if (recvData.contains("CLDELOK"))
-        {
-            return DELOK;
-        }
-        if (recvData.contains("CLROOMOK"))
-        {
-            return ROOMOK;
-        }
-        if (recvData.contains("CLRADDOK"))
-        {
-            return RADDOK;
-        }
-        if (recvData.contains("CLADDROOMOK"))
-        {
+        else if (temp == ADDROOMOK){
             return ADDROOMOK;
         }
-        if (recvData.contains("CLRECVPRV"))
-        {
+        else if (temp == ProtocolCS.commandCode.PrivateChat.ordinal()){
             Split();
             return RECVPRV;
         }
-        if (recvData.contains("CLRECVROOM"))
-        {
-            Split();
-            return RECVROOM;
-        }
+//        if (recvData.contains("CLADDOK"))
+//        {
+//            return ADDOK;
+//        }
+//        if (recvData.contains("CLPRVOK"))
+//        {
+//            return PRVOK;
+//        }
+//        if (recvData.contains("CLSIGNOUTOK"))
+//        {
+//            return SIGNOUTOK;
+//        }
+//        if (recvData.contains("CLSIGNINOK"))
+//        {
+//            return SIGNINOK;
+//        }
+//        if (recvData.contains("CLRDELOK"))
+//        {
+//            return RDELOK;
+//	}
+//        if (recvData.contains("CLDELOK"))
+//        {
+//            return DELOK;
+//        }
+//        if (recvData.contains("CLROOMOK"))
+//        {
+//            return ROOMOK;
+//        }
+//        if (recvData.contains("CLRADDOK"))
+//        {
+//            return RADDOK;
+//        }
+//        if (recvData.contains("CLADDROOMOK"))
+//        {
+//            return ADDROOMOK;
+//        }
+//        if (recvData.contains("CLRECVPRV"))
+//        {
+//            Split();
+//            return RECVPRV;
+//        }
+//        if (recvData.contains("CLRECVROOM"))
+//        {
+//            Split();
+//            return RECVROOM;
+//        }
         return OK;
     }
     
@@ -385,27 +403,48 @@ public class Client {
     */
     private int Split()
     {
-        String temp = recvData;
-        //Name = temp.substring(temp.indexOf("*"), temp.indexOf("*",temp.indexOf("*") + 1));
-        //Message = temp.substring(temp.indexOf("*",temp.indexOf("*") + 1), temp.length() - 1);
-        Name = temp.substring(temp.indexOf("*") + 1, temp.lastIndexOf("*"));
-        Message = temp.substring(temp.lastIndexOf("*") + 1, temp.length());
-        if ((Name != null) && (Message != null))
-        {
-            //recvData = "";
-            return OK;
+//        String temp = recvData;
+//        //Name = temp.substring(temp.indexOf("*"), temp.indexOf("*",temp.indexOf("*") + 1));
+//        //Message = temp.substring(temp.indexOf("*",temp.indexOf("*") + 1), temp.length() - 1);
+//        Name = temp.substring(temp.indexOf("*") + 1, temp.lastIndexOf("*"));
+//        Message = temp.substring(temp.lastIndexOf("*") + 1, temp.length());
+//        if ((Name != null) && (Message != null))
+//        {
+//            //recvData = "";
+//            return OK;
+//        }
+        char[] tempData = new char[1024];
+        tempData = recvData;
+        //Get current User
+        for (int i = 0; i < 30; i++){
+            curUser[i] = tempData[8 + i];
         }
-        return ERROR;
+        //System.out.println(curUser);
+        //Get destination User
+        for (int i = 0; i < 30; i++){
+            desUser[i] = tempData[38 + i];
+        }
+        //System.out.println(desUser);
+        //Get message
+        for (int i = 0; i < 896; i++){
+            Message[i] = tempData[128 + i];
+        }
+        //System.out.println(Message);
+        return OK;
     }
     
-    public String GetName()
+    public char[] GetName()
     {
-        return Name;
+        return desUser;
     }
     
-    public String GetMessage()
+    public char[] GetMessage()
     {
         return Message;
+    }
+    
+    public char[] GetDesName(){
+        return desUser;
     }
     /*
     Function name: SendMsgToRoom()
