@@ -177,11 +177,12 @@ public class Client {
     Return: int error code
     Note:
     */
-    private int Send(String str)
+    private int Send(char[] str)
     {
         try{
-            //os.write(str);
-            os.write(98);
+            os.write(blockToSend.command);
+            os.write(blockToSend.IDRoom);
+            os.write(str);
             os.newLine();
             os.flush();
         } catch(IOException e){
@@ -279,7 +280,7 @@ public class Client {
     public int AddFriend(String usr)
     {
         
-        return Send("SVADD*" + usr);
+        return 1;
     }
     
     /*
@@ -309,7 +310,7 @@ public class Client {
     */
     public int RemoveFriend(String username)
     {
-        return Send("SVDEL*"+username);
+        return 1;
     }
  
     public void NewGroupDM()
@@ -415,7 +416,7 @@ public class Client {
     */
     public int SendMsgToRoom(String room, String msg)
     {
-        return Send("SVROOM*"+room+"*"+msg);    
+        return 1;    
     }
      /*
     Function name: AddFriendToRoom()
@@ -426,7 +427,7 @@ public class Client {
     */
     public int AddFriendToRoom(String room, String usr)
     {
-        return Send("SVRADD*"+room+"*"+usr);    
+        return 1;    
     }
       /*
     Function name: AddNewRoom()
