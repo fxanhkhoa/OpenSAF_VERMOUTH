@@ -39,6 +39,12 @@ public class RoomGUI extends javax.swing.JFrame {
      
     Global g = Global.getInstance();
     private boolean checkUser=true;
+    
+    public String t1(){
+        int k = 1;
+        char cm = (char) k;
+        return Character.toString(cm);
+    }
      /**
      * End line
      */
@@ -49,7 +55,10 @@ public class RoomGUI extends javax.swing.JFrame {
             listModel = new DefaultListModel();
             lbRoomName.setText(String.valueOf(Name));
             IDRoom = Name;
+            /*  */
+            System.out.println(t1()); 
             
+            /*  */
             waitThr = new Thread(new Runnable() {
                 @Override
                 public void run() {
