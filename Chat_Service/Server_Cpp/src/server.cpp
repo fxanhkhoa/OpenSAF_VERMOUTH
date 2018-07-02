@@ -173,8 +173,20 @@ void server::listen_connect()
                         --sz;
                     continue;
                 }
-                if (len != 1024) //do dai khong bang 1024 la khong xu ly (bat chap)
+                if (len != 1024)
+                {
+                    //do dai khong bang 1024 la khong xu ly (bat chap)
+                    mu.lock();
+                    cout<<"len = "<<len<<endl;
+                    cout << "do dai khac 1024\n";
+                    ((char*)&buf)[len]=0;
+                    cout<<"noi dung: "<<(char*)&buf;
+                    mu.unlock();
                     continue;
+                }
+                mu.lock();
+                cout << "data da nhan: \ncmd: " << buf.cmd << "\nuser nguoi gui: " << buf.sender_username << "\npass nguoi gui: " << buf.sender_pass << endl;
+                mu.unlock();
                 if (buf.cmd == 1) //dang ky
                 {
                     user *u = this->create_new_user(buf.sender_username, buf.sender_pass);
@@ -294,7 +306,7 @@ void server::chat_client()
                     //thoat khoi toan bo cac room
                     delete p_id;
                 }
-                
+
                 //close fd
                 close(list_poll_connected[i].fd);
                 pollfd_erase(list_poll_connected, empty_connected_pos, connected_size, i);
