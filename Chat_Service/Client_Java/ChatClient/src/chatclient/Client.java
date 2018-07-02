@@ -180,7 +180,8 @@ public class Client {
     private int Send(String str)
     {
         try{
-            os.write(str);
+            //os.write(str);
+            os.write(98);
             os.newLine();
             os.flush();
         } catch(IOException e){
