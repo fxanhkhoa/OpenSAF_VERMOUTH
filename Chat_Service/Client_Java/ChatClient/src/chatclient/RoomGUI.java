@@ -96,6 +96,9 @@ public class RoomGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jpuOption = new javax.swing.JPopupMenu();
+        jMenuKick = new javax.swing.JMenuItem();
+        jMenuExit = new javax.swing.JMenuItem();
         lbRoomName = new javax.swing.JLabel();
         lbHostName = new javax.swing.JLabel();
         btnAddUser = new javax.swing.JButton();
@@ -108,7 +111,31 @@ public class RoomGUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txtContent = new javax.swing.JTextArea();
 
+        jMenuKick.setText("Kick");
+        jMenuKick.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuKickActionPerformed(evt);
+            }
+        });
+        jpuOption.add(jMenuKick);
+
+        jMenuExit.setText("Exit");
+        jMenuExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuExitActionPerformed(evt);
+            }
+        });
+        jpuOption.add(jMenuExit);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                formMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                formMouseReleased(evt);
+            }
+        });
 
         lbRoomName.setText("ROOM");
 
@@ -136,6 +163,11 @@ public class RoomGUI extends javax.swing.JFrame {
 
         jLabel1.setText("List");
 
+        listUser.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                listUserMouseReleased(evt);
+            }
+        });
         jScrollPane2.setViewportView(listUser);
 
         txtContent.setColumns(20);
@@ -240,6 +272,39 @@ public class RoomGUI extends javax.swing.JFrame {
         g.client.RemoveFriendFromRoom(sUser, IDRoom, "");
     }//GEN-LAST:event_btnKickUserActionPerformed
 
+    private void listUserMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listUserMouseReleased
+        // TODO add your handling code here:
+        if(evt.isPopupTrigger())
+        {
+            
+        }
+    }//GEN-LAST:event_listUserMouseReleased
+
+    private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
+        // TODO add your handling code here:
+            //if(evt.isPopupTrigger())
+                //jPopupMenu1.show(this,evt.getX(),evt.getY());
+        
+    }//GEN-LAST:event_formMouseReleased
+
+    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+        // TODO add your handling code here:
+            if(evt.isPopupTrigger())
+                jpuOption.show(this,evt.getX(),evt.getY());
+    }//GEN-LAST:event_formMousePressed
+
+    private void jMenuKickActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuKickActionPerformed
+        // TODO add your handling code here:
+        
+        //g.client.RemoveFriendFromRoom(sUser, NORMAL, sUser);
+        System.out.println("KICK!!!!!");
+    }//GEN-LAST:event_jMenuKickActionPerformed
+
+    private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+    }//GEN-LAST:event_jMenuExitActionPerformed
+
     /*public boolean checkAbleUser(String sUser)
 {
         String sListUser;
@@ -309,8 +374,11 @@ public class RoomGUI extends javax.swing.JFrame {
     private javax.swing.JButton btnKickUser;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JMenuItem jMenuExit;
+    private javax.swing.JMenuItem jMenuKick;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JPopupMenu jpuOption;
     private javax.swing.JLabel lbHostName;
     private javax.swing.JLabel lbRoomName;
     private javax.swing.JList<String> listUser;
