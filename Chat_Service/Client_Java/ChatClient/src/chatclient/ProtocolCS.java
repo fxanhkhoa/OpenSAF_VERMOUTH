@@ -34,7 +34,8 @@ public class ProtocolCS {
     public String desUsername; // 30 characters
     public String ownPassword; // 30 characters
     public String roomPassword; // 30 characters
-    public String message; // 896 characters
+    public String message; // 892 characters
+    public int IDUser;
 
     public ProtocolCS() {
     }
@@ -52,6 +53,7 @@ public class ProtocolCS {
         char[] cbuf = new char[1024];
         char[] number_cmd = new char[4];
         char[] number_room = new char[4];
+        char[] number_user_ID = new char[4];
         //number_cmd = Character.toChars(command);
         //number_cmd = Character.allocate(4).putInt(command).array();
         //number_room = Character.toChars(IDRoom);
@@ -92,6 +94,11 @@ public class ProtocolCS {
         for (int i = 0; i < tempLength; i++){
             cbuf[128 + i] = message.charAt(i);
         }
+        
+        number_user_ID[0] = (char) ((IDUser >> 0) & 0xFF);
+        number_user_ID[1] = (char) ((IDUser >> 8) & 0xFF);
+        number_user_ID[2] = (char) ((IDUser >> 16) & 0xFF);
+        number_user_ID[3] = (char) ((IDUser >> 24) & 0xFF);
         return cbuf;
     }
  }

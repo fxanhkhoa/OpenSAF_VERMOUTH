@@ -81,7 +81,7 @@ public class ClientGUI extends javax.swing.JFrame {
                             // Destination User is me
                             if (String.valueOf(g.client.GetDesName()).contains(g.GetUserName())){
                                 txtContent.append(String.valueOf(g.client.GetName()) + ": " + String.valueOf(g.client.GetMessage()) + "\n");
-                                g.client.ClearData();
+                                //g.client.ClearData();
                             }
                             g.client.ClearData();
                         }
@@ -254,7 +254,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 txtContent.append(txtChat.getText() + "\n");
                 g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
                 //System.out.println("SEND ");
-                g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
+                //g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
                 txtChat.setText("");
             }
             else{

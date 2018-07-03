@@ -24,6 +24,7 @@ public class Global {
     private static Global instance;
     private static String userName;
     private static String pass;
+    private static int IDUser;
     /*
     public variables
     */
@@ -73,6 +74,14 @@ public class Global {
     
     public String GetPassword(){
         return pass;
+    }
+    
+    public int GetIDUser(){
+        return IDUser;
+    }
+    
+    public void SetIDUser(int value){
+        IDUser = value;
     }
     
     public static synchronized Global getInstance(){

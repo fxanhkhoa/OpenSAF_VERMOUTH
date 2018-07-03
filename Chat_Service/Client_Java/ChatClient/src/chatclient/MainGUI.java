@@ -43,6 +43,7 @@ public class MainGUI extends javax.swing.JFrame {
                                         //JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
                                         g.SetUserName(txtUser.getText());
                                         g.SetPass(txtPass.getText());
+                                        g.SetIDUser(g.client.GetIDUser());
                                         p.username = txtUser.getText();
                                         p.password = txtPass.getText();
                                         g.client.ClearData();

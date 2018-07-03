@@ -61,7 +61,7 @@ public class Client {
                     try {
 //                        //recvData = "";
                         len = is.read(recvData);
-                        if (len > 0){
+                        if (len == 1024){
 //                            recvData.trim();
                             //recvData.replace("null", "");
                             //isDataReceived = 1;
@@ -69,6 +69,7 @@ public class Client {
 //                            //if (recvData.contains("CLSIGNOK")) status = false;
                             System.out.println(len);
                             System.out.println(recvData);
+                            is.reset();
                         }
                         else if (len < 0){
                             System.err.println("Server error");
@@ -115,7 +116,7 @@ public class Client {
     }
     public void ClearData()
     {
-        recvData = new char[1024];
+        recvData[0] = recvData[1] = recvData[2] = recvData[3] = 0;
         //recvData = "";
     }
     public int SignIn(String usr, String pass)
@@ -176,10 +177,11 @@ public class Client {
             //String temp = str.toString();
             
             os.write(str);
-            os.newLine();
+            //os.newLine();
             os.flush();
+            //System.out.flush();
             //System.out.print(blockToSend.command + blockToSend.IDRoom );
-            System.out.print(str);
+            //System.out.print(str);
             //System.out.println("zzzzz");
         } catch(IOException e){
             System.out.println(e);
@@ -394,6 +396,10 @@ public class Client {
         return OK;
     }
     
+    public int GetIDUser(){
+        return ((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
+    }
+    
     /*
     Function name: SplitName()
     Description: Get Name from Receive message
@@ -435,7 +441,7 @@ public class Client {
     
     public char[] GetName()
     {
-        return desUser;
+        return curUser;
     }
     
     public char[] GetMessage()
