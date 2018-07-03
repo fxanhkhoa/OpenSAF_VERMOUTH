@@ -58,6 +58,8 @@ public class MainGUI extends javax.swing.JFrame {
                             }
                         }
                     });
+        if (!waitthr.isAlive())
+            waitthr.start();
     }
 
     /**
@@ -204,8 +206,6 @@ public class MainGUI extends javax.swing.JFrame {
                     
                         g.client.SignIn(sUser, sPass);
                         //System.out.println("as");
-                        if (!waitthr.isAlive())
-                            waitthr.start();
                         
                     btnSignIn.setEnabled(false);
                     //}

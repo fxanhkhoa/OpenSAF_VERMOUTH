@@ -40,12 +40,7 @@ public class RoomGUI extends javax.swing.JFrame {
     Global g = Global.getInstance();
     private boolean checkUser=true;
     
-    public String t1(){
-        int k = 1;
-        char cm = (char) k;
-        
-        return Character.toString(cm);
-    }
+  
      /**
      * End line
      */
@@ -56,10 +51,7 @@ public class RoomGUI extends javax.swing.JFrame {
             listModel = new DefaultListModel();
             lbRoomName.setText(String.valueOf(Name));
             IDRoom = Name;
-            /*  */
-            System.out.println(t1()); 
-            
-            /*  */
+         
             waitThr = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -75,9 +67,9 @@ public class RoomGUI extends javax.swing.JFrame {
                                 g.client.ClearData();
                             }
                             else if (g.client.GetCommandCode() == g.client.RECVROOM){
-                                if (lbRoomName.getText().contains(g.client.GetName())){
-                                    txtContent.append(g.client.GetMessage() + "\n");
-                                }
+//                                if (lbRoomName.getText().contains(g.client.GetName())){
+//                                    txtContent.append(g.client.GetMessage() + "\n");
+//                                }
                                 g.client.ClearData();
                             }
                             else if (g.client.GetCommandCode() == g.client.RDELOK){
