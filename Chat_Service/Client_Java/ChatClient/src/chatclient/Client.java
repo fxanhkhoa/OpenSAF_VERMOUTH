@@ -20,7 +20,7 @@ public class Client {
     public static final int OK = 1;
     public static final int ERROR = -1;
     private static String SERVERIP = "localhost";
-    private static int SERVERPORT = 1234;
+    private static int SERVERPORT = 8888;
     public final int ADDOK = 2;
     public final int DELOK = 3;
     public final int PRVOK = 4;
@@ -183,6 +183,7 @@ public class Client {
             os.write(blockToSend.command);
             os.write(blockToSend.IDRoom);
             os.write(str);
+            os.write("12345");
             os.newLine();
             os.flush();
         } catch(IOException e){

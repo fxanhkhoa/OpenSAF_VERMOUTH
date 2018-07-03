@@ -43,6 +43,7 @@ public class RoomGUI extends javax.swing.JFrame {
     public String t1(){
         int k = 1;
         char cm = (char) k;
+        
         return Character.toString(cm);
     }
      /**
