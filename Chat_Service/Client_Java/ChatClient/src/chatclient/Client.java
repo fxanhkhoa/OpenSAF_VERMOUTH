@@ -42,10 +42,11 @@ public class Client {
     private char[] recvData = new char[1024];
     private boolean status = false;
     private int isDataReceived = 0;
-    private static Thread readMessage;
+    private static Thread readMessage,reconnect;
     private char[] desUser = new char[30];
     private char[] curUser = new char[30];
     private char[] Message = new char[896];
+    public String userNameInGlobal;
     private ProtocolCS blockToSend;
     private int len;
     private int IDUser;
@@ -55,6 +56,35 @@ public class Client {
     public Client(){
         status = ConnectToServer();
         blockToSend = new ProtocolCS();
+        reconnect = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        System.out.println("Get In Recon");
+                        if (GetCommandCode() != 998){
+                            readMessage.wait(1000);
+                            blockToSend.command = 999;
+                            blockToSend.IDRoom = 0;
+                            blockToSend.ownUsername = userNameInGlobal;
+                            blockToSend.desUsername = "";
+                            blockToSend.ownPassword = "";
+                            blockToSend.roomPassword = "";
+                            blockToSend.message = "";
+                            blockToSend.IDUser = IDUser;
+                            Send(blockToSend.GetText());
+                            System.out.println(blockToSend.GetText());
+                            wait(5000);
+                        }
+                        else if (GetCommandCode() == 998){
+                            reconnect.stop();
+                        }
+                        wait(2000);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        });
         readMessage = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -75,6 +105,12 @@ public class Client {
                         else if (len < 0){
                             System.err.println("Server error");
                            //readMessage.stop();
+                           boolean ok = ConnectToServer();
+                           readMessage.wait(5000);
+                           if (ok){
+                               System.out.println("Recon started");
+                               reconnect.start();
+                           }
                         }
                     } catch (Exception e) {
                     }
@@ -101,6 +137,7 @@ public class Client {
             os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             status=true;
+            System.out.println("Connect successful");
         }
         catch (IOException e)
         {

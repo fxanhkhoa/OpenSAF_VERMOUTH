@@ -37,6 +37,7 @@ public class MainGUI extends javax.swing.JFrame {
                                 try{
                                     if (g.client.IsDataReceived() == 1){
                                         btnSignIn.setEnabled(true);
+                                        
                                     }
                                     if (g.client.GetCommandCode() == g.client.SIGNINOK){
                                         //int mcServer = JOptionPane.INFORMATION_MESSAGE;
@@ -44,6 +45,7 @@ public class MainGUI extends javax.swing.JFrame {
                                         g.SetUserName(txtUser.getText());
                                         g.SetPass(txtPass.getText());
                                         g.SetIDUser(g.client.GetIDUser());
+                                        g.client.userNameInGlobal = txtUser.getText();
                                         p.username = txtUser.getText();
                                         p.password = txtPass.getText();
                                         g.client.ClearData();
@@ -207,6 +209,7 @@ public class MainGUI extends javax.swing.JFrame {
                     
                         g.client.SignIn(sUser, sPass);
                         //System.out.println("as");
+                        
                         
                     btnSignIn.setEnabled(false);
                     //}

@@ -25,6 +25,8 @@ public class ProtocolCS {
         SignOut,
         RequestToRoom,
     };
+    // 999 request connect server
+    // 998 success
     
     public static String username;
     public static String password;

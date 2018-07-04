@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <PrivateMessage>
   <block id="0">
-    <CurrentUser>b</CurrentUser>
-    <DestinationUser>root</DestinationUser>
+    <CurrentUser>root</CurrentUser>
+    <DestinationUser>a</DestinationUser>
     <Message>1st created</Message>
   </block>
 </PrivateMessage>
