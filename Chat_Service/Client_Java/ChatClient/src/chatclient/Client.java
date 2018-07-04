@@ -19,7 +19,7 @@ public class Client {
     */
     public static final int OK = 1;
     public static final int ERROR = -1;
-    private static String SERVERIP = "localhost";
+    private static String SERVERIP = "192.168.122.239";
     private static int SERVERPORT = 8888;
     public final int ADDOK = 2;
     public final int DELOK = 3;

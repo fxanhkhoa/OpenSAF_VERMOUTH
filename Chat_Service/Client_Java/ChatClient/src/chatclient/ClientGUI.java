@@ -87,11 +87,13 @@ public class ClientGUI extends javax.swing.JFrame {
                                 txtContent.append(String.valueOf(g.client.GetName()) + ": " + String.valueOf(g.client.GetMessage()) + "\n");
                                 
                                 // Add to local databases
-                                dataControl.curUsr = String.valueOf(g.client.GetName());
-                                dataControl.desUsr = String.valueOf(g.client.GetDesName());
-                                dataControl.numberOfElement = dataControl.CountXMLElement(sNewUser);
-                                dataControl.Message = String.valueOf(g.client.GetMessage());
-                                dataControl.AppendXMLFile(String.valueOf(g.client.GetName()));
+                                //System.out.println(g.client.GetName());
+                                dataControl.curUsr = String.valueOf(g.client.GetName()).trim();
+                                dataControl.desUsr = String.valueOf(g.client.GetDesName()).trim();
+                                dataControl.numberOfElement = dataControl.CountXMLElement(String.valueOf(g.client.GetName()).trim());
+                                //System.out.println(String.valueOf(g.client.GetName()));
+                                dataControl.Message = String.valueOf(g.client.GetMessage()).trim();
+                                dataControl.AppendXMLFile(String.valueOf(g.client.GetName()).trim());
                                 //g.client.ClearData();
                             }
                             g.client.ClearData();
@@ -269,8 +271,8 @@ public class ClientGUI extends javax.swing.JFrame {
                 
                 // Add to local databases
                 dataControl.curUsr = g.GetUserName();
-                dataControl.desUsr = sNewUser;
-                dataControl.numberOfElement = dataControl.CountXMLElement(sNewUser);
+                dataControl.desUsr = listUserPrv.getSelectedValue();
+                dataControl.numberOfElement = dataControl.CountXMLElement(listUserPrv.getSelectedValue());
                 dataControl.Message = txtChat.getText();
                 dataControl.AppendXMLFile(listUserPrv.getSelectedValue());
                 txtChat.setText("");
