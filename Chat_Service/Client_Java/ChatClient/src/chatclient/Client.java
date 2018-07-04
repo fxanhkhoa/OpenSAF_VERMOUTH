@@ -48,6 +48,7 @@ public class Client {
     private char[] Message = new char[896];
     private ProtocolCS blockToSend;
     private int len;
+    private int IDUser;
     /*
     Constructor Function
     */
@@ -128,6 +129,7 @@ public class Client {
         blockToSend.ownPassword = pass;
         blockToSend.roomPassword = "";
         blockToSend.message = "";
+        blockToSend.IDUser = 1;
         return Send(blockToSend.GetText());
     }
     public int SignUp(String usr, String pass)
@@ -397,6 +399,7 @@ public class Client {
     }
     
     public int GetIDUser(){
+        IDUser = ((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
         return ((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
     }
     

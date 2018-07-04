@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>a</CurrentUser>
+    <DestinationUser>b</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+  <block id="1">
+    <CurrentUser>b</CurrentUser>
+    <DestinationUser>a</DestinationUser>
+    <Message>here</Message>
+  </block>
+</PrivateMessage>

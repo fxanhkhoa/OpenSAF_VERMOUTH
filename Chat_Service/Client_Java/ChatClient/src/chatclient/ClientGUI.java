@@ -15,6 +15,8 @@ import java.awt.event.ActionEvent;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.DefaultListModel;
 
 import javax.swing.JButton;
@@ -42,10 +44,12 @@ public class ClientGUI extends javax.swing.JFrame {
     private String sNewUser;
     private DefaultListModel listModel,listModelUserPrv;
     RoomGUI roomNew;
+    DataControl dataControl;
     
     public ClientGUI() {
         initComponents();
         g = Global.getInstance();
+        dataControl = new DataControl();
         listRoom.setModel(new DefaultListModel());
         listModel = new DefaultListModel();
         listUserPrv.setModel(new DefaultListModel());
@@ -81,6 +85,13 @@ public class ClientGUI extends javax.swing.JFrame {
                             // Destination User is me
                             if (String.valueOf(g.client.GetDesName()).contains(g.GetUserName())){
                                 txtContent.append(String.valueOf(g.client.GetName()) + ": " + String.valueOf(g.client.GetMessage()) + "\n");
+                                
+                                // Add to local databases
+                                dataControl.curUsr = String.valueOf(g.client.GetName());
+                                dataControl.desUsr = String.valueOf(g.client.GetDesName());
+                                dataControl.numberOfElement = dataControl.CountXMLElement(sNewUser);
+                                dataControl.Message = String.valueOf(g.client.GetMessage());
+                                dataControl.AppendXMLFile(String.valueOf(g.client.GetName()));
                                 //g.client.ClearData();
                             }
                             g.client.ClearData();
@@ -255,6 +266,13 @@ public class ClientGUI extends javax.swing.JFrame {
                 g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
                 //System.out.println("SEND ");
                 //g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
+                
+                // Add to local databases
+                dataControl.curUsr = g.GetUserName();
+                dataControl.desUsr = sNewUser;
+                dataControl.numberOfElement = dataControl.CountXMLElement(sNewUser);
+                dataControl.Message = txtChat.getText();
+                dataControl.AppendXMLFile(listUserPrv.getSelectedValue());
                 txtChat.setText("");
             }
             else{
@@ -288,6 +306,16 @@ public class ClientGUI extends javax.swing.JFrame {
            
            listUserPrv.setModel(listModelUserPrv);
         }
+        try {
+            if (dataControl.CheckExistXMLFile(sNewUser) == 0){
+            dataControl.curUsr = g.GetUserName();
+            dataControl.desUsr = sNewUser;
+            dataControl.numberOfElement = 0;
+            dataControl.Message = "1st created";
+            dataControl.CreateXMLFile(sNewUser);
+            }
+        } catch (Exception e) {
+        }
     }//GEN-LAST:event_addUserActionPerformed
 
     private void listRoomMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listRoomMouseClicked
@@ -302,11 +330,35 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void listUserPrvValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listUserPrvValueChanged
         // TODO add your handling code here:
-        JList changedList = (JList)evt.getSource();
-        if (listUserPrv == changedList){
-            System.out.println("gogogo");
-            txtContent.setText("");
-        }
+        txtContent.setText("");
+        boolean adjust = evt.getValueIsAdjusting();
+        if (!adjust){
+            try {
+                JList changedList = (JList)evt.getSource();
+                if (listUserPrv == changedList){
+                    System.out.println("gogogo");
+                    //txtContent.setText("");
+                    Map<String, MessageStruct> dataMap = new HashMap<String, MessageStruct>();
+                    dataMap = dataControl.GetList(listUserPrv.getSelectedValue());
+                    //for (int i = 0; i < dataMap.size(); i++){
+                    for (String key: dataMap.keySet()){
+                        MessageStruct ms = new MessageStruct();
+                        ms = dataMap.get(key);
+                        System.out.println(g.GetUserName());
+                        System.out.println(ms.desUsr + "z");
+                        if (ms.desUsr.contains(g.GetUserName())){
+                            txtContent.append(ms.curUsr + ": " + ms.Message + "\n");
+                        }
+                        else {
+                            txtContent.append(ms.Message + "\n");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+            }
+            
+            }
+        
     }//GEN-LAST:event_listUserPrvValueChanged
 
     /**
