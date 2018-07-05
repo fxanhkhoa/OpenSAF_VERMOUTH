@@ -23,12 +23,14 @@ public class MainGUI extends javax.swing.JFrame {
      */
     public String sUser,sPass;
     Global g ;
+    SavedPreference sP;
     Thread waitthr;
     ProtocolCS p ;
     
     public MainGUI() {
         initComponents();
         g = Global.getInstance();
+        sP = SavedPreference.getInstance();
         p = new ProtocolCS();
         waitthr = new Thread(new Runnable() {
                         @Override
@@ -42,12 +44,9 @@ public class MainGUI extends javax.swing.JFrame {
                                     if (g.client.GetCommandCode() == g.client.SIGNINOK){
                                         //int mcServer = JOptionPane.INFORMATION_MESSAGE;
                                         //JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
-                                        g.SetUserName(txtUser.getText());
-                                        g.SetPass(txtPass.getText());
-                                        g.SetIDUser(g.client.GetIDUser());
-                                        g.client.userNameInGlobal = txtUser.getText();
-                                        p.username = txtUser.getText();
-                                        p.password = txtPass.getText();
+                                        sP.SetUserName(txtUser.getText());
+                                        sP.SetPass(txtPass.getText());
+                                        g.client.GetIDUser();
                                         g.client.ClearData();
                                         ClientGUI clientGui = new ClientGUI();
                                         clientGui.setVisible(true);

@@ -7,11 +7,10 @@ package chatclient;
 
 /**
  *
- * @author shawry
+ * @author ubuntu
  */
-public class Global {
-    
-    /*
+public class SavedPreference {
+     /*
     Constant status of function return
     */
     public static final int OK = 1;
@@ -19,27 +18,15 @@ public class Global {
     /*
     private variables
     */
-    private static String SERVERIP = "localhost";
-    private static int SERVERPORT = 9000;
-    private static Global instance;
+    private static String SERVERIP = "192.168.122.239";
+    private static int SERVERPORT = 8888;
+    private static SavedPreference instance;
     private static String userName;
     private static String pass;
-    private static int IDUser;
-    /*
-    public variables
-    */
-    public static Client client;
+    public int IDUser;
     
-    /*
-    private function
-    */
-    
-    
-    /*
-    public funtion
-    */
-    public Global(){
-        client = new Client();
+    public SavedPreference(){
+        
     }
     
     public int SetServerIP(String IP){
@@ -84,18 +71,10 @@ public class Global {
         IDUser = value;
     }
     
-    public static synchronized Global getInstance(){
+    public static synchronized SavedPreference getInstance(){
         if (instance == null){
-            instance = new Global();
+            instance = new SavedPreference();
         }
         return instance;
-    }
-    
-    public void Release(){
-        client = null;
-    }
-    
-    public void CreateNew(){
-        client = new Client();
     }
 }

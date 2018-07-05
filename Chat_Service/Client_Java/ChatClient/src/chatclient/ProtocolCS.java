@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
  *
  * @author ubuntu
  */
-public class ProtocolCS {
+public class ProtocolCS{
     public enum commandCode{
         None,
         Signup,
@@ -37,7 +37,9 @@ public class ProtocolCS {
     public String ownPassword; // 30 characters
     public String roomPassword; // 30 characters
     public String message; // 892 characters
-    public int IDUser;
+    public int mIDUser;
+    
+    private SavedPreference sP =  SavedPreference.getInstance();
 
     public ProtocolCS() {
     }
@@ -64,6 +66,11 @@ public class ProtocolCS {
         number_cmd[1] = (char) ((command >> 8) & 0xFF);
         number_cmd[2] = (char) ((command >> 16) & 0xFF);
         number_cmd[3] = (char) ((command >> 24) & 0xFF);
+        
+        System.out.print(number_cmd[0]);
+        System.out.print(number_cmd[1]);
+        System.out.print(number_cmd[2]);
+        System.out.println(number_cmd[3]);
         
         number_room[0] = (char) ((IDRoom >> 0) & 0xFF);
         number_room[1] = (char) ((IDRoom >> 8) & 0xFF);
@@ -97,10 +104,17 @@ public class ProtocolCS {
             cbuf[128 + i] = message.charAt(i);
         }
         
-        number_user_ID[0] = (char) ((IDUser >> 0) & 0xFF);
-        number_user_ID[1] = (char) ((IDUser >> 8) & 0xFF);
-        number_user_ID[2] = (char) ((IDUser >> 16) & 0xFF);
-        number_user_ID[3] = (char) ((IDUser >> 24) & 0xFF);
+        mIDUser = sP.IDUser;
+        
+        number_user_ID[0] = (char) ((mIDUser >> 0) & 0xFF);
+        number_user_ID[1] = (char) ((mIDUser >> 8) & 0xFF);
+        number_user_ID[2] = (char) ((mIDUser >> 16) & 0xFF);
+        number_user_ID[3] = (char) ((mIDUser >> 24) & 0xFF);
+        System.err.println(number_user_ID);
+        System.err.println(mIDUser);
+        for (int i = 0; i < 4; i++){
+            cbuf[1020 + i] = number_user_ID[i];
+        }
         return cbuf;
     }
  }

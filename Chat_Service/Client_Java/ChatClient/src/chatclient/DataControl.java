@@ -37,13 +37,13 @@ public class DataControl {
     public int numberOfElement;
     private Map<String, MessageStruct> datamap= new HashMap<String, MessageStruct>(); 
     private String Path;
-    Global g = Global.getInstance();
+    SavedPreference sP = SavedPreference.getInstance();
     
     public DataControl() {
     }
     
     private void BuildPath(String NameOfFile){
-        Path = System.getProperty("user.dir") + "/data/" + g.GetUserName()  + NameOfFile + ".xml";
+        Path = System.getProperty("user.dir") + "/data/" + sP.GetUserName()  + NameOfFile + ".xml";
     }
     
     /*

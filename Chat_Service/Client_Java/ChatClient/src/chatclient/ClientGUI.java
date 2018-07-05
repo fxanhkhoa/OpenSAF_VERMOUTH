@@ -17,6 +17,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.swing.DefaultListModel;
 
 import javax.swing.JButton;
@@ -45,9 +46,11 @@ public class ClientGUI extends javax.swing.JFrame {
     private DefaultListModel listModel,listModelUserPrv;
     RoomGUI roomNew;
     DataControl dataControl;
+    private SavedPreference sP;
     
     public ClientGUI() {
         initComponents();
+        sP = SavedPreference.getInstance();
         g = Global.getInstance();
         dataControl = new DataControl();
         listRoom.setModel(new DefaultListModel());
@@ -64,7 +67,12 @@ public class ClientGUI extends javax.swing.JFrame {
             public void run() {
                 while (true){
                     try {
-                        if (g.client.GetCommandCode() == g.client.ADDOK){
+                        if (g.client.GetStatus() == false){
+//                            g.Release();
+//                            g.CreateNew();
+//                            Thread.sleep(2000);
+                        }
+                        else if (g.client.GetCommandCode() == g.client.ADDOK){
                             int mcServer = JOptionPane.INFORMATION_MESSAGE;
                             JOptionPane.showMessageDialog (null, "Got", "Warning", mcServer);
                             g.client.ClearData();
@@ -83,7 +91,7 @@ public class ClientGUI extends javax.swing.JFrame {
 //                                txtContent.append(g.client.GetName() + ": " + g.client.GetMessage() + "\n");
 //                            }
                             // Destination User is me
-                            if (String.valueOf(g.client.GetDesName()).contains(g.GetUserName())){
+                            if (String.valueOf(g.client.GetDesName()).contains(sP.GetUserName())){
                                 txtContent.append(String.valueOf(g.client.GetName()) + ": " + String.valueOf(g.client.GetMessage()) + "\n");
                                 
                                 // Add to local databases
@@ -270,7 +278,7 @@ public class ClientGUI extends javax.swing.JFrame {
                 //g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
                 
                 // Add to local databases
-                dataControl.curUsr = g.GetUserName();
+                dataControl.curUsr = sP.GetUserName();
                 dataControl.desUsr = listUserPrv.getSelectedValue();
                 dataControl.numberOfElement = dataControl.CountXMLElement(listUserPrv.getSelectedValue());
                 dataControl.Message = txtChat.getText();
@@ -310,7 +318,7 @@ public class ClientGUI extends javax.swing.JFrame {
         }
         try {
             if (dataControl.CheckExistXMLFile(sNewUser) == 0){
-            dataControl.curUsr = g.GetUserName();
+            dataControl.curUsr = sP.GetUserName();
             dataControl.desUsr = sNewUser;
             dataControl.numberOfElement = 0;
             dataControl.Message = "1st created";
@@ -346,9 +354,9 @@ public class ClientGUI extends javax.swing.JFrame {
                     for (String key: dataMap.keySet()){
                         MessageStruct ms = new MessageStruct();
                         ms = dataMap.get(key);
-                        System.out.println(g.GetUserName());
-                        System.out.println(ms.desUsr + "z");
-                        if (ms.desUsr.contains(g.GetUserName())){
+                        //System.out.println(sP.GetUserName());
+                        //System.out.println(ms.desUsr + "z");
+                        if (ms.desUsr.contains(sP.GetUserName())){
                             txtContent.append(ms.curUsr + ": " + ms.Message + "\n");
                         }
                         else {
@@ -395,9 +403,9 @@ public class ClientGUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ClientGUI().setVisible(true);
-                int k = 98;
-                char cm = (char) k;
-                System.out.println(cm);
+//                int k = 98;
+//                char cm = (char) k;
+//                System.out.println(cm);
             }
         });
     }

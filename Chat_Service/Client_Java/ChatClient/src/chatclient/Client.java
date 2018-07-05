@@ -8,6 +8,7 @@ package chatclient;
 import java.net.*;
 import java.io.*;
 import chatclient.Global;
+import java.util.concurrent.TimeUnit;
 /**
  *
  * @author shawry
@@ -42,44 +43,68 @@ public class Client {
     private char[] recvData = new char[1024];
     private boolean status = false;
     private int isDataReceived = 0;
-    private static Thread readMessage,reconnect;
+    public static Thread readMessage,reconnect;
     private char[] desUser = new char[30];
     private char[] curUser = new char[30];
     private char[] Message = new char[896];
     public String userNameInGlobal;
     private ProtocolCS blockToSend;
     private int len;
-    private int IDUser;
+    private boolean ok = false;
+    private SavedPreference sP;
     /*
     Constructor Function
     */
     public Client(){
-        status = ConnectToServer();
         blockToSend = new ProtocolCS();
+        sP = SavedPreference.getInstance();
+        status = ConnectToServer();
+        
         reconnect = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true){
                     try {
-                        System.out.println("Get In Recon");
+                        if (status == false){
+                            ConnectToServer();
+                        }
+                        else if (status == true){
+                            os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                            is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        }
+                        System.err.println("in");
+                        if (GetCommandCode() != SIGNINOK){
+                            SignIn(sP.GetUserName(), sP.GetPassword());
+                        }
+                        else if (GetCommandCode() == SIGNINOK){
+                            System.err.println("Sign again ok");
+                            reconnect.stop();
+                        }
                         if (GetCommandCode() != 998){
-                            readMessage.wait(1000);
+                            //readMessage.wait(1000);
+                            System.err.println("in send 999");
                             blockToSend.command = 999;
                             blockToSend.IDRoom = 0;
-                            blockToSend.ownUsername = userNameInGlobal;
+                            blockToSend.ownUsername = sP.GetUserName();
                             blockToSend.desUsername = "";
                             blockToSend.ownPassword = "";
                             blockToSend.roomPassword = "";
                             blockToSend.message = "";
-                            blockToSend.IDUser = IDUser;
+                            blockToSend.mIDUser = sP.GetIDUser();
                             Send(blockToSend.GetText());
-                            System.out.println(blockToSend.GetText());
-                            wait(5000);
+                            System.err.println("send 999 ok");
+                            System.err.print(blockToSend.mIDUser);
+                            System.err.println(blockToSend.command);
                         }
                         else if (GetCommandCode() == 998){
+                            System.err.println("gotcha");
                             reconnect.stop();
                         }
-                        wait(2000);
+                        if (IsDataReceived() == 1){
+                            System.err.println("thread stop");
+                            reconnect.stop();
+                        }
+                        Thread.sleep(1000);
                     } catch (Exception e) {
                     }
                 }
@@ -91,26 +116,35 @@ public class Client {
                 while (true){
                     try {
 //                        //recvData = "";
+                        if (status == true){
+                            
+                        }
                         len = is.read(recvData);
                         if (len == 1024){
 //                            recvData.trim();
                             //recvData.replace("null", "");
-                            //isDataReceived = 1;
+                            isDataReceived = 1;
                             //Send(recvData);
 //                            //if (recvData.contains("CLSIGNOK")) status = false;
                             System.out.println(len);
                             System.out.println(recvData);
                             is.reset();
+                            if (GetCommandCode() == 998){
+                                System.err.println("998 OK");
+                                reconnect.stop();
+                            }
                         }
                         else if (len < 0){
                             System.err.println("Server error");
+                            status = false;
+                            socket.close();
+                            os.close();
+                            is.close();
+                            isDataReceived = 0;
                            //readMessage.stop();
-                           boolean ok = ConnectToServer();
-                           readMessage.wait(5000);
-                           if (ok){
-                               System.out.println("Recon started");
-                               reconnect.start();
-                           }
+                           //ConnectToServer();
+                           if (!reconnect.isAlive())
+                            reconnect.start();
                         }
                     } catch (Exception e) {
                     }
@@ -133,7 +167,7 @@ public class Client {
     {
         try
         {
-            this.socket = new Socket(SERVERIP,SERVERPORT);
+            this.socket = new Socket(sP.GetServerIP(),sP.GetServerPORT());
             os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             status=true;
@@ -166,7 +200,7 @@ public class Client {
         blockToSend.ownPassword = pass;
         blockToSend.roomPassword = "";
         blockToSend.message = "";
-        blockToSend.IDUser = 1;
+        blockToSend.mIDUser = 1;
         return Send(blockToSend.GetText());
     }
     public int SignUp(String usr, String pass)
@@ -239,7 +273,7 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.PrivateChat.ordinal();
         blockToSend.IDRoom = 0;
-        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.ownUsername = sP.GetUserName();
         blockToSend.desUsername = desusr;
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
@@ -375,7 +409,13 @@ public class Client {
     public int GetCommandCode()
     {
         int temp = RebuildCmd(recvData);
-        //System.out.println(temp);
+        if (temp != 0){
+            System.out.println(temp);
+            System.out.println((int)recvData[1020]);
+            System.out.println((int)recvData[1021]);
+            System.out.println((int)recvData[1022]);
+            System.out.println((int)recvData[1023]);
+        }
         if (temp == SIGNINOK){
             return SIGNINOK;
         }
@@ -385,6 +425,9 @@ public class Client {
         else if (temp == ProtocolCS.commandCode.PrivateChat.ordinal()){
             Split();
             return RECVPRV;
+        }
+        else if (temp == 998){
+            return (int)998;
         }
 //        if (recvData.contains("CLADDOK"))
 //        {
@@ -432,12 +475,14 @@ public class Client {
 //            Split();
 //            return RECVROOM;
 //        }
-        return OK;
+        return temp;
     }
     
     public int GetIDUser(){
-        IDUser = ((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
-        return ((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
+        int IDUser = (int)((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
+        System.out.println(IDUser);
+        sP.IDUser = IDUser;
+        return (int)((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
     }
     
     /*
