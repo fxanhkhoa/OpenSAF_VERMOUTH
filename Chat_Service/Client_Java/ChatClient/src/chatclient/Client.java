@@ -95,6 +95,11 @@ public class Client {
                             System.err.println("send 999 ok");
                             System.err.print(blockToSend.mIDUser);
                             System.err.println(blockToSend.command);
+                            System.out.println("start of command");
+                            System.out.println((blockToSend.command >> 0) & 0xFF);
+                            System.out.println((blockToSend.command >> 8) & 0xFF);
+                            System.out.println((blockToSend.command >> 16) & 0xFF);
+                            System.out.println((blockToSend.command >> 24) & 0xFF);
                         }
                         else if (GetCommandCode() == 998){
                             System.err.println("gotcha");
@@ -201,6 +206,10 @@ public class Client {
         blockToSend.roomPassword = "";
         blockToSend.message = "";
         blockToSend.mIDUser = 1;
+        System.out.print((blockToSend.command >> 0) & 0xFF);
+                            System.out.print((blockToSend.command >> 8) & 0xFF);
+                            System.out.print((blockToSend.command >> 16) & 0xFF);
+                            System.out.println((blockToSend.command >> 24) & 0xFF);
         return Send(blockToSend.GetText());
     }
     public int SignUp(String usr, String pass)
