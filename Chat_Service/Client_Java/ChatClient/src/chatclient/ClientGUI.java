@@ -15,6 +15,9 @@ import java.awt.event.ActionEvent;
 
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import javax.swing.DefaultListModel;
 
 import javax.swing.JButton;
@@ -42,10 +45,14 @@ public class ClientGUI extends javax.swing.JFrame {
     private String sNewUser;
     private DefaultListModel listModel,listModelUserPrv;
     RoomGUI roomNew;
+    DataControl dataControl;
+    private SavedPreference sP;
     
     public ClientGUI() {
         initComponents();
+        sP = SavedPreference.getInstance();
         g = Global.getInstance();
+        dataControl = new DataControl();
         listRoom.setModel(new DefaultListModel());
         listModel = new DefaultListModel();
         listUserPrv.setModel(new DefaultListModel());
@@ -60,7 +67,21 @@ public class ClientGUI extends javax.swing.JFrame {
             public void run() {
                 while (true){
                     try {
-                        if (g.client.GetCommandCode() == g.client.ADDOK){
+                        if (g.client.GetStatus() == false){
+//                            g.Release();
+//                            g.CreateNew();
+//                            Thread.sleep(2000);
+                        }
+                        else if (g.client.GetCommandCode() == g.client.SIGNOUTOK){
+                            MainGUI mainGui = new MainGUI();
+                            mainGui.setVisible(true);
+                            ClientGUI.this.dispose();        
+                        }
+                        else if (g.client.GetCommandCode() == g.client.REPASSOK){
+                            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                            JOptionPane.showMessageDialog (null,"Your password was changed", "Successful", mcServer);        
+                        }
+                        else if (g.client.GetCommandCode() == g.client.ADDOK){
                             int mcServer = JOptionPane.INFORMATION_MESSAGE;
                             JOptionPane.showMessageDialog (null, "Got", "Warning", mcServer);
                             g.client.ClearData();
@@ -79,9 +100,18 @@ public class ClientGUI extends javax.swing.JFrame {
 //                                txtContent.append(g.client.GetName() + ": " + g.client.GetMessage() + "\n");
 //                            }
                             // Destination User is me
-                            if (String.valueOf(g.client.GetDesName()).contains(g.GetUserName())){
+                            if (String.valueOf(g.client.GetDesName()).contains(sP.GetUserName())){
                                 txtContent.append(String.valueOf(g.client.GetName()) + ": " + String.valueOf(g.client.GetMessage()) + "\n");
-                                g.client.ClearData();
+                                
+                                // Add to local databases
+                                //System.out.println(g.client.GetName());
+                                dataControl.curUsr = String.valueOf(g.client.GetName()).trim();
+                                dataControl.desUsr = String.valueOf(g.client.GetDesName()).trim();
+                                dataControl.numberOfElement = dataControl.CountXMLElement(String.valueOf(g.client.GetName()).trim());
+                                //System.out.println(String.valueOf(g.client.GetName()));
+                                dataControl.Message = String.valueOf(g.client.GetMessage()).trim();
+                                dataControl.AppendXMLFile(String.valueOf(g.client.GetName()).trim());
+                                //g.client.ClearData();
                             }
                             g.client.ClearData();
                         }
@@ -129,6 +159,9 @@ public class ClientGUI extends javax.swing.JFrame {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
+        jMenuAccount = new javax.swing.JMenu();
+        jMenuItemSignOut = new javax.swing.JMenuItem();
+        jMenuItemChangePass = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -181,6 +214,26 @@ public class ClientGUI extends javax.swing.JFrame {
 
         jMenu2.setText("Edit");
         jMenuBar1.add(jMenu2);
+
+        jMenuAccount.setText("Account");
+
+        jMenuItemSignOut.setText("Sign Out");
+        jMenuItemSignOut.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemSignOutActionPerformed(evt);
+            }
+        });
+        jMenuAccount.add(jMenuItemSignOut);
+
+        jMenuItemChangePass.setText("Change Password");
+        jMenuItemChangePass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemChangePassActionPerformed(evt);
+            }
+        });
+        jMenuAccount.add(jMenuItemChangePass);
+
+        jMenuBar1.add(jMenuAccount);
 
         setJMenuBar(jMenuBar1);
 
@@ -254,7 +307,14 @@ public class ClientGUI extends javax.swing.JFrame {
                 txtContent.append(txtChat.getText() + "\n");
                 g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
                 //System.out.println("SEND ");
-                g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
+                //g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
+                
+                // Add to local databases
+                dataControl.curUsr = sP.GetUserName();
+                dataControl.desUsr = listUserPrv.getSelectedValue();
+                dataControl.numberOfElement = dataControl.CountXMLElement(listUserPrv.getSelectedValue());
+                dataControl.Message = txtChat.getText().trim();
+                dataControl.AppendXMLFile(listUserPrv.getSelectedValue());
                 txtChat.setText("");
             }
             else{
@@ -288,6 +348,16 @@ public class ClientGUI extends javax.swing.JFrame {
            
            listUserPrv.setModel(listModelUserPrv);
         }
+        try {
+            if (dataControl.CheckExistXMLFile(sNewUser) == 0){
+            dataControl.curUsr = sP.GetUserName();
+            dataControl.desUsr = sNewUser;
+            dataControl.numberOfElement = 0;
+            dataControl.Message = "1st created";
+            dataControl.CreateXMLFile(sNewUser);
+            }
+        } catch (Exception e) {
+        }
     }//GEN-LAST:event_addUserActionPerformed
 
     private void listRoomMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listRoomMouseClicked
@@ -302,12 +372,50 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void listUserPrvValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listUserPrvValueChanged
         // TODO add your handling code here:
-        JList changedList = (JList)evt.getSource();
-        if (listUserPrv == changedList){
-            System.out.println("gogogo");
-            txtContent.setText("");
-        }
+        txtContent.setText("");
+        boolean adjust = evt.getValueIsAdjusting();
+        if (!adjust){
+            try {
+                JList changedList = (JList)evt.getSource();
+                if (listUserPrv == changedList){
+                    System.out.println("gogogo");
+                    //txtContent.setText("");
+                    Map<String, MessageStruct> dataMap = new HashMap<String, MessageStruct>();
+                    dataMap = dataControl.GetList(listUserPrv.getSelectedValue());
+                    //for (int i = 0; i < dataMap.size(); i++){
+                    for (String key: dataMap.keySet()){
+                        MessageStruct ms = new MessageStruct();
+                        ms = dataMap.get(key);
+                        //System.out.println(sP.GetUserName());
+                        //System.out.println(ms.desUsr + "z");
+                        if (ms.desUsr.contains(sP.GetUserName())){
+                            txtContent.append(ms.curUsr + ": " + ms.Message + "\n");
+                        }
+                        else {
+                            txtContent.append(ms.Message + "\n");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+            }
+            
+            }
+        
     }//GEN-LAST:event_listUserPrvValueChanged
+
+    private void jMenuItemSignOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemSignOutActionPerformed
+        // TODO add your handling code here:
+        g.client.SignOut();
+        
+        
+    }//GEN-LAST:event_jMenuItemSignOutActionPerformed
+
+    private void jMenuItemChangePassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemChangePassActionPerformed
+        // TODO add your handling code here:
+        int mcUser = JOptionPane.INFORMATION_MESSAGE;
+        String sUser = JOptionPane.showInputDialog (null, "Type Password to change", "Chang password ", mcUser);
+        g.client.RePass(sUser);
+    }//GEN-LAST:event_jMenuItemChangePassActionPerformed
 
     /**
      * @param args the command line arguments
@@ -341,9 +449,9 @@ public class ClientGUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ClientGUI().setVisible(true);
-                int k = 98;
-                char cm = (char) k;
-                System.out.println(cm);
+//                int k = 98;
+//                char cm = (char) k;
+//                System.out.println(cm);
             }
         });
     }
@@ -355,7 +463,10 @@ public class ClientGUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenuAccount;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItemChangePass;
+    private javax.swing.JMenuItem jMenuItemSignOut;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

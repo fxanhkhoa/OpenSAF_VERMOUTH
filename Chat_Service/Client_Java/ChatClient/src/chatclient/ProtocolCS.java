@@ -11,9 +11,9 @@ import java.nio.ByteBuffer;
  *
  * @author ubuntu
  */
-public class ProtocolCS {
+public class ProtocolCS{
     public enum commandCode{
-        None,
+        None,//0
         Signup,
         Signin,
         PrivateChat,
@@ -22,9 +22,12 @@ public class ProtocolCS {
         DeleteRoom,
         InviteToRoom,
         KickFromRoom,
-        SignOut,
+        SignOut,//9
         RequestToRoom,
+        RePass//11
     };
+    // 999 request connect server
+    // 998 success
     
     public static String username;
     public static String password;
@@ -34,7 +37,10 @@ public class ProtocolCS {
     public String desUsername; // 30 characters
     public String ownPassword; // 30 characters
     public String roomPassword; // 30 characters
-    public String message; // 896 characters
+    public String message; // 892 characters
+    public int mIDUser;
+    
+    private SavedPreference sP =  SavedPreference.getInstance();
 
     public ProtocolCS() {
     }
@@ -52,6 +58,7 @@ public class ProtocolCS {
         char[] cbuf = new char[1024];
         char[] number_cmd = new char[4];
         char[] number_room = new char[4];
+        char[] number_user_ID = new char[4];
         //number_cmd = Character.toChars(command);
         //number_cmd = Character.allocate(4).putInt(command).array();
         //number_room = Character.toChars(IDRoom);
@@ -60,6 +67,11 @@ public class ProtocolCS {
         number_cmd[1] = (char) ((command >> 8) & 0xFF);
         number_cmd[2] = (char) ((command >> 16) & 0xFF);
         number_cmd[3] = (char) ((command >> 24) & 0xFF);
+        
+        System.out.print(number_cmd[0]);
+        System.out.print(number_cmd[1]);
+        System.out.print(number_cmd[2]);
+        System.out.println(number_cmd[3]);
         
         number_room[0] = (char) ((IDRoom >> 0) & 0xFF);
         number_room[1] = (char) ((IDRoom >> 8) & 0xFF);
@@ -91,6 +103,18 @@ public class ProtocolCS {
         tempLength = message.length();
         for (int i = 0; i < tempLength; i++){
             cbuf[128 + i] = message.charAt(i);
+        }
+        
+        mIDUser = sP.IDUser;
+        
+        number_user_ID[0] = (char) ((mIDUser >> 0) & 0xFF);
+        number_user_ID[1] = (char) ((mIDUser >> 8) & 0xFF);
+        number_user_ID[2] = (char) ((mIDUser >> 16) & 0xFF);
+        number_user_ID[3] = (char) ((mIDUser >> 24) & 0xFF);
+        System.err.println(number_user_ID);
+        System.err.println(mIDUser);
+        for (int i = 0; i < 4; i++){
+            cbuf[1020 + i] = number_user_ID[i];
         }
         return cbuf;
     }

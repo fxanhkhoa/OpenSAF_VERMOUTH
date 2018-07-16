@@ -8,6 +8,7 @@ package chatclient;
 import java.net.*;
 import java.io.*;
 import chatclient.Global;
+import java.util.concurrent.TimeUnit;
 /**
  *
  * @author shawry
@@ -19,14 +20,25 @@ public class Client {
     */
     public static final int OK = 1;
     public static final int ERROR = -1;
-    private static String SERVERIP = "localhost";
+
+    private static String SERVERIP = "192.168.122.239";
     private static int SERVERPORT = 8888;
+
+    //private static String SERVERIP = "10.0.3.105";
+    //private static int SERVERPORT = 8888;
+
     public final int ADDOK = 2;
     public final int DELOK = 3;
     public final int PRVOK = 4;
     public final int ROOMOK = 5;
     public final int SIGNOUTOK = 6;
     public final int SIGNINOK = 101;
+    /* add to sign up */
+    
+    public final int SIGNUPOK = 105;
+    public final int REPASSOK = 110;
+    
+    /*----------------------------------*/
     public final int RADDOK = 8;
     public final int RDELOK = 9;
     public final int ADDROOMOK = 107;
@@ -42,37 +54,113 @@ public class Client {
     private char[] recvData = new char[1024];
     private boolean status = false;
     private int isDataReceived = 0;
-    private static Thread readMessage;
+    public static Thread readMessage,reconnect;
     private char[] desUser = new char[30];
     private char[] curUser = new char[30];
     private char[] Message = new char[896];
+    public String userNameInGlobal;
     private ProtocolCS blockToSend;
     private int len;
+    private boolean ok = false;
+    private SavedPreference sP;
     /*
     Constructor Function
     */
     public Client(){
-        status = ConnectToServer();
         blockToSend = new ProtocolCS();
+        sP = SavedPreference.getInstance();
+        status = ConnectToServer();
+        
+        reconnect = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    try {
+                        if (status == false){
+                            ConnectToServer();
+                        }
+                        else if (status == true){
+                            os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                            is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        }
+                        System.err.println("in");
+                        if (GetCommandCode() != SIGNINOK){
+                            SignIn(sP.GetUserName(), sP.GetPassword());
+                        }
+                        else if (GetCommandCode() == SIGNINOK){
+                            System.err.println("Sign again ok");
+                            reconnect.stop();
+                        }
+                        if (GetCommandCode() != 998){
+                            //readMessage.wait(1000);
+                            System.err.println("in send 999");
+                            blockToSend.command = 999;
+                            blockToSend.IDRoom = 0;
+                            blockToSend.ownUsername = sP.GetUserName();
+                            blockToSend.desUsername = "";
+                            blockToSend.ownPassword = "";
+                            blockToSend.roomPassword = "";
+                            blockToSend.message = "";
+                            blockToSend.mIDUser = sP.GetIDUser();
+                            Send(blockToSend.GetText());
+                            System.err.println("send 999 ok");
+                            System.err.print(blockToSend.mIDUser);
+                            System.err.println(blockToSend.command);
+                            System.out.println("start of command");
+                            System.out.println((blockToSend.command >> 0) & 0xFF);
+                            System.out.println((blockToSend.command >> 8) & 0xFF);
+                            System.out.println((blockToSend.command >> 16) & 0xFF);
+                            System.out.println((blockToSend.command >> 24) & 0xFF);
+                        }
+                        else if (GetCommandCode() == 998){
+                            System.err.println("gotcha");
+                            reconnect.stop();
+                        }
+                        if (IsDataReceived() == 1){
+                            System.err.println("thread stop");
+                            reconnect.stop();
+                        }
+                        Thread.sleep(1000);
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        });
         readMessage = new Thread(new Runnable() {
             @Override
             public void run() {
                 while (true){
                     try {
 //                        //recvData = "";
+                        if (status == true){
+                            
+                        }
                         len = is.read(recvData);
-                        if (len > 0){
+                        if (len == 1024){
 //                            recvData.trim();
                             //recvData.replace("null", "");
-                            //isDataReceived = 1;
+                            isDataReceived = 1;
                             //Send(recvData);
 //                            //if (recvData.contains("CLSIGNOK")) status = false;
                             System.out.println(len);
                             System.out.println(recvData);
+                            is.reset();
+                            if (GetCommandCode() == 998){
+                                System.err.println("998 OK");
+                                reconnect.stop();
+                            }
                         }
                         else if (len < 0){
                             System.err.println("Server error");
+                            status = false;
+                            socket.close();
+                            os.close();
+                            is.close();
+                            isDataReceived = 0;
                            //readMessage.stop();
+                           //ConnectToServer();
+                           if (!reconnect.isAlive())
+                            reconnect.start();
                         }
                     } catch (Exception e) {
                     }
@@ -95,15 +183,16 @@ public class Client {
     {
         try
         {
-            this.socket = new Socket(SERVERIP,SERVERPORT);
+            this.socket = new Socket(sP.GetServerIP(),sP.GetServerPORT());
             os = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
             is = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             status=true;
+            System.out.println("Connect successful");
         }
         catch (IOException e)
         {
             status=false;
-            System.err.println("Can't connect to server" + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
             return false;
             
         }    
@@ -115,7 +204,7 @@ public class Client {
     }
     public void ClearData()
     {
-        recvData = new char[1024];
+        recvData[0] = recvData[1] = recvData[2] = recvData[3] = 0;
         //recvData = "";
     }
     public int SignIn(String usr, String pass)
@@ -127,6 +216,11 @@ public class Client {
         blockToSend.ownPassword = pass;
         blockToSend.roomPassword = "";
         blockToSend.message = "";
+        blockToSend.mIDUser = 1;
+        System.out.print((blockToSend.command >> 0) & 0xFF);
+                            System.out.print((blockToSend.command >> 8) & 0xFF);
+                            System.out.print((blockToSend.command >> 16) & 0xFF);
+                            System.out.println((blockToSend.command >> 24) & 0xFF);
         return Send(blockToSend.GetText());
     }
     public int SignUp(String usr, String pass)
@@ -144,13 +238,32 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.SignOut.ordinal();
         blockToSend.IDRoom = 0;
-        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.ownUsername = sP.GetUserName();;
         blockToSend.desUsername = "";
-        blockToSend.ownPassword = blockToSend.password;
+        blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
         blockToSend.message = "";
         return Send(blockToSend.GetText());
     }
+    /*
+    Function name: Repass
+    Description: Repass - 11 , send block to server
+    Argument: Int
+    Return: Send block to server
+    Note:
+    */
+    public int RePass(String passU)
+    {
+        blockToSend.command = ProtocolCS.commandCode.RePass.ordinal();
+        blockToSend.IDRoom = 0;
+        blockToSend.ownUsername = sP.GetUserName();
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = passU;
+        blockToSend.roomPassword = "";
+        blockToSend.message = "";
+        return Send(blockToSend.GetText());
+    }
+    
     public void GetOnlineList()
     {
         
@@ -176,11 +289,11 @@ public class Client {
             //String temp = str.toString();
             
             os.write(str);
-            os.write("12345");
-            os.newLine();
+ 
             os.flush();
+            //System.out.flush();
             //System.out.print(blockToSend.command + blockToSend.IDRoom );
-            System.out.print(str);
+            //System.out.print(str);
             //System.out.println("zzzzz");
         } catch(IOException e){
             System.out.println(e);
@@ -199,7 +312,7 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.PrivateChat.ordinal();
         blockToSend.IDRoom = 0;
-        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.ownUsername = sP.GetUserName();
         blockToSend.desUsername = desusr;
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
@@ -335,7 +448,13 @@ public class Client {
     public int GetCommandCode()
     {
         int temp = RebuildCmd(recvData);
-        //System.out.println(temp);
+        if (temp != 0){
+            System.out.println(temp);
+            System.out.println((int)recvData[1020]);
+            System.out.println((int)recvData[1021]);
+            System.out.println((int)recvData[1022]);
+            System.out.println((int)recvData[1023]);
+        }
         if (temp == SIGNINOK){
             return SIGNINOK;
         }
@@ -345,6 +464,9 @@ public class Client {
         else if (temp == ProtocolCS.commandCode.PrivateChat.ordinal()){
             Split();
             return RECVPRV;
+        }
+        else if (temp == 998){
+            return (int)998;
         }
 //        if (recvData.contains("CLADDOK"))
 //        {
@@ -392,7 +514,14 @@ public class Client {
 //            Split();
 //            return RECVROOM;
 //        }
-        return OK;
+        return temp;
+    }
+    
+    public int GetIDUser(){
+        int IDUser = (int)((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
+        System.out.println(IDUser);
+        sP.IDUser = IDUser;
+        return (int)((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
     }
     
     /*
@@ -436,7 +565,7 @@ public class Client {
     
     public char[] GetName()
     {
-        return desUser;
+        return curUser;
     }
     
     public char[] GetMessage()
@@ -454,9 +583,16 @@ public class Client {
     Return: Int
     Note:
     */
-    public int SendMsgToRoom(String room, String msg)
+    public int SendMsgToRoom(int idRoom,String desusr, String msg)
     {
-        return 1;    
+        blockToSend.command = ProtocolCS.commandCode.RoomChat.ordinal();
+        blockToSend.IDRoom = idRoom;
+        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.desUsername = desusr;
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = "";
+        blockToSend.message = msg;
+        return Send(blockToSend.GetText()); 
     }
      /*
     Function name: AddFriendToRoom()
@@ -465,9 +601,19 @@ public class Client {
     Return: Int
     Note:
     */
-    public int AddFriendToRoom(String room, String usr)
+    public int AddFriendToRoom(int roomID, String desusr)
     {
-        return 1;    
+        
+        blockToSend.command = ProtocolCS.commandCode.InviteToRoom.ordinal();
+        blockToSend.IDRoom = roomID;
+        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.desUsername = desusr;
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = "";
+        blockToSend.message = "";
+        return Send(blockToSend.GetText());
+        
+        
     }
       /*
     Function name: AddNewRoom()

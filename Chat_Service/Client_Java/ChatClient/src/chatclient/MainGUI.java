@@ -23,12 +23,14 @@ public class MainGUI extends javax.swing.JFrame {
      */
     public String sUser,sPass;
     Global g ;
+    SavedPreference sP;
     Thread waitthr;
     ProtocolCS p ;
     
     public MainGUI() {
         initComponents();
         g = Global.getInstance();
+        sP = SavedPreference.getInstance();
         p = new ProtocolCS();
         waitthr = new Thread(new Runnable() {
                         @Override
@@ -37,14 +39,14 @@ public class MainGUI extends javax.swing.JFrame {
                                 try{
                                     if (g.client.IsDataReceived() == 1){
                                         btnSignIn.setEnabled(true);
+                                        
                                     }
                                     if (g.client.GetCommandCode() == g.client.SIGNINOK){
                                         //int mcServer = JOptionPane.INFORMATION_MESSAGE;
                                         //JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
-                                        g.SetUserName(txtUser.getText());
-                                        g.SetPass(txtPass.getText());
-                                        p.username = txtUser.getText();
-                                        p.password = txtPass.getText();
+                                        sP.SetUserName(txtUser.getText());
+                                        sP.SetPass(txtPass.getText());
+                                        g.client.GetIDUser();
                                         g.client.ClearData();
                                         ClientGUI clientGui = new ClientGUI();
                                         clientGui.setVisible(true);
@@ -94,6 +96,11 @@ public class MainGUI extends javax.swing.JFrame {
         });
 
         btnSignUp.setText("Sign Up");
+        btnSignUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSignUpActionPerformed(evt);
+            }
+        });
 
         jLabel2.setText("Need an account? Register now!!!");
 
@@ -207,6 +214,7 @@ public class MainGUI extends javax.swing.JFrame {
                         g.client.SignIn(sUser, sPass);
                         //System.out.println("as");
                         
+                        
                     btnSignIn.setEnabled(false);
                     //}
                 }
@@ -221,6 +229,17 @@ public class MainGUI extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnSignInActionPerformed
 
+    
+    /* add function sign up  */
+    private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
+        // TODO add your handling code here:
+        
+        /* ADD FUCNTION SIGN UP */
+        SignUpGUI signupGui = new SignUpGUI();
+        signupGui.setVisible(true);
+        MainGUI.this.dispose();
+    }//GEN-LAST:event_btnSignUpActionPerformed
+        /* END FUCNTION SIGN UP  */
     /**
      * @param args the command line arguments
      */

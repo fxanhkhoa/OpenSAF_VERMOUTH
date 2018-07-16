@@ -39,8 +39,6 @@ public class RoomGUI extends javax.swing.JFrame {
      
     Global g = Global.getInstance();
     private boolean checkUser=true;
-    
-  
      /**
      * End line
      */
@@ -51,7 +49,7 @@ public class RoomGUI extends javax.swing.JFrame {
             listModel = new DefaultListModel();
             lbRoomName.setText(String.valueOf(Name));
             IDRoom = Name;
-         
+            
             waitThr = new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -96,9 +94,9 @@ public class RoomGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jpuOption = new javax.swing.JPopupMenu();
-        jMenuKick = new javax.swing.JMenuItem();
-        jMenuExit = new javax.swing.JMenuItem();
+        pmRightClick = new javax.swing.JPopupMenu();
+        jmiKick = new javax.swing.JMenuItem();
+        jmiExit = new javax.swing.JMenuItem();
         lbRoomName = new javax.swing.JLabel();
         lbHostName = new javax.swing.JLabel();
         btnAddUser = new javax.swing.JButton();
@@ -111,21 +109,27 @@ public class RoomGUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txtContent = new javax.swing.JTextArea();
 
-        jMenuKick.setText("Kick");
-        jMenuKick.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuKickActionPerformed(evt);
+        pmRightClick.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                pmRightClickMousePressed(evt);
             }
         });
-        jpuOption.add(jMenuKick);
 
-        jMenuExit.setText("Exit");
-        jMenuExit.addActionListener(new java.awt.event.ActionListener() {
+        jmiKick.setText("Kick");
+        jmiKick.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuExitActionPerformed(evt);
+                jmiKickActionPerformed(evt);
             }
         });
-        jpuOption.add(jMenuExit);
+        pmRightClick.add(jmiKick);
+
+        jmiExit.setText("Exit");
+        jmiExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jmiExitActionPerformed(evt);
+            }
+        });
+        pmRightClick.add(jmiExit);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addMouseListener(new java.awt.event.MouseAdapter() {
@@ -163,11 +167,6 @@ public class RoomGUI extends javax.swing.JFrame {
 
         jLabel1.setText("List");
 
-        listUser.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseReleased(java.awt.event.MouseEvent evt) {
-                listUserMouseReleased(evt);
-            }
-        });
         jScrollPane2.setViewportView(listUser);
 
         txtContent.setColumns(20);
@@ -198,11 +197,11 @@ public class RoomGUI extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(22, 22, 22)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 689, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(390, Short.MAX_VALUE)
+                .addContainerGap(387, Short.MAX_VALUE)
                 .addComponent(txtChat, javax.swing.GroupLayout.PREFERRED_SIZE, 689, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -241,7 +240,10 @@ public class RoomGUI extends javax.swing.JFrame {
 	sUser = JOptionPane.showInputDialog (null, "Type User", "Add USer to Private Chat", mc);
         //System.out.println(sUser);
         
-        g.client.AddFriendToRoom(lbRoomName.getText(),sUser); //sUser
+        String IDROOM ="0";
+        IDROOM=lbRoomName.getText();
+        
+        g.client.AddFriendToRoom(Integer.parseInt(IDROOM),sUser); //sUser
         
     }//GEN-LAST:event_btnAddUserActionPerformed
 
@@ -250,8 +252,10 @@ public class RoomGUI extends javax.swing.JFrame {
         if(evt.getKeyCode()==KeyEvent.VK_ENTER)
         {
             if (listUser.getModel().getSize() > 0){
+                String IDROOM ="0";
+                IDROOM=lbRoomName.getText();
                 txtContent.append(txtChat.getText() + "\n");
-                g.client.SendMsgToRoom(lbRoomName.getText(),g.GetUserName() + ": " +txtChat.getText());
+                g.client.SendMsgToRoom(Integer.parseInt(IDROOM),String.valueOf(g.client.GetDesName()),txtChat.getText());
                 //System.out.println("SEND ");
                 txtChat.setText("");
             }
@@ -272,38 +276,39 @@ public class RoomGUI extends javax.swing.JFrame {
         g.client.RemoveFriendFromRoom(sUser, IDRoom, "");
     }//GEN-LAST:event_btnKickUserActionPerformed
 
-    private void listUserMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listUserMouseReleased
+    private void pmRightClickMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_pmRightClickMousePressed
+        // TODO add your handling code here:
+       
+    }//GEN-LAST:event_pmRightClickMousePressed
+
+    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+
         // TODO add your handling code here:
         if(evt.isPopupTrigger())
         {
-            
+            pmRightClick.show(this, evt.getX(), evt.getY());
         }
-    }//GEN-LAST:event_listUserMouseReleased
+        
+    }//GEN-LAST:event_formMousePressed
 
     private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
         // TODO add your handling code here:
-            //if(evt.isPopupTrigger())
-                //jPopupMenu1.show(this,evt.getX(),evt.getY());
-        
+          
     }//GEN-LAST:event_formMouseReleased
 
-    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
-        // TODO add your handling code here:
-            if(evt.isPopupTrigger())
-                jpuOption.show(this,evt.getX(),evt.getY());
-    }//GEN-LAST:event_formMousePressed
-
-    private void jMenuKickActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuKickActionPerformed
-        // TODO add your handling code here:
-        
-        //g.client.RemoveFriendFromRoom(sUser, NORMAL, sUser);
-        System.out.println("KICK!!!!!");
-    }//GEN-LAST:event_jMenuKickActionPerformed
-
-    private void jMenuExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuExitActionPerformed
+    private void jmiExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiExitActionPerformed
         // TODO add your handling code here:
         this.dispose();
-    }//GEN-LAST:event_jMenuExitActionPerformed
+    }//GEN-LAST:event_jmiExitActionPerformed
+
+    private void jmiKickActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jmiKickActionPerformed
+        // TODO add your handling code here:
+        int mc = JOptionPane.INFORMATION_MESSAGE;
+	sUser = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
+        
+        g.client.RemoveFriendFromRoom(sUser, IDRoom, "");
+        System.out.println("KICK!!!!!");
+    }//GEN-LAST:event_jmiKickActionPerformed
 
     /*public boolean checkAbleUser(String sUser)
 {
@@ -374,14 +379,14 @@ public class RoomGUI extends javax.swing.JFrame {
     private javax.swing.JButton btnKickUser;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JMenuItem jMenuExit;
-    private javax.swing.JMenuItem jMenuKick;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JPopupMenu jpuOption;
+    private javax.swing.JMenuItem jmiExit;
+    private javax.swing.JMenuItem jmiKick;
     private javax.swing.JLabel lbHostName;
     private javax.swing.JLabel lbRoomName;
     private javax.swing.JList<String> listUser;
+    private javax.swing.JPopupMenu pmRightClick;
     private javax.swing.JTextField txtChat;
     private javax.swing.JTextArea txtContent;
     // End of variables declaration//GEN-END:variables
