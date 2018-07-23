@@ -20,5 +20,17 @@
 #include <fstream>
 #include "List.h"
 #include <vector>
+#include <map>
 #include <stack>
+#include <errno.h>
+#include <poll.h>
+#include <syslog.h>
+#include <libgen.h>
+#include <signal.h>
+#include <saAmf.h>
+#include <saAis.h>
+#include <malloc.h>
+#include <ctype.h>
+#include <saImm.h>
+#include <saImmOm.h>
 using namespace std;

@@ -1,8 +1,10 @@
 #pragma once
 #include "include.h"
+
 //using namespace std;
 int connect_to_sv(const char *host, int port = 8888);
 int open_listening_socket(int _port);
+
 // template <class T>
 // int binarySearch(T arr[], int l, int r, int x);
 struct block_data
@@ -14,10 +16,11 @@ struct block_data
     char sender_pass[30];
     char room_pass[30];
     char mess[892];
+    int u_id;
 
     block_data()
     {
-        cmd = room_id  = 0;
+        cmd = room_id  = u_id=0;
         memset(sender_username, 0, 30);
         memset(recver_usename, 0, 30);
         memset(sender_pass, 0, 30);

@@ -17,7 +17,7 @@ private:
   user *captain;
   char pass[30];
   static int ID;
-
+  set<int> id_user;//stand by sv
 public:
   room(const char *r_name, user *owner, const char *passwd); //da lam
   room();                                                       //da lam

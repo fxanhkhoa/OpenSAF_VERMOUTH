@@ -59,6 +59,8 @@ public class ProtocolCS{
         char[] number_cmd = new char[4];
         char[] number_room = new char[4];
         char[] number_user_ID = new char[4];
+        
+        cbuf[0] = '\0';
         //number_cmd = Character.toChars(command);
         //number_cmd = Character.allocate(4).putInt(command).array();
         //number_room = Character.toChars(IDRoom);
@@ -116,6 +118,7 @@ public class ProtocolCS{
         for (int i = 0; i < 4; i++){
             cbuf[1020 + i] = number_user_ID[i];
         }
+        
         return cbuf;
     }
  }

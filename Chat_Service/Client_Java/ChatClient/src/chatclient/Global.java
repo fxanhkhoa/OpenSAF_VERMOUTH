@@ -90,6 +90,10 @@ public class Global {
         }
         return instance;
     }
+    public static synchronized Global removeInstance(){
+        instance=null;
+        return instance;
+    }
     
     public void Release(){
         client = null;

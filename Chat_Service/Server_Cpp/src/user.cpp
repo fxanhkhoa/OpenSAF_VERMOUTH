@@ -25,26 +25,13 @@ bool operator==(user x, user y)
     return strcmp(x.user_name, y.user_name) == 0;
 }
 
-user::user(const char *u_name, const char *p, int s)
+user::user(const char *u_name, const char *p)
 {
     strcpy(user_name, u_name);
     strcpy(pass, p);
-    sex = s;
+   // sex = s;
     u_ID = ++user_id;
-  //  u = NULL;
-}
-ostream &operator<<(ostream &os, user x)
-{
-    os << x.user_name << '\t' << x.pass << endl;
-    return os;
-}
-
-istream &operator>>(istream &is, user &x)
-{
-    is >> x.user_name >> x.pass;
-    //  char x[10];
-    is.get();
-    return is;
+    //  u = NULL;
 }
 
 const char *user::get_key()
@@ -58,13 +45,13 @@ user::user(const user &u)
     strcpy(this->user_name, u.user_name);
     strcpy(this->pass, u.pass);
     this->u_ID = u.u_ID;
-   // this->u = u.u;
+    // this->u = u.u;
 }
 
 user::user()
 {
     this->u_ID = ++user_id;
-  //  u = NULL;
+    //  u = NULL;
 }
 
 void user::show()
@@ -75,4 +62,11 @@ void user::show()
 int user::get_id()
 {
     return u_ID;
+}
+
+user::user(const char *n, const char *p, int i)
+{
+    this->u_ID = i;
+    strcpy(this->user_name, n);
+    strcpy(this->pass, p);
 }

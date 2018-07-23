@@ -15,4 +15,14 @@
     <DestinationUser>b</DestinationUser>
     <Message>qwe</Message>
   </block>
+<block id="3">
+    <CurrentUser>a</CurrentUser>
+    <DestinationUser>b</DestinationUser>
+    <Message>ksksksk</Message>
+  </block>
+<block id="4">
+    <CurrentUser>a</CurrentUser>
+    <DestinationUser>b</DestinationUser>
+    <Message>jsjsjsjsj</Message>
+  </block>
 </PrivateMessage>

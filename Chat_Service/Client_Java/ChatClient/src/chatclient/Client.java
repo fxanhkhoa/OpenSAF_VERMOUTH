@@ -18,11 +18,11 @@ public class Client {
     /*
     Constant status of function return
     */
+    // send msg to server
     public static final int OK = 1;
     public static final int ERROR = -1;
 
-    private static String SERVERIP = "192.168.122.239";
-    private static int SERVERPORT = 8888;
+
 
     //private static String SERVERIP = "10.0.3.105";
     //private static int SERVERPORT = 8888;
@@ -31,12 +31,32 @@ public class Client {
     public final int DELOK = 3;
     public final int PRVOK = 4;
     public final int ROOMOK = 5;
-    public final int SIGNOUTOK = 6;
+    /* add to sign up */
+    public final int SIGNOUTOK = 506;
+    public final int SIGNINFAIL = 100;
+    
     public final int SIGNINOK = 101;
     /* add to sign up */
     
     public final int SIGNUPOK = 105;
+    public final int SIGNUPFAIL = 104;
     public final int REPASSOK = 110;
+    /*109 dang xuat*/
+    public final int OUTOK = 109;
+    /*----------------------------------*/
+    /* add to show list user & list room */
+    
+    public final int LISTUSEROK = 102;
+    public final int LISTROOMOK = 103;
+    public final int ONLINEUSEROK = 66301; // In char is 997
+    public final int ONLINEUSERADDED = 888; // Added online user
+    public final int OUTDONE = 887; // Added online user
+    
+    /*----------------------------------*/
+    /* add to show list user & list room */
+    
+    public final int REQUIREADD = 500;
+    //public final int LISTROOMOK = 103;
     
     /*----------------------------------*/
     public final int RADDOK = 8;
@@ -62,7 +82,7 @@ public class Client {
     private ProtocolCS blockToSend;
     private int len;
     private boolean ok = false;
-    private SavedPreference sP;
+    public SavedPreference sP;
     /*
     Constructor Function
     */
@@ -112,14 +132,14 @@ public class Client {
                             System.out.println((blockToSend.command >> 16) & 0xFF);
                             System.out.println((blockToSend.command >> 24) & 0xFF);
                         }
-                        else if (GetCommandCode() == 998){
+                        else if (GetCommandCode() == 66302){
                             System.err.println("gotcha");
                             reconnect.stop();
                         }
-                        if (IsDataReceived() == 1){
-                            System.err.println("thread stop");
-                            reconnect.stop();
-                        }
+//                        if (IsDataReceived() == 1){
+//                            System.err.println("thread stop");
+//                            reconnect.stop();
+//                        }
                         Thread.sleep(1000);
                     } catch (Exception e) {
                     }
@@ -136,19 +156,45 @@ public class Client {
                             
                         }
                         len = is.read(recvData);
+ 
+                        //System.out.println(len);
+                        if (GetCommandCode() == LISTUSEROK ){
+                            System.out.println("list vao " + len);
+                            //Split();
+//                            curUser[0] = recvData[12];
+//                            curUser[1] = recvData[13];
+//                            curUser[2] = recvData[14];
+                        }
+
                         if (len == 1024){
 //                            recvData.trim();
                             //recvData.replace("null", "");
                             isDataReceived = 1;
-                            //Send(recvData);
-//                            //if (recvData.contains("CLSIGNOK")) status = false;
-                            System.out.println(len);
+//                            //Send(recvData);
+////                            //if (recvData.contains("CLSIGNOK")) status = false;
+//                            //System.out.println(len);
                             System.out.println(recvData);
+//                            System.out.println(Integer.toBinaryString(recvData[0]));
+//                            System.out.println((byte)recvData[1]);
+//                            System.out.println((char)recvData[2]);
+//                            System.out.println((char)recvData[3]);
+//                            System.out.println((char)65533);
+//                            char k = 230
+                            int f = recvData[0] + (recvData[1] << 8);
+                            System.err.println("push cmd here" + f);
+//                            char k = 229, k1 = 3;
+//                            int t = (int)k + (k1 << 8);
+//                            System.err.println(t);
                             is.reset();
-                            if (GetCommandCode() == 998){
-                                System.err.println("998 OK");
-                                reconnect.stop();
-                            }
+ 
+//                            if (GetCommandCode() == 102){
+//                                System.err.println("102 OK");
+//                                reconnect.stop();
+//                            }
+//                            else if (GetCommandCode() == 103){
+//                                System.err.println("103 OK");
+//                            }
+ 
                         }
                         else if (len < 0){
                             System.err.println("Server error");
@@ -160,7 +206,10 @@ public class Client {
                            //readMessage.stop();
                            //ConnectToServer();
                            if (!reconnect.isAlive())
-                            reconnect.start();
+                           {
+                               reconnect.start();
+                               System.out.println("Reconnect successfully");
+                           }
                         }
                     } catch (Exception e) {
                     }
@@ -169,6 +218,27 @@ public class Client {
         });
         readMessage.start();
     }
+    
+    /*
+ 
+    *Function : StopRecon()
+    *Description: Stop ReConnect to a server  .
+    *Argument: Nope
+    *Return: None.
+    Note:  
+
+    */
+    
+   public void StopRecon(){
+       if(reconnect.isAlive())
+       reconnect.interrupt();
+       
+   }
+   
+   public void Recon(){
+       ConnectToServer();
+   }
+ 
     
     /*
  
@@ -198,15 +268,45 @@ public class Client {
         }    
         return true;
     }
+    /*
+ 
+    *Function : GetStatus()
+    *Description: Check status.
+    *Argument: Nope
+    *Return: true if connect successfully to server /false if fail.
+    Note:  
+
+    */
     public boolean GetStatus()
     {
         return status;
     }
+    /*
+ 
+    *Function : ClearData()
+    *Description: Clear data recv.
+    *Argument: Nope
+    *Return: None
+    Note:  
+
+    */
     public void ClearData()
     {
-        recvData[0] = recvData[1] = recvData[2] = recvData[3] = 0;
+        recvData[0] = '\0';
+//        recvData[1] = 0;
+//        recvData[2] = 0;
+//        recvData[3] = 0;
         //recvData = "";
     }
+    /*
+ 
+    *Function : SignIn(String usr, String pass)
+    *Description: Send block data to server
+    *Argument:  String usr, String pass
+    *Return: 1<-successful
+    Note:  
+
+    */
     public int SignIn(String usr, String pass)
     {
         blockToSend.command = ProtocolCS.commandCode.Signin.ordinal();
@@ -223,6 +323,15 @@ public class Client {
                             System.out.println((blockToSend.command >> 24) & 0xFF);
         return Send(blockToSend.GetText());
     }
+    /*
+ 
+    *Function : SignUp(String usr, String pass)
+    *Description: Send block data to server
+    *Argument:  String usr, String pass 
+    *Return: 1  <---- successful
+    Note:  
+
+    */
     public int SignUp(String usr, String pass)
     {
         blockToSend.command = ProtocolCS.commandCode.Signup.ordinal();
@@ -234,15 +343,25 @@ public class Client {
         blockToSend.message = "";
         return Send(blockToSend.GetText());
     }
+    /*
+ 
+    *Function : SignOut()
+    *Description: Send block data to server
+    *Argument:  int
+    *Return: 1  <---- successful
+    Note:  
+
+    */
     public int SignOut()
     {
         blockToSend.command = ProtocolCS.commandCode.SignOut.ordinal();
         blockToSend.IDRoom = 0;
-        blockToSend.ownUsername = sP.GetUserName();;
+        blockToSend.ownUsername = sP.GetUserName();
         blockToSend.desUsername = "";
-        blockToSend.ownPassword = "";
+        blockToSend.ownPassword = sP.GetPassword();
         blockToSend.roomPassword = "";
         blockToSend.message = "";
+        
         return Send(blockToSend.GetText());
     }
     /*
@@ -277,9 +396,9 @@ public class Client {
         
     }
     /*
-    Function name: Send(string str)
-    Description: Send string to server
-    Argument: String 
+    Function name: Send(char[] str)
+    Description: Send block to server
+    Argument: int 
     Return: int error code
     Note:
     */
@@ -323,8 +442,8 @@ public class Client {
     /*
     Function name: Receive_data()
     Description: get current data in client
-    Argument: String 
-    Return: String
+    Argument: char[] 
+    Return: char[] data receive
     Note:
     */
     public char[] ReceiveData()
@@ -410,7 +529,7 @@ public class Client {
         blockToSend.message = "";
         return Send(blockToSend.GetText());
     }
-     /*
+    /*
     Function name: RemoveFriend()
     Description: Remove a friend from my list
     Argument: String username
@@ -426,17 +545,36 @@ public class Client {
     {
         
     }
-    
+    /*
+    Function name: RebuildCmd()
+    Description:  Build int cmd from char[] 
+    Argument: int
+    Return: int
+    Note:
+    */
     private int RebuildCmd(char[] input){
-        int temp = (int)((input[0]) | (input[1] << 8) | (input[2] << 16) | (input[3] << 24));
+        int temp = ((input[0]) + (input[1] << 8) + (input[2] << 16) + (input[3] << 24));
           
           System.out.flush();
 //        System.out.print((int)input[0]);
 //        System.out.print((int)input[1]);
 //        System.out.print((int)input[2]);
 //        System.out.println((int)input[3]);
-        return ((input[0]) | (input[1] << 8) | (input[2] << 16) | (input[3] << 24));
+        return temp;
     }
+    /*
+    Function name: GetIDRoom
+    Description: get ID ROOM
+    Argument: Nope
+    Return: Int
+    Note:
+    */
+      public int GetIDRoom(){
+        int IDRoom = (int)((recvData[4]) | (recvData[5] << 8) | (recvData[6] << 16) | (recvData[7] << 24));
+        System.out.println(IDRoom);
+        return (int)((recvData[4]) | (recvData[5] << 8) | (recvData[6] << 16) | (recvData[7] << 24));
+    }
+    
     
     /*
     Function name: GetCommandCode()
@@ -447,26 +585,83 @@ public class Client {
     */
     public int GetCommandCode()
     {
+//        if ((len != 0) && (len != 1020))
+//            System.err.println(len);
         int temp = RebuildCmd(recvData);
-        if (temp != 0){
+        if ((temp != 0) && (temp != 109) && (temp != 65535)&& (temp != 65532) ){
             System.out.println(temp);
-            System.out.println((int)recvData[1020]);
-            System.out.println((int)recvData[1021]);
-            System.out.println((int)recvData[1022]);
-            System.out.println((int)recvData[1023]);
+            System.out.println((int)recvData[0]);
+            System.out.println((int)recvData[1]);
+            System.out.println((int)recvData[2]);
+            System.out.println((int)recvData[3]);
         }
+        //Split();
         if (temp == SIGNINOK){
             return SIGNINOK;
         }
         else if (temp == ADDROOMOK){
             return ADDROOMOK;
         }
+        
         else if (temp == ProtocolCS.commandCode.PrivateChat.ordinal()){
             Split();
             return RECVPRV;
         }
+        /*update user online*/
+        else if (temp == ONLINEUSEROK){
+            Split();
+            int result;
+            result = sP.AddOnlineUser(curUser);
+            if (result == 1)
+                sP.size = sP.size + 1;
+            //System.err.println("added roi");
+            ClearData();
+            recvData[0] = 120;
+            recvData[1] = 3;
+            return ONLINEUSERADDED;
+        }
+        /* reconnect successfully*/
         else if (temp == 998){
             return (int)998;
+        }
+        /* one man online*/
+        else if (temp == LISTUSEROK){
+            System.err.println("LIST OK");
+            sP.size=GetSize();
+            for (int i = 0; i < sP.size; i++){
+                char[] usrOnline = new char[30];
+                for (int j = 4; j < 36; j++){
+                    if (recvData[i * 36 + j + 8] == '\0')
+                        break;
+                    usrOnline[j-4] = recvData[i * 36 + j + 8];
+                }
+                sP.AddOnlineUser(usrOnline);
+            }
+            return LISTUSEROK;
+        }
+        else if (temp == LISTROOMOK){
+            System.err.println("ROOM OK");
+            //Split();
+            return LISTROOMOK;
+        }
+        //109
+        else if (temp == OUTOK){
+            
+            /*find him*/
+            
+                char[] usrOffline = new char[30];
+                for (int j = 0; j < 30; j++){
+                    if (recvData[j+ 8] == '\0')
+                        break;
+                    usrOffline[j] = recvData[j+ 8];
+                }
+                sP.AddOfflineUser(usrOffline);
+                sP.size = sP.size-1;
+                ClearData();
+            //Split();
+                recvData[0] = 119;
+                recvData[1] = 3;
+            return OUTDONE;
         }
 //        if (recvData.contains("CLADDOK"))
 //        {
@@ -516,7 +711,26 @@ public class Client {
 //        }
         return temp;
     }
-    
+    /*
+    Function name: GetSize()
+    Description: Get Size
+    Argument: None
+    Return: Int
+    Note:
+    */
+    public int GetSize(){
+        int Size = (int)((recvData[4]) | (recvData[5] << 8) | (recvData[6] << 16) | (recvData[7] << 24));
+        System.out.println("day la size: " + Size);
+        //sP.size = Size;
+        return (int)((recvData[4]) | (recvData[5] << 8) | (recvData[6] << 16) | (recvData[7] << 24));
+    }
+    /*
+    Function name: GetIDUser()
+    Description: Get ID User
+    Argument: None
+    Return: Int
+    Note:
+    */
     public int GetIDUser(){
         int IDUser = (int)((recvData[1020]) | (recvData[1021] << 8) | (recvData[1022] << 16) | (recvData[1023] << 24));
         System.out.println(IDUser);
@@ -543,36 +757,64 @@ public class Client {
 //            //recvData = "";
 //            return OK;
 //        }
+        curUser[0] = '\0';
+        desUser[0] = '\0';
+        Message[0] = '\0';
         char[] tempData = new char[1024];
         tempData = recvData;
         //Get current User
         for (int i = 0; i < 30; i++){
+            if(tempData[8 + i]=='\0')
+                break;
             curUser[i] = tempData[8 + i];
         }
-        //System.out.println(curUser);
+        System.err.println( curUser);
         //Get destination User
         for (int i = 0; i < 30; i++){
+            if(tempData[38 + i]=='\0')
+                break;
             desUser[i] = tempData[38 + i];
         }
-        //System.out.println(desUser);
+        System.err.println( desUser);
         //Get message
         for (int i = 0; i < 896; i++){
+            if(tempData[128 + i]=='\0')
+                break;
             Message[i] = tempData[128 + i];
         }
         //System.out.println(Message);
         return OK;
     }
-    
+    /*
+    Function name: GetName()
+    Description: Get Name
+    Argument: None
+    Return: char[]
+    Note:
+    */
     public char[] GetName()
     {
+        
         return curUser;
     }
-    
+    /*
+    Function name: GetMessage()
+    Description: Get Message
+    Argument: None
+    Return: char[]
+    Note:
+    */
     public char[] GetMessage()
     {
         return Message;
     }
-    
+    /*
+    Function name: GetDesName()
+    Description: Get Destination Name
+    Argument: None
+    Return: char[]
+    Note:
+    */
     public char[] GetDesName(){
         return desUser;
     }
@@ -587,7 +829,7 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.RoomChat.ordinal();
         blockToSend.IDRoom = idRoom;
-        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.ownUsername = sP.GetUserName();
         blockToSend.desUsername = desusr;
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
@@ -606,7 +848,7 @@ public class Client {
         
         blockToSend.command = ProtocolCS.commandCode.InviteToRoom.ordinal();
         blockToSend.IDRoom = roomID;
-        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.ownUsername = sP.GetUserName();
         blockToSend.desUsername = desusr;
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
@@ -626,7 +868,7 @@ public class Client {
     {
         blockToSend.command = ProtocolCS.commandCode.CreateRoom.ordinal();
         blockToSend.IDRoom = roomID;
-        blockToSend.ownUsername = blockToSend.username;
+        blockToSend.ownUsername = sP.GetUserName();
         blockToSend.desUsername = "";
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";

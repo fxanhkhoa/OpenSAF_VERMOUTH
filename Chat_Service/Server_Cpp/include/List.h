@@ -1,8 +1,9 @@
 #pragma once
 #include "user.h"
 #include <vector>
+#include <syslog.h>
 using namespace std;
-
+extern mutex mu_lock_file;
 template <class T>
 class List
 {
@@ -18,20 +19,20 @@ class List
         {
             left = right = NULL;
         }
-        Node(const char *k, const char *p) : key(k, p)
+        Node(const char *k, const char *p, int _i = 0) : key(k, p, _i)
         {
             left = right = NULL;
         }
     };
     Node *root;
-    void map(fstream &f, Node *r)
+    void f_map(fstream &f, Node *r)
     {
         if (r)
         {
 
             f.write((char *)(&(r->key)), sizeof(T));
-            map(f, r->left);
-            map(f, r->right);
+            f_map(f, r->left);
+            f_map(f, r->right);
         }
     }
 
@@ -101,7 +102,37 @@ class List
         }
         return &(tmp->key);
     }
+    T *insert(const char *key, const char *pass, int _id)
+    {
+        Node *p = root, *q = NULL;
+        int f, x;
+        while (p != NULL)
+        {
+            x = strcmp(key, p->key.get_key());
+            if (x == 0)
+                return NULL;
+            q = p;
+            if (x < 0)
+                f = 1, p = p->left;
+            else
+                f = 0, p = p->right;
+        }
+        Node *tmp = new Node(key, pass, _id);
 
+        if (q == NULL)
+        {
+            root = tmp;
+        }
+
+        else
+        {
+            if (f)
+                q->left = tmp;
+            else
+                q->right = tmp;
+        }
+        return &(tmp->key);
+    }
     T *search(const char *k)
     {
         Node *p = root;
@@ -137,21 +168,26 @@ class List
     }
     void map_to_file(const char *file_name)
     {
+        mu_lock_file.lock();
         fstream f(file_name, ios::out | ios::binary);
-        map(f, root);
+        f_map(f, root);
         f.close();
+        mu_lock_file.unlock();
     }
     List(const char *file_name)
     {
         root = NULL;
-        fstream f(file_name, ios::in | ios::binary);
         T tmp;
+        mu_lock_file.lock();
+        fstream f(file_name, ios::in | ios::binary);
+
         while (!f.eof())
         {
             f.read((char *)(&tmp), sizeof(T));
             insert(tmp);
         }
         f.close();
+        mu_lock_file.unlock();
     }
 
     void remove(T k)
@@ -256,14 +292,44 @@ class List
     }
     void load(const char *file_name)
     {
+        syslog(6, "vo load file");
         root = NULL;
-        fstream f(file_name, ios::in | ios::binary);
         T tmp;
+        //int len;
+        mu_lock_file.lock();
+        fstream f(file_name, ios::in | ios::binary);
+        //FILE *f = fopen(file_name, "rb");
+
+        syslog(6, "vo load file 1");
         while (!f.eof())
         {
+            //  syslog(6, "vo load file 2");
             f.read((char *)(&tmp), sizeof(T));
+            // fread(&tmp, sizeof(T), 1, f);
             insert(tmp);
         }
         f.close();
+        //fclose(f);
+        syslog(6, "vo load file 3");
+        mu_lock_file.unlock();
+    }
+    int get_max_ID()
+    {
+        struct h
+        {
+            static int get(Node *r)
+            {
+                if (r)
+                {
+                    if (r->right)
+                    {
+                        return get(r->right);
+                    }
+                    else
+                        return r->key.get_id();
+                }
+            }
+        };
+        return h::get(root);
     }
 };
