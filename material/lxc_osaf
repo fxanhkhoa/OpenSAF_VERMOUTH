@@ -1,0 +1,509 @@
+#!/usr/bin/env bash
+
+# Please set OSAFREPO and LXCSHARED. Examples:
+# OSAFREPO=$HOME/opensaf-code
+# LXCSHARED=$HOME/lxc_osaf_shared
+
+OSAFREPO=$HOME/opensaf-code
+LXCSHARED=$HOME/lxc_shared
+
+if [ -z $OSAFREPO ] || [ -z $LXCSHARED ]; then
+    echo "Please set OSAFREPO and LXCSHARED, exiting..."; exit 1
+fi
+
+SC_NUM=2
+PL_NUM=2
+CONTAINER_NAME=(LXC_OSAF_1 LXC_OSAF_2 LXC_OSAF_3 LXC_OSAF_4)
+NODE_ID=(1 2 3 4)
+NODE_TYPE=(controller controller payload payload)
+NODE_NAME=(SC-1 SC-2 PL-3 PL-4)
+NODE_IP=(10.0.3.101 10.0.3.102 10.0.3.103 10.0.3.104)
+
+LXCINST=/tmp/rootfs
+CONTAINERS_DIR=/var/lib/lxc
+EXTRA_PKG="python sqlite3 libxml2 rsyslog valgrind strace ltrace psmisc"
+
+LOG_FILE=/tmp/$(basename "$0").log
+truncate -cs 0 "$LOG_FILE" 2> /dev/null
+
+USE_TIPC=0
+
+OSAF_COMMON_OPTION="\
+--disable-static \
+--disable-rpm-target \
+--disable-ais-evt \
+--disable-ais-lck \
+--disable-ais-msg \
+--disable-ais-ckpt \
+--disable-tests \
+--enable-imm-pbe \
+--enable-python"
+
+if [ "$USE_TIPC" == 1 ]; then
+    CLUSTER_CONFIG_FILE=$(dirname `readlink -f "$0"`)/lxccluster.conf
+    TIPC_CONFIG_FILE=$(dirname `readlink -f "$0"`)/tipc-config
+    OSAF_COMMON_OPTION="$OSAF_COMMON_OPTION --enable-tipc"
+fi
+
+
+osaf_build_cluster()
+{
+    local template=$(grep -E '^ID=' /etc/os-release | cut -f 2 -d '=')
+    local CONTAINER_CACHE_DIR=/var/cache/lxc/$(grep _CODENAME /etc/lsb-release | cut -f 2 -d "=")/rootfs-amd64
+
+    # Upgrade the cache
+    if sudo test ! -d "$CONTAINER_CACHE_DIR"; then
+        sudo lxc-create -t "$template" -n "losaf_dummy" -P "$CONTAINERS_DIR"
+        if [ $? -ne 0 ]; then
+            echo "===== create dummy container FAILED ====="
+            exit 1
+        fi
+        sudo lxc-destroy -n "losaf_dummy" -P "$CONTAINERS_DIR"
+    fi
+
+    sudo chroot "$CONTAINER_CACHE_DIR" /bin/bash -c "apt-key update"
+    sudo chroot "$CONTAINER_CACHE_DIR" /bin/bash -c "rm -Rf /var/lib/apt/lists/partial/* 2> /dev/null"
+    sudo chroot "$CONTAINER_CACHE_DIR" /bin/bash -c "apt-get -q update"
+    if [ $? -ne 0 ]; then
+        echo "===== apt-get update FAILED ====="
+        exit 1
+    fi
+    sudo chroot "$CONTAINER_CACHE_DIR" /bin/bash -c "apt-get -y upgrade"
+    sudo chroot "$CONTAINER_CACHE_DIR" /bin/bash -c "apt-get -y install $EXTRA_PKG"
+
+    echo "===== remove existing containers ====="
+    for (( i = 0; i < ${#CONTAINER_NAME[@]}; i++ )); do
+        # Stop and remove the nodes
+        sudo lxc-stop -n "${CONTAINER_NAME[$i]}" -P "$CONTAINERS_DIR"
+        sudo lxc-destroy -n "${CONTAINER_NAME[$i]}" -P "$CONTAINERS_DIR"
+
+        # Remove identification of the nodes on the host
+        ssh-keygen -f "$HOME/.ssh/known_hosts" -R "${NODE_IP[$i]}"
+    done
+
+
+    echo "===== build_cluster ====="
+    # Create ssh key and configure ssh
+    test -f "$HOME/.ssh/id_losaf" || ssh-keygen -N "" -f "$HOME/.ssh/id_losaf"
+    grep -Eq '\.ssh\/id_losaf' "$HOME/.ssh/config" || echo "
+# LOSAF
+Host 10.0.3.*
+    User root
+    ForwardAgent yes
+    StrictHostKeyChecking no
+    IdentityFile $HOME/.ssh/id_losaf
+# LOSAF
+" | tee -a "$HOME/.ssh/config"
+
+
+    # Create node0
+    sudo chmod +r "$CONTAINERS_DIR"
+    if mount | grep -q "$CONTAINERS_DIR/cache"; then
+        sudo umount "$CONTAINERS_DIR/cache"
+    fi
+
+    sudo lxc-create -t "$template" -n "${CONTAINER_NAME[0]}" -P "$CONTAINERS_DIR"
+
+    local node0_config_file=$CONTAINERS_DIR/${CONTAINER_NAME[0]}/config
+    local node0_rootfs=$CONTAINERS_DIR/${CONTAINER_NAME[0]}/rootfs
+
+
+    # Make dirs for node0
+    sudo mkdir -p \
+        "$node0_rootfs/shared" \
+        "$node0_rootfs/var/crash/opensaf" \
+        "$node0_rootfs/var/lib/opensaf" \
+        "$node0_rootfs/var/log/opensaf" \
+        "$node0_rootfs/var/cache/apt/archives" \
+        "$node0_rootfs/root/.ssh"
+
+
+    # Add mount points to shared fs
+    echo "
+# LOSAF extra configuration
+lxc.mount.entry = $LXCSHARED shared none rw,bind 0 0
+" | sudo tee -a "$node0_config_file"
+
+
+    # Config /root/.ssh for node0
+    sudo tee -a "$node0_rootfs/root/.ssh/authorized_keys" < "$HOME/.ssh/id_losaf.pub"
+    sudo cp "$HOME/.ssh/id_losaf" "$node0_rootfs/root/.ssh/"
+    echo "
+Host *
+    User root
+    ForwardAgent yes
+    StrictHostKeyChecking no
+    IdentityFile /root/.ssh/id_losaf
+
+" | sudo tee -a "$node0_rootfs/root/.ssh/config"
+
+
+    # Config hosts for node0
+    sudo sed -i 's:127.0..*::g' "$node0_rootfs/etc/hosts"
+    echo "10.0.3.254 losaf" | sudo tee -a "$node0_rootfs/etc/hosts"
+    for (( i = 0; i < ${#NODE_NAME[@]}; i++ )); do
+        echo "${NODE_IP[$i]} ${NODE_NAME[$i]}" | sudo tee -a "$node0_rootfs/etc/hosts"
+    done
+
+
+    # Edit rootfs/etc/network/interfaces and disable DHCP client
+    sudo sed -i 's:iface eth0 inet dhcp:#iface eth0 inet dhcp:g' "$node0_rootfs/etc/network/interfaces"
+
+
+    # Install tipc-config
+    if [ "$USE_TIPC" == 1 ]; then
+        sudo install "$TIPC_CONFIG_FILE" "$node0_rootfs/sbin/"
+    fi
+
+
+    # Align timezone in LXC with the one in HOST
+    sudo cp /etc/timezone "$node0_rootfs/etc/timezone"
+    if sudo test -f "$node0_rootfs/bin/systemd"; then
+        sudo chroot "$node0_rootfs" /bin/bash -c "timedatectl set-timezone $(cat /etc/timezone)"
+    else
+        sudo chroot "$node0_rootfs" /bin/bash -c "dpkg-reconfigure -f noninteractive tzdata"
+    fi
+
+
+    # Disable kernel logging support
+    sudo sed -i 's:$ModLoad imklog:#$ModLoad imklog:g' "$node0_rootfs/etc/rsyslog.conf"
+    sudo sed -i 's:$KLogPermitNonKernelFacility on:#$KLogPermitNonKernelFacility on:g' "$node0_rootfs/etc/rsyslog.conf"
+    # Disable repeated message reduction
+    sudo sed -i 's:$RepeatedMsgReduction on:$RepeatedMsgReduction off:g' "$node0_rootfs/etc/rsyslog.conf"
+    # Don't stop rsyslog too soon
+    sudo sed -i 's:stop on.*:stop on filesystem:g' "$node0_rootfs/etc/init/rsyslog.conf"
+
+
+    # Enable the pam_limits to enable coredump generation
+    sudo find "/var/lib/lxc/SC-1/rootfs/etc/pam.d/" -type f \
+        -exec sed -i 's:# *session *required *pam_limits.so:session    required     pam_limits.so:g' {} \;
+    # Change the coredump size to unlimited for root and non-root users
+    echo "
+*    soft core unlimited
+*    hard core unlimited
+root soft core unlimited
+root hard core unlimited
+" | sudo tee -a "$node0_rootfs/etc/security/limits.conf"
+
+
+    # Add user opensaf, with group opensaf to LXC
+    sudo chroot "$node0_rootfs" /bin/bash -c "groupadd -r opensaf"
+    sudo chroot "$node0_rootfs" /bin/bash -c "useradd -r -g opensaf -s /sbin/nologin opensaf"
+    echo "opensaf ALL = NOPASSWD: ALL" | sudo tee -a "$node0_rootfs/etc/sudoers"
+    sudo chroot "$node0_rootfs" /bin/bash -c "chown -R opensaf:opensaf /var/crash/opensaf"
+    sudo chroot "$node0_rootfs" /bin/bash -c "chown -R opensaf:opensaf /var/lib/opensaf"
+    sudo chroot "$node0_rootfs" /bin/bash -c "chown -R opensaf:opensaf /var/log/opensaf"
+
+
+    # Create sym link for immcfg readline
+    test -f "$node0_rootfs/lib/x86_64-linux-gnu/libreadline.so" || \
+        sudo ls "$node0_rootfs/lib/x86_64-linux-gnu" | grep -e libreadline | tail -1 | \
+        xargs -I {} sudo ln -r -s "$node0_rootfs/lib/x86_64-linux-gnu/{}" "$node0_rootfs/lib/x86_64-linux-gnu/libreadline.so"
+
+
+    # Increase history
+    echo 'HISTSIZE=-1' | sudo tee -a "$node0_rootfs/root/.bashrc"
+    echo 'HISTFILESIZE=-1' | sudo tee -a "$node0_rootfs/root/.bashrc"
+    echo 'export PROMPT_COMMAND="history -a"' | sudo tee -a "$node0_rootfs/root/.bashrc"
+    # Decorate the prompt ^_^
+    echo 'export PS1="\[\e[0;31m\]$PS1\[\e[m\]"' | sudo tee -a "$node0_rootfs/root/.bashrc"
+
+
+    # Clone nodes
+    for (( i = 1; i < ${#CONTAINER_NAME[@]}; i++ )); do
+        sudo lxc-clone -o "${CONTAINER_NAME[0]}" -p "$CONTAINERS_DIR" -n "${CONTAINER_NAME[$i]}" -P "$CONTAINERS_DIR"
+    done
+
+
+    # Specific configuration for nodes
+    for (( i = 0; i < ${#CONTAINER_NAME[@]}; i++ )); do
+        # Config IP address and hostname
+        echo "lxc.network.ipv4 = ${NODE_IP[$i]}/24 10.0.3.255" | sudo tee -a "$CONTAINERS_DIR/${CONTAINER_NAME[$i]}/config"
+        sudo sed -i "s:lxc.utsname = .*:lxc.utsname = ${NODE_NAME[$i]}:g"    "$CONTAINERS_DIR/${CONTAINER_NAME[$i]}/config"
+        echo "${NODE_NAME[$i]}" | sudo tee "$CONTAINERS_DIR/${CONTAINER_NAME[$i]}/rootfs/etc/hostname"
+    done
+
+}
+
+
+osaf_clean()
+{
+    cd "$OSAFREPO"
+
+    echo "===== clean ====="
+    hg clean --all >> "$LOG_FILE"
+}
+
+
+osaf_configure()
+{
+    cd "$OSAFREPO"
+    echo "===== configure ====="
+
+    ./bootstrap.sh >> "$LOG_FILE"
+    if [ $? -ne 0 ]; then
+        echo "===== bootstrap FAILED ====="
+        exit 1
+    fi
+
+    eval ./configure "$OSAF_COMMON_OPTION" "$@" >> "$LOG_FILE"
+    if [ $? -ne 0 ]; then
+        echo "===== configure FAILED ====="
+        exit 1
+    fi
+}
+
+
+osaf_make()
+{
+    # Comment out the TIPC_SUB_CANCEL in tipc.h
+    if [ "$USE_TIPC" == 1 ]; then
+        grep -Eq "^#define TIPC_SUB_CANCEL" "$TIPC_HEADER_FILE" && \
+            sudo sed -i 's:.*#define TIPC_SUB_CANCEL://#define TIPC_SUB_CANCEL:g' "$TIPC_HEADER_FILE"
+    fi
+
+    cd "$OSAFREPO"
+
+    echo "===== make ====="
+    make -j 2 >> "$LOG_FILE"
+    if [ $? -ne 0 ]; then
+        echo "===== make FAILED ====="
+        exit 1
+    fi
+}
+
+
+osaf_install_cluster()
+{
+    cd "$OSAFREPO"
+
+    echo "===== installing to $LXCINST ====="
+    sudo make -j 2 install DESTDIR="$LXCINST" >> "$LOG_FILE" 2>&1
+    if [ $? -ne 0 ]; then
+        echo "===== install FAILED ====="
+        exit 1
+    fi
+
+    # Install custom lxc_tipc script
+    if [ "$USE_TIPC" == 1 ]; then
+        sudo install "$LXC_TIPC_FILE" "$LXCINST/etc/init.d"
+        if [ $? -ne 0 ]; then
+            echo "===== install lxc_tipc FAILED ====="
+            exit 1
+        fi
+    fi
+
+    # Enable coredump for osaf processes
+    sudo sed -i 's:#enable_coredump:enable_coredump:g' "$LXCINST/etc/init.d/opensafd"
+
+    for (( i = 0; i < ${#CONTAINER_NAME[@]}; i++ )); do
+        local node_rootfs="$CONTAINERS_DIR/${CONTAINER_NAME[$i]}/rootfs"
+
+        echo "===== installing to ${NODE_NAME[$i]} $node_rootfs ====="
+        sudo cp -r "$LXCINST"/* "$node_rootfs" >> "$LOG_FILE" 2>&1
+    done
+
+    osaf_setup
+}
+
+
+osaf_setup()
+{
+    echo "===== configure nodes ====="
+
+    # imm.xml and saflog are stored in shared FS
+    rm -rf "$LXCSHARED/imm" "$LXCSHARED/saflog" 2> /dev/null
+    mkdir -p "$LXCSHARED/imm" "$LXCSHARED/saflog" 2> /dev/null
+    sudo rm -rf /tmp/immxml
+    sudo cp -r "$CONTAINERS_DIR/${CONTAINER_NAME[0]}/rootfs/usr/local/share/opensaf/immxml" /tmp
+    cd /tmp/immxml
+    sudo ./immxml-clustersize -s "$SC_NUM" -p "$PL_NUM"
+    sudo ./immxml-configure -o "$LXCSHARED/imm/imm.xml"
+    sed -i 's:/var/log/opensaf/saflog:/shared/saflog:g' "$LXCSHARED/imm/imm.xml"
+    sed -i '/saImmRepositoryInit<\/name>/{$!{N;s/saImmRepositoryInit<\/name>\n\t\t\t<value>2<\/value>/saImmRepositoryInit<\/name><value>1<\/value>/;ty;P;D;:y}}' "$LXCSHARED/imm/imm.xml"
+
+    # Copy opensaf config files to nodes
+    for (( i = 0; i < ${#CONTAINER_NAME[@]}; i++ )); do
+        local node_rootfs=$CONTAINERS_DIR/${CONTAINER_NAME[$i]}/rootfs
+
+        # Use TIPC
+        if [ "$USE_TIPC" == 1 ]; then
+            sudo sed -i 's:.*export MDS_TRANSPORT=.*:export MDS_TRANSPORT=TIPC:g'             "$node_rootfs/etc/opensaf/nid.conf"
+            sudo sed -i 's:.*export OPENSAF_MANAGE_TIPC=.*:export OPENSAF_MANAGE_TIPC="no":g' "$node_rootfs/etc/opensaf/nid.conf"
+        else
+            sudo sed -i 's:.*export MDS_TRANSPORT=.*:export MDS_TRANSPORT=TCP:g'              "$node_rootfs/etc/opensaf/nid.conf"
+        fi
+
+        # immnd.conf replace imm.xml folder and enable pbe
+        sudo sed -i 's:.*export IMMSV_ROOT_DIRECTORY=.*:export IMMSV_ROOT_DIRECTORY="/shared/imm":g' "$node_rootfs/etc/opensaf/immnd.conf"
+        sudo sed -i 's:.*export IMMSV_PBE_FILE=.*:export IMMSV_PBE_FILE=imm.db:g'                    "$node_rootfs/etc/opensaf/immnd.conf"
+        sudo sed -i 's:.*export IMMSV_PBE_TMP_DIR=.*:export IMMSV_PBE_TMP_DIR=/tmp:g'                "$node_rootfs/etc/opensaf/immnd.conf"
+
+        # IP for DTM
+        if [ "$USE_TIPC" == 0 ]; then
+            sudo sed -i "s:DTM_NODE_IP=.*:DTM_NODE_IP=${NODE_IP[$i]}:g" "$node_rootfs/etc/opensaf/dtmd.conf"
+        fi
+
+        # Modify RDE discover peer timeout
+#        sudo sed -i 's:.*export RDE_DISCOVER_PEER_TIMEOUT=.*:export RDE_DISCOVER_PEER_TIMEOUT=10000:g' "$node_rootfs/etc/opensaf/rde.conf"
+
+        # Modify clma election delay
+        sudo sed -i 's:.*export CLMNA_ELECTION_DELAY_TIME=.*:export CLMNA_ELECTION_DELAY_TIME=3000:g' "$node_rootfs/etc/opensaf/clmna.conf"
+
+        # Other configuration for node
+        {
+            echo "${NODE_NAME[$i]}" | sudo tee "$node_rootfs/etc/opensaf/node_name"
+            echo "${NODE_ID[$i]}"   | sudo tee "$node_rootfs/etc/opensaf/slot_id"
+            echo "${NODE_TYPE[$i]}" | sudo tee "$node_rootfs/etc/opensaf/node_type"
+        } >> "$LOG_FILE"
+
+        # Changes required if you recompile opensaf with other flags
+        sudo chroot "$node_rootfs" /sbin/ldconfig
+
+        # Install init scripts
+        {
+            if sudo test -f "$node_rootfs/bin/systemd"; then
+                sudo cp "$OSAFREPO/osaf/services/infrastructure/nid/config/opensafd.service" "$node_rootfs/etc/systemd/system"
+                sudo chroot "$node_rootfs" /bin/bash -c "systemctl enable opensafd"
+
+                if [ "$USE_TIPC" == 1 ]; then
+                    sudo cp "$LXC_TIPC_FILE.service" "$node_rootfs/etc/systemd/system"
+                    sudo chroot "$node_rootfs" /bin/bash -c "systemctl enable lxc_tipc"
+                fi
+            else
+                sudo chroot "$node_rootfs" /bin/bash -c "update-rc.d -f opensafd remove"
+                sudo chroot "$node_rootfs" /bin/bash -c "update-rc.d opensafd defaults 70 10"
+
+                sudo chroot "$node_rootfs" /bin/bash -c "update-rc.d -f lxc_tipc remove"
+                if [ "$USE_TIPC" == 1 ]; then
+                    sudo chroot "$node_rootfs" /bin/bash -c "update-rc.d lxc_tipc start 20 2 3 4 5 ."
+                fi
+            fi
+        } >> "$LOG_FILE" 2>&1
+
+    done
+
+
+    # Make the shared folder writable for everyone
+    sudo chmod -R a+w "$LXCSHARED"
+}
+
+
+osaf_python()
+{
+    cd "$OSAFREPO/python"
+
+    echo "===== make python ====="
+    make -j 2 >> "$LOG_FILE"
+    if [ $? -ne 0 ]; then
+        echo "===== make python FAILED ====="
+        exit 1
+    fi
+
+    for (( i = 0; i < ${#CONTAINER_NAME[@]}; i++ )); do
+        local node_rootfs="$CONTAINERS_DIR/${CONTAINER_NAME[$i]}/rootfs"
+
+        echo "===== install python to ${NODE_NAME[$i]} ====="
+        sudo make install DESTDIR="$node_rootfs" >> "$LOG_FILE" 2>&1
+        if [ $? -ne 0 ]; then
+            echo "===== install python FAILED ====="
+            exit 1
+        fi
+    done
+
+    echo "===== copy python samples to /shared/samples ====="
+    cp -r samples "$LXCHOSTFS"
+}
+
+
+osaf_help()
+{
+    echo "Command list:
+build_cluster
+clean
+configure
+make
+install
+setup
+python
+ssh/attach      [NODE_ID]
+start/stop/info [NODE_ID]...
+"
+}
+
+if [ -z "$1" ]; then
+    osaf_help
+fi
+
+
+if [ "$1" == "start" ]    || [ "$1" == "stop" ]  || [ "$1" == "info" ] || \
+    [ "$1" == "attach" ]  || [ "$1" == "ssh" ]; then
+    cmd=$1
+    shift
+
+    container_name_list=()
+    for node_id in "$@"; do
+        if [ "$node_id" -le ${#CONTAINER_NAME[@]} ]; then
+            container_name_list+=(${CONTAINER_NAME[$((node_id - 1))]})
+        fi
+    done
+    if [ $# -eq 0 ]; then
+        container_name_list=("${CONTAINER_NAME[@]}")
+    fi
+
+    case "$cmd" in
+        "start" | "stop")
+            for (( i = 0; i < ${#container_name_list[@]}; i++ )); do
+                eval sudo lxc-"$cmd" "$(if [ "$cmd" == "start" ]; then echo "-d"; fi)" -n "${container_name_list[$i]}" -P "$CONTAINERS_DIR" &
+                sleep .2
+            done
+            ;;
+        "info" | "attach")
+            for (( i = 0; i < ${#container_name_list[@]}; i++ )); do
+                eval sudo lxc-"$cmd" -n "${container_name_list[$i]}" -P "$CONTAINERS_DIR"
+            done
+            ;;
+        "ssh")
+            eval ssh root@"${NODE_IP[$(($1 - 1))]}"
+            ;;
+    esac
+
+    exit 0
+fi
+
+
+while test ${#} -gt 0; do
+    case "$1" in
+        build_cluster)
+            osaf_build_cluster
+            ;;
+        clean)
+            osaf_clean
+            ;;
+        configure)
+            osaf_configure
+            ;;
+        make)
+            osaf_make
+            ;;
+        install)
+            osaf_install_cluster
+            ;;
+        setup)
+            osaf_setup
+            ;;
+        python)
+            osaf_python
+            ;;
+        help)
+            osaf_help
+            ;;
+        *)
+            echo "Unknown command: $1"
+            osaf_help
+            exit 1
+    esac
+    shift
+done
+
+exit 0

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>hieu</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>1</Message>
+  </block>
+<block id="2">
+    <CurrentUser>hieu</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>2</Message>
+  </block>
+<block id="3">
+    <CurrentUser>hieu</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>4</Message>
+  </block>
+</PrivateMessage>

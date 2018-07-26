@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>a</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>a</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>noi nhieu vai</Message>
+  </block>
+<block id="2">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>a</DestinationUser>
+    <Message>ban nick gio</Message>
+  </block>
+<block id="3">
+    <CurrentUser>a</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>sao sao</Message>
+  </block>
+</PrivateMessage>
