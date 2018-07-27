@@ -1,0 +1,36 @@
+# Install Development Tools and Libraries.
+sudo apt-get update
+sudo apt-get install build-essential libc6-dev libxml2-dev libsqlite3-dev libncurses5-dev libreadline6-dev libnl-3-dev libdaemon-dev pkg-config libtool autoconf automake libtool pkg-config lsb-base make gcc g++ git lxc gdb valgrind sqlite3
+
+# Clone the OpenSAF repository. Change the location if you want.
+git clone https://git.code.sf.net/p/opensaf/code ~/opensaf-code
+mkdir ~/lxc_shared
+
+# Modify 'OSAFREPO' (~/opensaf-code) and 'LXCSHARED' (~/lxc_shared) in 'lxc_osaf' script.
+# Build the cluster. The cluster contains 4 LXC node.
+# This takes a very long time to finish, be patient.
+lxc_osaf build_cluster
+
+# Configure and build OpenSAF
+lxc_osaf configure
+lxc_osaf make
+lxc_osaf install
+
+# Start cluster
+lxc_osaf start
+
+# ssh to a node
+lxc_osaf ssh 1
+lxc_osaf ssh 2
+
+# Stop cluster
+lxc_osaf stop
+
+# Start/Stop specific nodes
+lxc_osaf start 1 3
+lxc_osaf stop 1 3
+
+# Reinstall OpenSAF to cluster. IMM database will be reset to default.
+# Remember to stop the cluster before doing this.
+lxc_osaf install
+
