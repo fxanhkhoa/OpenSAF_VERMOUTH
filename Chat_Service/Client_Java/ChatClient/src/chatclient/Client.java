@@ -21,6 +21,11 @@ public class Client {
     /*
     Constant status of function return
     */
+/* 
+==========================================================================
+                                VARIABLE
+========================================================================== 
+*/
     // send msg to server
     public static final int OK = 1;
     public static final int ERROR = -1;
@@ -69,13 +74,16 @@ public class Client {
     public final int KICKROOMFAIL = 84;//204;
     public final int KICKROOMOK = 85;//205;
     public final int BEKICKROOM = 86;//206;
+    public final int HAVEKICK=99;
     /*LET ME BEING ROOM*/
     public final int LETROOMFAIL =88;// 208;
     public final int LETROOMOK = 87;//207; // 
     /*CHANGE PASS ROOM FROM OWNER*/
     public final int PASSROOMFAIL =90;// 210
     public final int PASSROOMOK = 89;//209;
-    
+    /*DELETE ROOM FROM OWNER*/
+    public final int DELETEROOMFAIL =91;// 210
+    public final int DELETEROOMOK = 92;//209;
 /*----------------------------------------------------------------------------*/
     /* add to show list user & list room */
     
@@ -507,7 +515,8 @@ public class Client {
             //System.out.print(str);
             //System.out.println("zzzzz");
         } catch(IOException e){
-            System.out.println(e);
+            System.out.println("ERROR by SEND : "+e);
+            sP.cG.showReconBtn();
         }
         return OK;
     }
@@ -625,6 +634,8 @@ public class Client {
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
         blockToSend.message = "";
+        sP.idROOM=roomID;
+        sP.nameDesUser=desusr;
         return Send(blockToSend.GetText());
     }
     /*
@@ -673,20 +684,21 @@ public class Client {
         return (int)((recvData[4]) | (recvData[5] << 8) | (recvData[6] << 16) | (recvData[7] << 24));
     }
     
-    
+/* 
+==========================================================================
+                        #1005 MAIN CHECK ALL COMMAND
+========================================================================== 
+*/    
     /*
     Function name: GetCommandCode()
     Description: get Command code
     Argument: None
     Return: Int
-    Note: #1005 MAIN CHECK ALL COMMAND
+    Note: 
     */
     public int GetCommandCode() throws InterruptedException
     {
-//        if ((len != 0) && (len != 1020))
-//            System.err.println(len);
         int temp = RebuildCmd(recvData);
-//        System.out.println("saved cmd " + savedcmd);
         if (precode != temp ){
             System.err.println("BEGGGGGGGGGGGGGGGG");
             System.out.println(temp);
@@ -696,7 +708,11 @@ public class Client {
             System.out.println((int)recvData[3]);
             precode = temp;
         }
-/*------------------------------SIGN IN SIGNAL------------------------------------*/                        
+/* 
+==========================================================================
+                        SIGN IN SIGNAL (#101,#100)
+========================================================================== 
+*/         
         if (temp == SIGNINOK){
             //System.err.println("aa");
             sP.mG.SetConnectStatus(1);
@@ -714,7 +730,11 @@ public class Client {
             ClearData();
             return SIGNINFAIL;
         }
-/*------------------------------SIGN OUT SIGNAL------------------------------------*/                        
+/* 
+==========================================================================
+                        SIGN OUT SIGNAL (LOCAL)
+========================================================================== 
+*/                
         else if (signoutSignal == 1){
             ClearData();
             sP.HideClientGUI();
@@ -726,9 +746,13 @@ public class Client {
             signoutSignal = 0;
             return SIGNOUTOK;
         }
+        
 /*------------------------------END SIGN OUT SIGNAL------------------------------------*/                                
-
-/*------------------------------SIGN UP SIGNAL------------------------------------*/                        
+/* 
+==========================================================================
+                        SIGN UP SIGNAL (#104,#105)
+========================================================================== 
+*/                   
             if (temp == SIGNUPOK)
             {
                 ClearData();    
@@ -743,15 +767,17 @@ public class Client {
                 return SIGNUPFAIL;
             }        
 /*------------------------------END SIGN UP SIGNAL------------------------------------*/                                
-            
-/*------------------------------PrivateChat SIGNAL------------------------------------*/   
+/* 
+==========================================================================
+                        CHAT SIGNAL (#Local)
+========================================================================== 
+*/
+
+/*------------------------------CLIENT CHAT SIGNAL------------------------------------*/  
         else if (temp == ProtocolCS.commandCode.PrivateChat.ordinal()){
             Split();
             sP.cG.AddTextToBox(curUser, desUser, Message);
-            
-            
             DataControl dataControl = new DataControl();
-            
             try {
                 if (dataControl.CheckExistXMLFile(String.valueOf(curUser).trim()) == 0){
                 dataControl.curUsr = sP.GetUserName();
@@ -788,8 +814,12 @@ public class Client {
             ClearData();
             return ProtocolCS.commandCode.RoomChat.ordinal();
         }
-/*------------------------------END PrivateChat SIGNAL------------------------------------*/           
-
+/*------------------------------END CHAT SIGNAL------------------------------------*/           
+/* 
+==========================================================================
+                        ONLINE SIGNAL (#66301, )
+========================================================================== 
+*/
 /*------------------------------update if 1 user online SIGNAL------------------------------------*/           
         else if (temp == ONLINEUSEROK){
             Split();
@@ -797,7 +827,7 @@ public class Client {
             int result;
             result = sP.UpdateOnlineUser(curUser,1);
             if (result == 1)
-                sP.size = sP.size + 1;
+                sP.size = sP.size +1 ;
             //System.err.println("added roi");
             ClearData();
             sP.RealizeOnlineList();
@@ -829,8 +859,34 @@ public class Client {
             return 0;
         }
 /*------------------------------END LIST ONLINE BEGIN FRIST------------------------------------*/
+/* 
+==========================================================================
+                       REFRESH LIST ROOMGUI (#14)
+========================================================================== 
+*/
+        else if (temp == 14){// refresh cmd send and received
+            System.err.println("Received list on Server by cmd 14");
+            //max 29 user
+            sP.sizeFriendROOMGUI=GetSize();
+                System.err.println("Size friend on ROOMGUI :"+ sP.sizeFriendROOMGUI);
+            for (int i = 0; i < sP.sizeFriendROOMGUI; i++){
+                char[] usrOnlineROOMGUI = new char[30];
+                Arrays.fill(usrOnlineROOMGUI, '\0');
+                for (int j = 4; j < 36; j++){
+                    if (recvData[i * 36 + j + 8] == '\0')
+                        break;
+                    usrOnlineROOMGUI[j-4] = recvData[i * 36 + j + 8];
+                }
+                System.out.println(String.valueOf(usrOnlineROOMGUI));
+                String usrROOMGUI=new String(usrOnlineROOMGUI).trim().replaceAll(" ", "");
+                sP.AddToListInRoomGUI(sP.idRefreshROOM, usrROOMGUI);
+                //System.out.println("da add" + String.valueOf(usrOnline).trim() + " 0");
+            }
+            ClearData();
+            return 0;
+        }        
         
-/*------------------------------BEGIN REFRESH------------------------------------*/              
+/*------------------------------ #22 BEGIN REFRESH LIST FRIEND------------------------------------*/              
         
         else if (temp == 22){// refresh btn
             System.err.println("Received list on Server by cmd 22");
@@ -839,7 +895,7 @@ public class Client {
                 System.err.println("Size friend :"+ sP.size);
             for (int i = 0; i < sP.sizeFriend; i++){
                 char[] usrOnline = new char[30];
-                Arrays.fill(usrOnline, '\0');
+                Arrays.fill(usrOnline, '\0');// su that co 36 character
                 for (int j = 4; j < 36; j++){
                     if (recvData[i * 36 + j + 8] == '\0')
                         break;
@@ -859,27 +915,36 @@ public class Client {
             return 0;
         }
 /*------------------------------END REFRESH------------------------------------*/         
-        
+/* 
+==========================================================================
+                        CREATE ROOM SIGNAL (#107, )
+========================================================================== 
+*/        
         
 /*------------------------------CREATE NEW ROOM BY OWNER------------------------------------*/                        
         else if (temp == ADDROOMOK){
             System.err.println("CREATE ROOM SUCCESS");
-            int id = GetSize();
-            sP.UpdateRoomList(id, sP.nameRoomTemp.toCharArray(), sP.passRoomTemp.toCharArray());
+            int idRoom = GetSize();
+            sP.UpdateRoomList(idRoom, sP.nameRoomTemp.toCharArray(), sP.passRoomTemp.toCharArray());
+            sP.InitRoomGUI(sP.nameRoomTemp, idRoom);
+            sP.SetOwnerRoomGUI(idRoom);
             sP.cG.ReloadRoom();
+            //sP.AddToListInRoomGUI(idRoom, sP.nameRoomTemp);
             ClearData();
             return ADDROOMOK;
         }
-
-/*------------------------------ROOM GUI FEATURES------------------------------------*/   
+/* 
+==========================================================================
+                         ROOM GUI FEATURES (#81,...,#99)
+========================================================================== 
+*/  
         /*-----------ADD BY OWNER--------*/
         else if (temp == INVITEROOMOK){
             int mcServer = JOptionPane.INFORMATION_MESSAGE;
             JOptionPane.showMessageDialog (null, "INVITED SUCCESSFULLY ", "OWNER COMMAND", mcServer);
             System.err.println("INVITE SUCCESS");
-            
+            sP.AddToListInRoomGUI(sP.idROOM, sP.nameDesUser);
             ClearData();
-            
             return 0;
         }
         else if (temp == INVITEROOMFAIL){
@@ -892,16 +957,18 @@ public class Client {
         /*-----------HAVE BEEN INVITED BY OWNER--------*/
         else if (temp == BEINVITEDROOM){
             int IDRoom = GetSize();
+                //System.err.println(recvData);
+                System.out.println("IDROOM: " + IDRoom);
             char[] owner = new char[30];
-            Arrays.fill(owner, '\0');
+            Arrays.fill(owner, '\0'); // fill array
             for (int i = 0; i < 30; i++){
                 owner[i] = recvData[8 + i];
             }
             int mcServer = JOptionPane.INFORMATION_MESSAGE;
             JOptionPane.showMessageDialog (null, "YOU HAVE BEEN INVITED FROM YOUR FRIEND INTO ROOM ", "HELLO GUYS", mcServer);
             ClearData();
-            String nameRoom=sP.GetNameROOM(IDRoom);
-            sP.InitRoomGUI(nameRoom,IDRoom);
+            //String nameRoom = sP.GetNameROOM(IDRoom);
+            sP.InitRoomGUI(" ",IDRoom);
             sP.OpenRoomGUI(IDRoom);
             sP.AddToListInRoomGUI(IDRoom, new String(owner).trim().replaceAll(" ", ""));
             sP.AddToListInRoomGUI(IDRoom, sP.GetUserName());
@@ -909,15 +976,11 @@ public class Client {
         }
         /*-----------KICK BY OWNER--------*/
         else if (temp == KICKROOMOK){
-                 
-                try {
-                    //rG.ReloadListFriendOnRoom(0);   
-                } catch (Exception e) {
-                }
             ClearData();
             int mcServer = JOptionPane.INFORMATION_MESSAGE;
             JOptionPane.showMessageDialog (null, " KICK SUCCESS ", "OWNER COMMAND", mcServer);
             System.err.println("KICK SUCCESS");
+            sP.RemoveToListInRoomGUI(sP.idROOM,sP.nameDesUser);
             return 0;
         }
         
@@ -929,6 +992,7 @@ public class Client {
             return 0;
         }
         /*-----------YOU HAVE BEEN KICKED BY OWNER--------*/
+        /*Clean */
         else if (temp == BEKICKROOM){
             //rG.ReloadListFriendOnRoom(0);
             int id = GetSize();
@@ -939,10 +1003,97 @@ public class Client {
             System.err.println("YOU HAVE BEEN KICKED BY OWNER ");
             return 0;
         }
+        
         /*LOST DATA DUE TO NO FUNCTION OR CMD TO NOTIFY OTHER ,THIS KICKED'S MAN IN ROOM */
-        
-        /**/
-        
+        else if (temp == HAVEKICK){
+            
+            int idROOM=GetSize();
+            char[] kickedUser = new char[30];
+                Arrays.fill(kickedUser, '\0'); // fill array
+                for (int i = 0; i < 30; i++){
+                    kickedUser[i] = recvData[38 + i];
+                }
+                String kUser=  new String(kickedUser).trim().replaceAll(" ", "");
+            if(kUser.equals(sP.GetUserName())){
+                sP.TerminateRoomGUI(idROOM);
+                ClearData();
+                int mcServer = JOptionPane.INFORMATION_MESSAGE;
+                JOptionPane.showMessageDialog (null, "YOU HAVE BEEN KICKED FROM YOUR FRIEND INTO ROOM ", "HEY GUYS", mcServer);
+                System.err.println("YOU HAVE BEEN KICKED BY OWNER ");
+            }
+            else{
+                
+                sP.RemoveToListInRoomGUI(idROOM,kUser);
+                ClearData();
+                System.err.println("ONE MAN GO TO HEAVEN ");
+            }
+            ClearData();
+            System.err.println("ONE MAN GO TO HEAVEN ");
+            return 0;
+        }
+        /*-----------LET ME BEING ROOM-------*/
+        else if (temp == LETROOMOK){
+            int IDRoom = GetSize();
+            char[] acceptedUser = new char[30];
+            Arrays.fill(acceptedUser, '\0'); // fill array
+            for (int i = 0; i < 30; i++){
+                acceptedUser[i] = recvData[8 + i];
+            }
+            String sAcceptedUser=new String(acceptedUser).trim().replaceAll(" ", "");
+            if(sAcceptedUser.equals(sP.GetUserName())){
+               int mcServer = JOptionPane.INFORMATION_MESSAGE;
+               JOptionPane.showMessageDialog (null, "YOU HAVE BEEN AT THIS ROOM ", "HEY GUYS", mcServer);
+               System.err.println("YOU HAVE BEEN AT THIS ROOM ");
+               ClearData();
+               String nameRoom=sP.GetNameROOM(IDRoom);
+               sP.InitRoomGUI(nameRoom,IDRoom);
+               sP.OpenRoomGUI(IDRoom);
+               sP.AddToListInRoomGUI(IDRoom, new String(acceptedUser).trim().replaceAll(" ", ""));
+//               sP.AddToListInRoomGUI(IDRoom, sP.GetUserName());
+               return 0;   
+            }
+            else{
+                sP.AddToListInRoomGUI(IDRoom, sAcceptedUser);
+            }
+            
+        }
+        else if (temp == LETROOMFAIL){
+            int mcServer = JOptionPane.ERROR_MESSAGE;
+            JOptionPane.showMessageDialog (null, "NOT ACCESS", "HEY GUYS", mcServer);
+            System.err.println("NOT ACCESS ");
+            return 0;
+        }
+        /*-----------CHANGE PASS ROOM FROM OWNER-------*/
+        else if (temp == PASSROOMOK){
+            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+            JOptionPane.showMessageDialog (null, "YOUR ROOM'S PASSWORD HAVE BEEN CHANGE ", "HEY GUYS", mcServer);
+            System.err.println("YOU HAVE BEEN AT THIS ROOM ");
+            ClearData();
+            return 0;
+        }
+        else if (temp == PASSROOMFAIL){
+            int mcServer = JOptionPane.ERROR_MESSAGE;
+            JOptionPane.showMessageDialog (null, "NOT ACCESS", "HEY GUYS", mcServer);
+            System.err.println("NOT ACCESS ");
+            return 0;
+        }
+        /*-----------DELETE ROOM FROM OWNER-------*/
+        else if (temp == DELETEROOMOK){
+            int IDRoom = GetSize();
+            String nameRoom=sP.GetNameROOM(IDRoom);
+            sP.TerminateRoomGUI(IDRoom);
+            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+            JOptionPane.showMessageDialog (null, "YOUR ROOM'S HAVE BEEN DELETED ", "HEY GUYS", mcServer);
+            System.err.println("YOUR ROOM'S HAVE BEEN DELETED");
+            ClearData();
+            return 0;
+        }
+        else if (temp == DELETEROOMFAIL){
+            int mcServer = JOptionPane.ERROR_MESSAGE;
+            JOptionPane.showMessageDialog (null, "NOT ACCESS", "HEY GUYS", mcServer);
+            System.err.println("NOT ACCESS ");
+            return 0;
+        }
 /*------------------------------END ROOM GUI FEATURE------------------------------------*/                                
         
 /*------------------------------add new friend appect------------------------------------*/                        
@@ -955,6 +1106,7 @@ public class Client {
             int mcServer = JOptionPane.INFORMATION_MESSAGE;
             JOptionPane.showMessageDialog (null, "ADD FRIEND SUCCESS", "Success", mcServer);
             sP.cG.PerformRefreshClick();
+            ClearData();
             return 0;
         }
         else if (temp == ADDFRIENDFAIL){
@@ -972,7 +1124,8 @@ public class Client {
             sP.cG.ReloadRoom();
             return ROOMCREATE;
         }
-/*------------------------------------------------------------------*/     
+/*-----------------------------------------------------------------------------*/  
+        
 /*--------------------------------LIST ROOM BEGIN----------------------------------*/                                
         else if (temp == LISTROOMOK){
  
@@ -1048,53 +1201,6 @@ public class Client {
             System.exit(0);
             return 0;
         }
-            
-//        if (recvData.contains("CLADDOK"))
-//        {
-//            return ADDOK;
-//        }
-//        if (recvData.contains("CLPRVOK"))
-//        {
-//            return PRVOK;
-//        }
-//        if (recvData.contains("CLSIGNOUTOK"))
-//        {
-//            return SIGNOUTOK;
-//        }
-//        if (recvData.contains("CLSIGNINOK"))
-//        {
-//            return SIGNINOK;
-//        }
-//        if (recvData.contains("CLRDELOK"))
-//        {
-//            return RDELOK;
-//	}
-//        if (recvData.contains("CLDELOK"))
-//        {
-//            return DELOK;
-//        }
-//        if (recvData.contains("CLROOMOK"))
-//        {
-//            return ROOMOK;
-//        }
-//        if (recvData.contains("CLRADDOK"))
-//        {
-//            return RADDOK;
-//        }
-//        if (recvData.contains("CLADDROOMOK"))
-//        {
-//            return ADDROOMOK;
-//        }
-//        if (recvData.contains("CLRECVPRV"))
-//        {
-//            Split();
-//            return RECVPRV;
-//        }
-//        if (recvData.contains("CLRECVROOM"))
-//        {
-//            Split();
-//            return RECVROOM;
-//        }
         return temp;
     }
     /*
@@ -1242,7 +1348,8 @@ public class Client {
         blockToSend.ownPassword = "";
         blockToSend.roomPassword = "";
         blockToSend.message = "";
-        
+        sP.idROOM=roomID;
+        sP.nameDesUser=desusr;
         return Send(blockToSend.GetText());
         
         
@@ -1266,6 +1373,74 @@ public class Client {
         //System.out.println(blockToSend.ownUsername.length());
         sP.passRoomTemp = passROOM;
         sP.nameRoomTemp = nameROOM;
+        return Send(blockToSend.GetText());
+    }
+     /*
+    Function name: LetMeBeInRoom()
+    Description: LetMeBeInRoom
+    Argument: int,String
+    Return: Int
+    Note:
+    */
+    public int LetMeBeInRoom(int roomID, String passRoom)
+    {
+        
+        blockToSend.command = ProtocolCS.commandCode.RequestToRoom.ordinal();
+        blockToSend.IDRoom = roomID;
+        blockToSend.ownUsername = sP.GetUserName();
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = passRoom;
+        blockToSend.message = "";
+        sP.idROOM=roomID;
+        //sP.nameDesUser=desusr;
+        return Send(blockToSend.GetText());
+        
+        
+    }
+    
+    /*
+    Function name: TerminateRoom()
+    Description: TerminateRoom
+    Argument: int
+    Return: Int
+    Note:
+    */
+    
+    /**/
+    
+    public int TerminateRoom(int roomID)
+    {
+        blockToSend.command = ProtocolCS.commandCode.TerminateRoom.ordinal();
+        blockToSend.IDRoom = roomID;
+        blockToSend.ownUsername = sP.GetUserName();
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = "";
+        blockToSend.message = "WANT TO TERMINATE ROOM";
+//        sP.idROOM=roomID;
+        return Send(blockToSend.GetText());
+    }
+    /*
+    Function name: TerminateRoom()
+    Description: TerminateRoom
+    Argument: int
+    Return: Int
+    Note:
+    */
+    
+    /**/
+    
+    public int RefreshRoom(int roomID)
+    {
+        blockToSend.command = ProtocolCS.commandCode.RefreshList.ordinal();
+        blockToSend.IDRoom = roomID;
+        blockToSend.ownUsername = sP.GetUserName();
+        blockToSend.desUsername = "";
+        blockToSend.ownPassword = "";
+        blockToSend.roomPassword = "";
+        blockToSend.message = "CLIENT WANT TO REICEVE ALL MAN IN ROOM ID : "+roomID;
+        sP.idRefreshROOM=roomID;
         return Send(blockToSend.GetText());
     }
 }

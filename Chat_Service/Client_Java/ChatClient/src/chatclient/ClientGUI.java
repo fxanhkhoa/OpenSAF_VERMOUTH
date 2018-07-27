@@ -37,6 +37,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
+
 /**
  *
  * @author hieupham
@@ -125,6 +126,7 @@ public class ClientGUI extends javax.swing.JFrame {
         jMenuFile = new javax.swing.JMenu();
         jExit = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        FailServerByID = new javax.swing.JMenuItem();
         jMenuAccount = new javax.swing.JMenu();
         jMenuItemSignOut = new javax.swing.JMenuItem();
         jMenuItemChangePass = new javax.swing.JMenuItem();
@@ -217,6 +219,15 @@ public class ClientGUI extends javax.swing.JFrame {
         jMenuBar1.add(jMenuFile);
 
         jMenu2.setText("Edit");
+
+        FailServerByID.setText("Fail");
+        FailServerByID.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                FailServerByIDActionPerformed(evt);
+            }
+        });
+        jMenu2.add(FailServerByID);
+
         jMenuBar1.add(jMenu2);
 
         jMenuAccount.setText("Account");
@@ -483,16 +494,44 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void listRoomMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listRoomMouseClicked
         // TODO add your handling code here:
-        if (evt.getClickCount() == 2){
-            //Double-click detected
-            int index = listRoom.locationToIndex(evt.getPoint());            
-            //set up & open ROOMGUI
-            System.out.println("GET ROOM ID");
-            System.err.println(String.valueOf(listRoom.getSelectedValue()));
+        sP = SavedPreference.getInstance();
+        int statusNEWROOM=1005;
+        
+        if (evt.getClickCount() % 2==0){
             String nameRoom =String.valueOf(listRoom.getSelectedValue());
-            int roomID=sP.GetIDROOM(nameRoom);
-            sP.InitRoomGUI(nameRoom,roomID);
-            sP.OpenRoomGUI(roomID);
+            int roomID = sP.GetIDROOM(nameRoom);
+            System.out.println("ROOM ID WHEN CLICKED LIST:" +roomID);
+            if (sP.CheckOwnerRoomGUI(roomID) == 0){
+                int mc = JOptionPane.INFORMATION_MESSAGE;
+                String sPassRoom = JOptionPane.showInputDialog (null, "Type Room Pass's want to join ROOM", "Request Pass", mc);               
+                _Client.LetMeBeInRoom(roomID, sPassRoom);
+            }
+            else{
+                sP.InitRoomGUI(nameRoom,roomID);
+                statusNEWROOM=sP.GetstatusROOM(roomID);
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                }
+                if(statusNEWROOM==0){
+
+                    try {
+                        // Yeu cau server gui LIST USER TRONG ROOM CREATE VE
+                        _Client.RefreshRoom(roomID);// CMD 14
+                    } catch (Exception e) {
+                    }
+                    sP.OpenRoomGUI(roomID);
+                    
+                    
+                    
+                }
+                System.out.println("CHECK ROOM AVAILABLE : "+statusNEWROOM);
+            }
+            
+            //System.err.println(String.valueOf(listRoom.getSelectedValue()));
+            
+            
+
         }
     }//GEN-LAST:event_listRoomMouseClicked
 
@@ -586,24 +625,17 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void listRoomValueChanged(javax.swing.event.ListSelectionEvent evt) {//GEN-FIRST:event_listRoomValueChanged
         // TODO add your handling code here:
-        sP = SavedPreference.getInstance();
-        boolean adjust = evt.getValueIsAdjusting();
-        if (!adjust){
-            try {
-                JList changedList = (JList)evt.getSource();
-                if (listRoom == changedList){
-                    System.out.println("GET ROOM ID");
-                    System.err.println(String.valueOf(listRoom.getSelectedValue()));
-                    String nameRoom =String.valueOf(listRoom.getSelectedValue());
-                    int roomID=sP.GetIDROOM(nameRoom);
-                    sP.InitRoomGUI(nameRoom,roomID);
-                    sP.OpenRoomGUI(roomID);
-                   
-                }
-            } catch (Exception e) {
-            }
-        }       
+        try {
+            //nothing here
+        } catch (Exception e) {
+        }
+   
     }//GEN-LAST:event_listRoomValueChanged
+
+    private void FailServerByIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FailServerByIDActionPerformed
+        // TODO add your handling code here:
+        _Client.SendMsgToRoom(-1, "Fail");
+    }//GEN-LAST:event_FailServerByIDActionPerformed
     
     
     /**
@@ -646,6 +678,7 @@ public class ClientGUI extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem FailServerByID;
     private javax.swing.JButton addUser;
     private javax.swing.JButton btnCreateRoom;
     private javax.swing.JButton btnReconnect;

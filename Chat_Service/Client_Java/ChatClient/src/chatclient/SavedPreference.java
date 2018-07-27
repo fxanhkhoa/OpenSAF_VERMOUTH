@@ -28,6 +28,11 @@ public class SavedPreference {
     public int sizeFriend = 0;
     /*VARIABLE TO ROOMGUI*/
     public int sizeRoomGUI=0;
+    public int sizeFriendROOMGUI = 0;
+    public String nameDesUser="";
+    //public String nameUser="";
+    public int idROOM=0;
+    public int idRefreshROOM=0;
     /**/
     /*
     private variables
@@ -41,6 +46,10 @@ public class SavedPreference {
     public HashSet<UserStruct> onlineUser = new HashSet<UserStruct>();
     public HashSet<RoomStruct> roomList = new HashSet<RoomStruct>();
     public HashSet<UserStruct> friendList = new HashSet<UserStruct>();
+    
+    /*ROOM GUI*/
+    public HashSet<UserStruct> friendROOMList = new HashSet<UserStruct>();
+    /**/
     public int numberOfRoom = 0;
     
     public String nameRoomTemp;
@@ -62,21 +71,32 @@ public class SavedPreference {
     /*ROOMGUI*/
     protected void InitRoomGUI(String roomName, int IDROOM){
         //Main GUI
-        rGList.add(new RoomGUI(roomName,IDROOM));
+        rGList.add(new RoomGUI(roomName,IDROOM,0));
     }
     protected void OpenRoomGUI(int IDROOM){
         for (RoomGUI rG: rGList){
             if (rG.IDROOM == IDROOM){
+                rG.status=1;
                 rG.setVisible(true);
+                return;
             }
         }
     }
     protected void HideRoomGUI(int IDROOM){
         for (RoomGUI rG: rGList){
             if (rG.IDROOM == IDROOM){
+                rG.status=5;
                 rG.setVisible(false);
             }
         }
+    }
+    public int GetstatusROOM(int idROOM){
+        for (RoomGUI rG: rGList){
+            if (rG.IDROOM == idROOM){
+                return rG.status;
+            }
+        }
+        return 7;
     }
     
     protected void TerminateRoomGUI(int IDROOM){
@@ -87,6 +107,27 @@ public class SavedPreference {
             }
         }
     }
+    
+    protected void SetOwnerRoomGUI(int IDROOM){
+        for (RoomGUI rG: rGList){
+            if (rG.IDROOM == IDROOM){
+                rG.isOwner = 1;
+                rG.SetButton();
+                return;
+            }
+        }
+    }
+    
+    
+    protected int CheckOwnerRoomGUI(int IDROOM){
+        for (RoomGUI rG: rGList){
+            if (rG.IDROOM == IDROOM){
+                return rG.isOwner;
+            }
+        }
+        return 0;
+    }
+    
     /**/
     protected void InitClientGUI(){
         cG = new ClientGUI();
@@ -245,6 +286,47 @@ public class SavedPreference {
         
         return 1;
     }
+/* 
+==========================================================================
+                       REFRESH LIST ROOMGUI (#14)
+========================================================================== 
+*/
+    
+    
+    public int UpdateFriendROOMList(char[] usr, int status){
+        String bufferString = new String(usr).trim().replaceAll(" ", "");
+   
+        //Struct User 
+        UserStruct temp = new UserStruct();        
+        
+        temp.userName = bufferString; // put username in
+        temp.status = status;
+        
+        //System.out.println("Vao Update Friend List" + temp.userName + temp.status);
+        
+        
+        for (UserStruct uS: friendROOMList){
+            //System.out.println("US: " + uS.userName + uS.status);
+            if (uS.userName.equals(temp.userName)){
+                System.out.println("Duplicate" + uS.userName);
+                return 1;
+            }
+                
+        }
+        
+        if (!friendList.contains(temp)){
+            friendList.add(temp);
+            System.err.println("Added: " + temp.userName + temp.status);
+        }
+
+        return 1;
+    }
+
+/* 
+==========================================================================
+                       REFRESH LIST ROOMGUI (#14)
+========================================================================== 
+*/    
     
     public int UpdateFriendList(char[] usr, int status){
         String bufferString = new String(usr).trim().replaceAll(" ", "");
@@ -311,6 +393,8 @@ public class SavedPreference {
         return "";
     }
     
+    
+    
     //Use For Room GUI
     public int AddToListInRoomGUI(int id, String userName){
         for (RoomGUI rG: rGList){
@@ -320,6 +404,16 @@ public class SavedPreference {
         }
         return 1;
     }
+    //Use For Room GUI
+    public int RemoveToListInRoomGUI(int id, String userName){
+        for (RoomGUI rG: rGList){
+            if (rG.IDROOM == id){
+                rG.RemoveFromList(userName);
+            }
+        }
+        return 1;
+    }
+    
     
     //Use For RoomGUI
     public int AddMessInRoomGUI(int id, String user, String mess){

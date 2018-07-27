@@ -40,7 +40,6 @@ public class RoomGUI extends javax.swing.JFrame {
     private DefaultListModel listModel;
     Thread waitThr;
     private String sUser;
-    private int IDRoom;
      
     Global g = Global.getInstance();
     private boolean checkUser=true;
@@ -48,14 +47,15 @@ public class RoomGUI extends javax.swing.JFrame {
     
     public int IDROOM;
     public String Name;
-    
+    public int status;
+    public int isOwner = 0;
+        
     public HashSet<UserStruct> userRoomList = new HashSet<UserStruct>();
      /**
      * End line
      */
-    public RoomGUI(String Name, int IDROOM) {
+    public RoomGUI(String Name, int IDROOM, int status ) {
         initComponents();
-        setVisible(true);
         
         /*CORE*/
         _Client = Client.getInstance();
@@ -63,60 +63,16 @@ public class RoomGUI extends javax.swing.JFrame {
     
         this.IDROOM = IDROOM;
         this.Name = Name;
+        this.status=status;
+        /**/
+        btnAddUser.setEnabled(false);
+        btnKickUser.setEnabled(false);
+        btnTerminate.setEnabled(false);
         
          /**/
-            listUser.setModel(new DefaultListModel());
-            listModel = new DefaultListModel();
-            lbRoomName.setText(Name);
-            //IDRoom = Name;
-            
-            waitThr = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    while (true){
-                        try {
-/*------------------------------OWNER INVITE ROOM------------------------------------*/
-                            if (g.client.GetCommandCode() == g.client.INVITEROOMOK){
-                                listModel.addElement(sUser);
-                                if (true){
-                                   listUser.setModel(listModel);
-                                   sUser = "";
-                                }
-                                g.client.ClearData();
-                            }
-                            else if (g.client.GetCommandCode() == g.client.INVITEROOMFAIL){
-                                int mc = JOptionPane.ERROR_MESSAGE;
-                                JOptionPane.showMessageDialog(null, mc,"ERROR INVITE" ,JOptionPane.ERROR_MESSAGE);
-                                g.client.ClearData();
-                            }
-/*------------------------------OWNER KICK ROOM------------------------------------*/
-                            if (g.client.GetCommandCode() == g.client.KICKROOMOK){
-                                listModel.removeElement(sUser);
-                                if (true){
-                                   listUser.setModel(listModel);
-                                   sUser = "";
-                                }
-                                g.client.ClearData();
-                            }
-                            else if (g.client.GetCommandCode() == g.client.KICKROOMFAIL){
-                                int mc = JOptionPane.ERROR_MESSAGE;
-                                JOptionPane.showMessageDialog(null, mc,"ERROR KICK" ,JOptionPane.ERROR_MESSAGE);
-                                g.client.ClearData();
-                            }
-/*------------------------------ KICK FROM OWNER------------------------------------*/
-                            if (g.client.GetCommandCode() == g.client.BEKICKROOM){
-                                 
-                                g.client.ClearData();
-                                int mc = JOptionPane.ERROR_MESSAGE;
-                                JOptionPane.showMessageDialog(null, mc,"You are kicked by owner " ,JOptionPane.ERROR_MESSAGE);
-                                RoomGUI.this.dispose();
-                            }
-                        } catch (Exception e) {
-                        }
-                    }
-                }
-            });
-        //waitThr.start();
+        listUser.setModel(new DefaultListModel());
+        listModel = new DefaultListModel();
+        lbRoomName.setText(Name);
     }
 
     /**
@@ -143,6 +99,7 @@ public class RoomGUI extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         txtContent = new javax.swing.JTextArea();
         jLabel3 = new javax.swing.JLabel();
+        btnTerminate = new javax.swing.JButton();
 
         pmRightClick.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -195,6 +152,11 @@ public class RoomGUI extends javax.swing.JFrame {
             }
         });
 
+        txtChat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtChatActionPerformed(evt);
+            }
+        });
         txtChat.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 txtChatKeyPressed(evt);
@@ -210,6 +172,13 @@ public class RoomGUI extends javax.swing.JFrame {
         jScrollPane1.setViewportView(txtContent);
 
         jLabel3.setText("ROOM ID");
+
+        btnTerminate.setText("Terminate");
+        btnTerminate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTerminateActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -231,7 +200,10 @@ public class RoomGUI extends javax.swing.JFrame {
                         .addGap(305, 305, 305))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnAddUser)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnAddUser)
+                                .addGap(35, 35, 35)
+                                .addComponent(btnTerminate))
                             .addComponent(btnKickUser)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(115, 115, 115)
@@ -260,7 +232,9 @@ public class RoomGUI extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnAddUser)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(btnAddUser)
+                            .addComponent(btnTerminate))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnKickUser)
                         .addGap(16, 16, 16)
@@ -279,6 +253,30 @@ public class RoomGUI extends javax.swing.JFrame {
     protected void AddChatMess(String User, String Mess){
         if (!sP.GetUserName().equals(User)){
             txtContent.append(User + ": " + Mess + "\n");
+        }
+    }
+    
+    protected void SetButton()
+    {
+        if(isOwner==0)
+        {
+            try {
+                btnAddUser.setEnabled(false);
+                btnKickUser.setEnabled(false);
+                btnTerminate.setEnabled(false);
+                
+            } catch (Exception e) {
+            }
+        }
+        else
+        {
+            try {
+                btnAddUser.setEnabled(true);
+                btnKickUser.setEnabled(true);
+                btnTerminate.setEnabled(true);
+                
+            } catch (Exception e) {
+            }
         }
     }
     
@@ -320,6 +318,7 @@ public class RoomGUI extends javax.swing.JFrame {
         for (UserStruct uS: userRoomList){
             if (uS.userName.equals(userName)){
                 userRoomList.remove(uS);
+                ReloadList();
                 return 1;
             }
         }
@@ -338,10 +337,10 @@ public class RoomGUI extends javax.swing.JFrame {
 	sUser = JOptionPane.showInputDialog (null, "Type User", "Add USer to Private Chat", mc);
         //System.out.println(sUser);
         
-        int IDROOM =0;
-        IDROOM=_Client.sP.GetIDROOM(lbRoomName.getText());
+        //int IDROOM =0;
+        //IDROOM=_Client.sP.GetIDROOM(lbRoomName.getText());
         
-        _Client.AddFriendToRoom(IDROOM,sUser); //sUser
+        _Client.AddFriendToRoom(this.IDROOM,sUser); //sUser
         System.err.println("INVITED MR/MRS  "+sUser+ "INTO ROOM ID "+ IDROOM);
         
     }//GEN-LAST:event_btnAddUserActionPerformed
@@ -353,11 +352,12 @@ public class RoomGUI extends javax.swing.JFrame {
             
                 
 //                IDROOM=lbRoomName.getText();
-                int IDROOM =0;
-                IDROOM=_Client.sP.GetIDROOM(lbRoomName.getText());
-                txtContent.append(txtChat.getText() + "\n");
-                _Client.SendMsgToRoom(IDROOM,txtChat.getText());
-                txtChat.setText("");
+            //int IDROOM =0;
+            //IDROOM=_Client.sP.GetIDROOM(lbRoomName.getText());
+            System.out.println("ID KHI SEND: " + this.IDROOM);
+            txtContent.append(txtChat.getText() + "\n");
+            _Client.SendMsgToRoom(this.IDROOM,txtChat.getText());
+            txtChat.setText("");
             
 //            else{
 //                int mcServer = JOptionPane.ERROR_MESSAGE;
@@ -372,8 +372,9 @@ public class RoomGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         int mc = JOptionPane.INFORMATION_MESSAGE;
 	sUser = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
-        int IDROOM =0;
-        IDROOM=_Client.sP.GetIDROOM(lbRoomName.getText());
+        System.out.println("IDROOM WHEN KICK:" + this.IDROOM);
+        //int IDROOM =0;
+        //IDROOM=_Client.sP.GetIDROOM(lbRoomName.getText());
         _Client.RemoveFriendFromRoom(sUser, IDROOM, "");
         
     }//GEN-LAST:event_btnKickUserActionPerformed
@@ -407,41 +408,30 @@ public class RoomGUI extends javax.swing.JFrame {
         // TODO add your handling code here:
         int mc = JOptionPane.INFORMATION_MESSAGE;
 	sUser = JOptionPane.showInputDialog (null, "Type User", "Kick User ", mc);
-        
-        g.client.RemoveFriendFromRoom(sUser, IDRoom, "");
+        System.out.println("ROOM ID OF KICK: " + this.IDROOM);
+        _Client.RemoveFriendFromRoom(sUser, this.IDROOM, "");
         System.out.println("KICK!!!!!");
     }//GEN-LAST:event_jmiKickActionPerformed
 
-    /*public boolean checkAbleUser(String sUser)
-{
-        String sListUser;
-        String sCompareUser= sUser+"\n";
-        sListUser= this.listUser.getModel().toString();
-        int size = this.listUser.getModel().getSize();
-        StringBuilder sSplitUser = new StringBuilder();
-        for(int i = 0; i < size; i++) {
-            sSplitUser.append("\n").append(listUser.getModel().getElementAt(i));
-        }
-        System.out.print(sSplitUser);
-        String sOneUser=sSplitUser.toString();           
-        String[] words=sOneUser.split("\n");
-        for(String w:words)
-        {  
-            
-            System.out.println(w);
-            if(!sCompareUser.equals(w))
-            {
-                checkUser=false;
-            }
-        }
-        if(!checkUser)
+    private void txtChatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtChatActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtChatActionPerformed
+
+    private void btnTerminateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTerminateActionPerformed
+        // TODO add your handling code here:
+        int mc = JOptionPane.INFORMATION_MESSAGE;
+	int iTerminate = JOptionPane.showConfirmDialog(null, "Type User", "Kick User ",JOptionPane.YES_NO_OPTION     , mc);
+        if(iTerminate==JOptionPane.YES_OPTION)
         {
-            int mcServer = JOptionPane.ERROR_MESSAGE;
-            JOptionPane.showMessageDialog (null, "USER: "+ sUser +" not in ROOM", "Warning", mcServer);
+            System.out.println("TERMINATE ROOM : "+ this.Name +" WITH ROOM ID:  " + this.IDROOM);
+            _Client.TerminateRoom(IDROOM);
         }
-        return checkUser;
-}*/
-    /**
+        else
+        {
+            System.out.println("CANCEL TERMINATE IN ROOM : "+ this.Name +" WITH ROOM ID:  " + this.IDROOM);
+        }
+    }//GEN-LAST:event_btnTerminateActionPerformed
+     /**
      * @param args the command line arguments
      */
     public static void main(String args[]) {
@@ -471,7 +461,7 @@ public class RoomGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new RoomGUI("",0).setVisible(true);
+                new RoomGUI("",0,1).setVisible(true);
             }
         });
     }
@@ -479,6 +469,7 @@ public class RoomGUI extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddUser;
     private javax.swing.JButton btnKickUser;
+    private javax.swing.JButton btnTerminate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

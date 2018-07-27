@@ -380,4 +380,44 @@
     <DestinationUser>khoa</DestinationUser>
     <Message>chao anh</Message>
   </block>
+<block id="76">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>nani</Message>
+  </block>
+<block id="77">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>mr robinson</Message>
+  </block>
+<block id="78">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>kkkk</Message>
+  </block>
+<block id="79">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>skeleton</Message>
+  </block>
+<block id="80">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>konstele</Message>
+  </block>
+<block id="81">
+    <CurrentUser>hieu</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>111</Message>
+  </block>
+<block id="82">
+    <CurrentUser>hieu</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>aaaa</Message>
+  </block>
+<block id="83">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>wewq</Message>
+  </block>
 </PrivateMessage>
