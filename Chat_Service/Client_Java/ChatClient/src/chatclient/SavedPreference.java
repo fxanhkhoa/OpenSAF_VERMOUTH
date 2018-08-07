@@ -30,6 +30,8 @@ public class SavedPreference {
     public int sizeRoomGUI=0;
     public int sizeFriendROOMGUI = 0;
     public String nameDesUser="";
+    public String nameOwner="";
+    public int idRoomOwner=0;
     //public String nameUser="";
     public int idROOM=0;
     public int idRefreshROOM=0;
@@ -43,9 +45,9 @@ public class SavedPreference {
     private static String userName;
     private static String pass;
     public int IDUser;
-    public HashSet<UserStruct> onlineUser = new HashSet<UserStruct>();
-    public HashSet<RoomStruct> roomList = new HashSet<RoomStruct>();
-    public HashSet<UserStruct> friendList = new HashSet<UserStruct>();
+    public HashSet<UserStruct> onlineUser = new HashSet<UserStruct>(); // structure of online user
+    public HashSet<RoomStruct> roomList = new HashSet<RoomStruct>(); //  structure of list room in jlist on client GUI
+    public HashSet<UserStruct> friendList = new HashSet<UserStruct>(); // structure of friend user on client GUI
     
     /*ROOM GUI*/
     public HashSet<UserStruct> friendROOMList = new HashSet<UserStruct>();
@@ -58,7 +60,7 @@ public class SavedPreference {
     public MainGUI mG;
     public ClientGUI cG;
     public SignUpGUI suG;
-    public HashSet<RoomGUI> rGList = new HashSet<RoomGUI>();
+    public HashSet<RoomGUI> rGList = new HashSet<RoomGUI>(); // jlist contain all room gui hide/show
     
     public SavedPreference(){
         
@@ -68,11 +70,27 @@ public class SavedPreference {
         //Main GUI
         mG = new MainGUI();
     }
+    
     /*ROOMGUI*/
     protected void InitRoomGUI(String roomName, int IDROOM){
         //Main GUI
+        for (RoomGUI rG: rGList){
+            if (rG.IDROOM == IDROOM){
+                System.err.println("Duplicate room");
+                return;
+            }
+        }
         rGList.add(new RoomGUI(roomName,IDROOM,0));
     }
+    
+    protected void StopAllRoomGUI(){
+        for (RoomGUI rG: rGList){
+            if (rG.isActive()){
+                rG.dispose();
+            }
+        }
+    }
+    
     protected void OpenRoomGUI(int IDROOM){
         for (RoomGUI rG: rGList){
             if (rG.IDROOM == IDROOM){
@@ -101,9 +119,19 @@ public class SavedPreference {
     
     protected void TerminateRoomGUI(int IDROOM){
         for (RoomGUI rG: rGList){
+            
             if (rG.IDROOM == IDROOM){
-                rG.dispose();
+                if(rG.status==1)
+                    rG.dispose();
                 rGList.remove(rG);
+            }
+            
+        }
+    }
+    protected void RemoveListRoomOnClientGUI (int IDROOM){
+        for(RoomStruct rS:roomList){
+            if(rS.idRoom== IDROOM){
+                roomList.remove(rS);
             }
         }
     }
@@ -113,6 +141,7 @@ public class SavedPreference {
             if (rG.IDROOM == IDROOM){
                 rG.isOwner = 1;
                 rG.SetButton();
+                System.out.println("DA SET ROOM OWNER");
                 return;
             }
         }
@@ -122,6 +151,7 @@ public class SavedPreference {
     protected int CheckOwnerRoomGUI(int IDROOM){
         for (RoomGUI rG: rGList){
             if (rG.IDROOM == IDROOM){
+                //System.out.println("Owner of " + rG.IDROOM);
                 return rG.isOwner;
             }
         }
@@ -393,7 +423,15 @@ public class SavedPreference {
         return "";
     }
     
-    
+    //Use For Room GUI
+    public void MakeRefreshClickInRoomGUI(int id){
+        for (RoomGUI rG: rGList){
+            if (rG.IDROOM == id){
+                rG.RefreshClick();
+                return;
+            }
+        }
+    }
     
     //Use For Room GUI
     public int AddToListInRoomGUI(int id, String userName){

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser>hieu123</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>alo 123</Message>
+  </block>
+<block id="2">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>abc d</Message>
+  </block>
+<block id="3">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>do</Message>
+  </block>
+<block id="4">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>1</Message>
+  </block>
+<block id="5">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>21</Message>
+  </block>
+<block id="6">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>jjd</Message>
+  </block>
+</PrivateMessage>

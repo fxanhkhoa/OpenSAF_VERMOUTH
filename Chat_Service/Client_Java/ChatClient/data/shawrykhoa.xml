@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>shawry</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>shawry</DestinationUser>
+    <Message>fghfgh</Message>
+  </block>
+<block id="2">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>shawry</DestinationUser>
+    <Message>hi</Message>
+  </block>
+<block id="3">
+    <CurrentUser>shawry</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>qwe</Message>
+  </block>
+</PrivateMessage>

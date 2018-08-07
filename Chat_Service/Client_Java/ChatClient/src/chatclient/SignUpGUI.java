@@ -41,44 +41,6 @@ public class SignUpGUI extends javax.swing.JFrame {
         txtPass.setToolTipText(hintPass);
         g = Global.getInstance();
         p = new ProtocolCS();
-//        waitthr = new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            while (true){
-//                                try{
-//                                    if (g.client.IsDataReceived() == 1){
-//                                        btnSignUp.setEnabled(true);
-//                                    }
-//                                    if (g.client.GetCommandCode() == g.client.SIGNUPOK){
-//                                        g.SetUserName(txtUser.getText());
-//                                        g.SetPass(txtPass.getText());
-//                                        g.SetIDUser(g.client.GetIDUser());
-//                                        p.username = txtUser.getText();
-//                                        p.password = txtPass.getText();
-//                                        g.client.ClearData();
-//                                        MainGUI mainGui = new MainGUI();
-//                                        mainGui.setVisible(true);
-//                                        SignUpGUI.this.dispose();
-//                                        System.out.println("Successful create USER " + txtUser.getText());
-//                                        System.out.println("Join to Client GUI");   
-//                                        int mc = JOptionPane.WARNING_MESSAGE;
-//                                        JOptionPane.showMessageDialog (null, "Sign up Successful", "Warning", mc);
-//                                        waitthr.stop();
-//                                        
-//                                    }
-//                                    else if (g.client.GetCommandCode() == g.client.SIGNUPFAIL){
-//                                        int mc = JOptionPane.ERROR_MESSAGE;
-//                                        JOptionPane.showMessageDialog (null, "Sign up Fail", "ERROR", mc);
-//                                        g.client.ClearData();
-//                                    }
-//                                }catch (Exception e){
-//                                    
-//                                }
-//                            }
-//                        }
-//                    });
-//        if (!waitthr.isAlive())
-//            waitthr.start();
     }
     
     
@@ -201,11 +163,11 @@ public class SignUpGUI extends javax.swing.JFrame {
         sRepass=txtRepass.getText();
         if(sUser.equals("") )
             {
-                int mc = JOptionPane.WARNING_MESSAGE;
+                int mc = JOptionPane.ERROR_MESSAGE;
                 JOptionPane.showMessageDialog (null, "Blank USER", "Warning", mc);
             }
             else if(sPass.equals("")){
-                int mc2 = JOptionPane.WARNING_MESSAGE;
+                int mc2 = JOptionPane.ERROR_MESSAGE;
                 JOptionPane.showMessageDialog (null, "Blank PASS", "Warning", mc2);
             }
             else if(!sPass.equals(sRepass)){

@@ -23,12 +23,12 @@ public class ProtocolCS{
         InviteToRoom,
         KickFromRoom,
         SignOut,//9
-        TerminateRoom,//10
-        RePass,//11
+        TerminateRoom,//10 -not use
+        RePass,//11 - doi PASS USER
         a12,//12
-        RequestToRoom,//13
-        RefreshList,//14
-        a15,//15
+        RequestToRoom,//13- xin vao room
+        QuitRoom,//14
+        RefreshList,//15
         a16,//16
         a17,//17
         a18,//18

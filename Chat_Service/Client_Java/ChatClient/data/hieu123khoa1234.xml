@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa1234</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>khoa1234</CurrentUser>
+    <DestinationUser>hieu123</DestinationUser>
+    <Message>qwe</Message>
+  </block>
+<block id="2">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa1234</DestinationUser>
+    <Message>chao</Message>
+  </block>
+</PrivateMessage>

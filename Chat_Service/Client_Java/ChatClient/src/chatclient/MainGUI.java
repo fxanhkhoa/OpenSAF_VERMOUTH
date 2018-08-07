@@ -9,6 +9,7 @@ Note: First Interface
  */
 package chatclient;
 
+import java.awt.event.KeyEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -89,7 +90,19 @@ public class MainGUI extends javax.swing.JFrame {
 
         jLabel4.setText("Password");
 
+        txtUser.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtUserKeyPressed(evt);
+            }
+        });
+
         jLabel5.setText("WELCOME BACK");
+
+        txtPassF.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                txtPassFKeyPressed(evt);
+            }
+        });
 
         btnReconnect.setText("Reconnect");
         btnReconnect.addActionListener(new java.awt.event.ActionListener() {
@@ -195,40 +208,48 @@ public class MainGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-        public void showReconBtn(){
-        btnReconnect.setEnabled(true);}
+    public void showReconBtn(){
+        btnReconnect.setEnabled(true);
+    }
     public void SetConnectStatus(int status){
         if (status == 1){
-            int mcServer = JOptionPane.INFORMATION_MESSAGE;
-            JOptionPane.showMessageDialog (null, "Welcome", "Warning", mcServer);
-            
             _Client.sP.SetUserName(sUser);
             _Client.sP.SetPass(sPass);
+            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+            String notify = "<html>Welcome MR/MS <span style='color:green'>"+_Client.sP.GetUserName()+"</span> come back</html>";
+            JOptionPane.showMessageDialog (null, notify, "Have A Nice Day", mcServer);    
         }
-        else if (status == 0){
-            int mc = JOptionPane.WARNING_MESSAGE;
-            JOptionPane.showMessageDialog (null, "Sign In Fail", "Warning", mc);
+        else if (status!=1 ){
+            int mc = JOptionPane.ERROR_MESSAGE;
+            JOptionPane.showMessageDialog (null, "Wrong User or Pass", "Sign In Fail", mc);
         }
         this.connectStatus = status;
     }
     
     private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
         // TODO add your handling code here:
-        
+        _Client=Client.getInstance();
         sUser=txtUser.getText();
-        //sPass=txtPass.getText();
         sPass=txtPassF.getText();
-        if(_Client.sP.statusConnect==1)
-        {
-            _Client.SignIn(sUser, sPass);
-        }      
-        else
-        {
+        if(sUser.equals("") ){
             int mc = JOptionPane.ERROR_MESSAGE;
-            JOptionPane.showMessageDialog (null, "Sign In Fail", "Can not connect to Server", mc);
+            JOptionPane.showMessageDialog (null,  "BLANK USER" ,"Sign In Fail", mc);
         }
-        
-
+        else if(sPass.equals("")){
+            int mc = JOptionPane.ERROR_MESSAGE;
+            JOptionPane.showMessageDialog (null, "BLANK PASS", "Sign In Fail", mc);
+        }
+        else{
+            if(_Client.sP.statusConnect==1)
+            {
+                _Client.SignIn(sUser, sPass);
+            }      
+            else
+            {
+                int mc = JOptionPane.ERROR_MESSAGE;
+                JOptionPane.showMessageDialog (null, "Sign In Fail", "Can not connect to Server", mc);
+            }
+        }
     }//GEN-LAST:event_btnSignInActionPerformed
 
     
@@ -245,7 +266,10 @@ public class MainGUI extends javax.swing.JFrame {
     private void itemAboutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_itemAboutActionPerformed
         // TODO add your handling code here:
         int mcAbout = JOptionPane.INFORMATION_MESSAGE;
-        JOptionPane.showMessageDialog (null, "All for one target", "VERMOUTH", mcAbout);
+        String hintV = "<html><h3 style=\"color:#0000cc;\"><center>All for one target</center></h3><br>" +"<center>( ͡°( ͡° ͜ʖ( ͡° ͜ʖ ͡°)ʖ ͡°) ͡°)</center><br>" +"(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ VERMOUTH ✧ﾟ･: *ヽ(◕ヮ◕ヽ)";
+        
+        String hintChat="<html><span style=\"background-color: #1ddced; color: #fff; display: inline-block; padding: 3px 10px; font-weight: bold; border-radius: 5px;\">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s </span> ";
+        JOptionPane.showMessageDialog (null, hintChat, "VERMOUTH", mcAbout);
     }//GEN-LAST:event_itemAboutActionPerformed
 
     private void jQuitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jQuitActionPerformed
@@ -260,6 +284,64 @@ public class MainGUI extends javax.swing.JFrame {
             _Client.ReconLog();
         } catch (InterruptedException ex) {        }
     }//GEN-LAST:event_btnReconnectActionPerformed
+
+    private void txtPassFKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtPassFKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode()==KeyEvent.VK_ENTER){
+            _Client=Client.getInstance();
+            sUser=txtUser.getText();
+            //sPass=txtPass.getText();
+            sPass=txtPassF.getText();
+            if(sUser.equals("") ){
+                int mc = JOptionPane.ERROR_MESSAGE;
+                JOptionPane.showMessageDialog (null,  "BLANK USER" ,"Sign In Fail", mc);
+            }
+            else if(sPass.equals("")){
+                int mc = JOptionPane.ERROR_MESSAGE;
+                JOptionPane.showMessageDialog (null, "BLANK PASS", "Sign In Fail", mc);
+            }
+            else{
+                if(_Client.sP.statusConnect==1)
+                {
+                    _Client.SignIn(sUser, sPass);
+                }      
+                else
+                {
+                    int mc = JOptionPane.ERROR_MESSAGE;
+                    JOptionPane.showMessageDialog (null, "Sign In Fail", "Can not connect to Server", mc);
+                }
+            }            
+        }
+    }//GEN-LAST:event_txtPassFKeyPressed
+
+    private void txtUserKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtUserKeyPressed
+        // TODO add your handling code here:
+        if(evt.getKeyCode()==KeyEvent.VK_ENTER){
+            _Client=Client.getInstance();
+            sUser=txtUser.getText();
+            //sPass=txtPass.getText();
+            sPass=txtPassF.getText();
+            if(sUser.equals("") ){
+                int mc = JOptionPane.ERROR_MESSAGE;
+                JOptionPane.showMessageDialog (null,  "BLANK USER" ,"Sign In Fail", mc);
+            }
+            else if(sPass.equals("")){
+                int mc = JOptionPane.ERROR_MESSAGE;
+                JOptionPane.showMessageDialog (null, "BLANK PASS", "Sign In Fail", mc);
+            }
+            else{
+                if(_Client.sP.statusConnect==1)
+                {
+                    _Client.SignIn(sUser, sPass);
+                }      
+                else
+                {
+                    int mc = JOptionPane.ERROR_MESSAGE;
+                    JOptionPane.showMessageDialog (null, "Sign In Fail", "Can not connect to Server", mc);
+                }
+            }            
+        }
+    }//GEN-LAST:event_txtUserKeyPressed
      
     /* END FUCNTION SIGN UP  */
     /**

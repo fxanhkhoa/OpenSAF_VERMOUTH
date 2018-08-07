@@ -25,7 +25,7 @@ public class ClientCommand extends Client{
         sP.InitClientGUI();
         InitSocket();
         InitVar();
-        Init();
+        Init(); // Thread catch cmd
         
     }
     

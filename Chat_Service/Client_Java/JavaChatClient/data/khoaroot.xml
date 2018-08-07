@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>root</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>root</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>blablabla</Message>
+  </block>
+<block id="2">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>root</DestinationUser>
+    <Message>dfgdfgdf</Message>
+  </block>
+<block id="3">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>root</DestinationUser>
+    <Message>dfgdfgdf</Message>
+  </block>
+<block id="4">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>root</DestinationUser>
+    <Message>fhjhj</Message>
+  </block>
+<block id="5">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>root</DestinationUser>
+    <Message>gngbnvb</Message>
+  </block>
+<block id="6">
+    <CurrentUser>root</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>blabl;a</Message>
+  </block>
+<block id="7">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>root</DestinationUser>
+    <Message>fsdfkjsdhfkjs</Message>
+  </block>
+</PrivateMessage>

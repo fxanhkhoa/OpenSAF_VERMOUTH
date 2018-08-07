@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser>hieu123</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>ok</Message>
+  </block>
+<block id="2">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser>hieu123</DestinationUser>
+    <Message>noi chye</Message>
+  </block>
+<block id="3">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>chAO ANH</Message>
+  </block>
+<block id="4">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser>hieu123</DestinationUser>
+    <Message>nanai</Message>
+  </block>
+</PrivateMessage>

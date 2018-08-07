@@ -64,8 +64,8 @@ public class ClientGUI extends javax.swing.JFrame {
     // multi input
     private JFrame frame;
     private JPanel pane;
-    private JTextField nameROOMField;
-    private JPasswordField passROOMField;
+    private JTextField nameROOMField,nameUserField;
+    private JPasswordField passROOMField,passCURField,passNEWField;
     private String nameROOM="";
     private String passROOM="";
     //
@@ -434,16 +434,7 @@ public class ClientGUI extends javax.swing.JFrame {
         {
             if (!listUserPrv.isSelectionEmpty()){
                 txtContent.append(txtChat.getText() + "\n");
-                
-                
-                //System.err.println(String.valueOf(listUserPrv.getSelectedValue()));
                 _Client.SendPrivateMessage(String.valueOf(listUserPrv.getSelectedValue()), txtChat.getText());
-                
-
-
-//System.out.println("SEND ");
-                //g.client.SendPrivateMessage(listUserPrv.getSelectedValue(), txtChat.getText());
-                
                 // Add to local databases
                 dataControl.curUsr = sP.GetUserName();
                 dataControl.desUsr = String.valueOf(listUserPrv.getSelectedValue());
@@ -487,9 +478,20 @@ public class ClientGUI extends javax.swing.JFrame {
     
     private void addUserActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addUserActionPerformed
         // TODO add your handling code here:
-        int mc = JOptionPane.INFORMATION_MESSAGE;
-	sNewFriend = JOptionPane.showInputDialog (null, "Type Friend's ID want to add", "Request FRIEND", mc);
-        _Client.AddFriend(sNewFriend);
+        pane = new JPanel();
+        pane.setLayout(new GridLayout(0, 2, 2, 2));
+        nameUserField = new JTextField(29);
+        pane.add(new JLabel("Type Friend's ID want to add"));
+        pane.add(nameUserField);
+	int iNewFriend = JOptionPane.showConfirmDialog(frame, pane, "Please FILL your friend's name", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        if(iNewFriend==JOptionPane.OK_OPTION){
+            String nameFriend = nameUserField.getText();
+            System.err.println("Your friend's name : "+nameFriend);
+            _Client.AddFriend(nameFriend);
+        }
+        else{
+            System.err.println("Cancel this action ADD FRIEND");
+        }
     }//GEN-LAST:event_addUserActionPerformed
 
     private void listRoomMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_listRoomMouseClicked
@@ -502,13 +504,32 @@ public class ClientGUI extends javax.swing.JFrame {
             int roomID = sP.GetIDROOM(nameRoom);
             System.out.println("ROOM ID WHEN CLICKED LIST:" +roomID);
             if (sP.CheckOwnerRoomGUI(roomID) == 0){
-                int mc = JOptionPane.INFORMATION_MESSAGE;
-                String sPassRoom = JOptionPane.showInputDialog (null, "Type Room Pass's want to join ROOM", "Request Pass", mc);               
-                _Client.LetMeBeInRoom(roomID, sPassRoom);
+//                int mc = JOptionPane.INFORMATION_MESSAGE;
+//                String sPassRoom = JOptionPane.showInputDialog (null, "Type Room Pass's want to join ROOM", "Request Pass", mc);               
+//                _Client.LetMeBeInRoom(roomID, sPassRoom);
+                
+                
+                    pane = new JPanel();
+                    pane.setLayout(new GridLayout(0, 2, 2, 2));
+                    passROOMField = new JPasswordField(29);
+                    pane.add(new JLabel("Enter Room's Password"));
+                    pane.add(passROOMField);
+                    int option = JOptionPane.showConfirmDialog(frame, pane, "Please fill all the fields", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+                    if (option == JOptionPane.OK_OPTION) {
+
+                        
+                        String sPassROOM = passROOMField.getText();
+                        _Client.LetMeBeInRoom(roomID, sPassROOM);
+                    }
+                    else{
+                        System.err.println("Cancel  action LET ME BEING ROOM");
+                    }
+                
+                
             }
             else{
-                sP.InitRoomGUI(nameRoom,roomID);
-                statusNEWROOM=sP.GetstatusROOM(roomID);
+                //sP.InitRoomGUI(nameRoom,roomID); //Da init luc tao room r nen ko init lai
+                statusNEWROOM = sP.GetstatusROOM(roomID);
                 try {
                     Thread.sleep(200);
                 } catch (InterruptedException ex) {
@@ -517,7 +538,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
                     try {
                         // Yeu cau server gui LIST USER TRONG ROOM CREATE VE
-                        _Client.RefreshRoom(roomID);// CMD 14
+                        //_Client.RefreshRoom(roomID);// CMD 15
                     } catch (Exception e) {
                     }
                     sP.OpenRoomGUI(roomID);
@@ -600,9 +621,36 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void jMenuItemChangePassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItemChangePassActionPerformed
         // TODO add your handling code here:
-        int mcUser = JOptionPane.INFORMATION_MESSAGE;
-        String sPassUser = JOptionPane.showInputDialog (null, "Type Password to change", "Chang password ", mcUser);
-        _Client.RePass(sPassUser);
+        {
+             /*GET MULTI INPUT */
+            pane = new JPanel();
+            pane.setLayout(new GridLayout(0, 2, 2, 2));
+            passCURField = new JPasswordField(29);
+            passNEWField = new JPasswordField(29);
+            pane.add(new JLabel("Fill current Password"));
+            pane.add(passCURField);
+            pane.add(new JLabel("Set NEW Password"));
+            pane.add(passNEWField);
+
+            int option = JOptionPane.showConfirmDialog(frame, pane, "Please FILL ALL", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if (option == JOptionPane.OK_OPTION) {
+
+
+                String passCUR = passCURField.getText();
+                String passNEW = passNEWField.getText();
+                if(passCUR.equals(sP.GetPassword())){
+                    _Client.RePass(passNEW);
+                }
+                else{
+                    int mcServer = JOptionPane.ERROR_MESSAGE;
+                    JOptionPane.showMessageDialog (null, "PASSWORD NOT TRUE", "ERROR", mcServer);
+                    System.err.println("NOT ACCESS ");
+                }
+            }
+            else{
+                    System.err.println("Cancel action CHANGE PASSWORD");
+            }
+        }
     }//GEN-LAST:event_jMenuItemChangePassActionPerformed
 
     private void btnRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRefreshActionPerformed
@@ -634,7 +682,7 @@ public class ClientGUI extends javax.swing.JFrame {
 
     private void FailServerByIDActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_FailServerByIDActionPerformed
         // TODO add your handling code here:
-        _Client.SendMsgToRoom(-1, "Fail");
+        _Client.SendMsgToRoom(22145, "Fail");
     }//GEN-LAST:event_FailServerByIDActionPerformed
     
     
@@ -670,9 +718,6 @@ public class ClientGUI extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ClientGUI().setVisible(true);
-//                int k = 98;
-//                char cm = (char) k;
-//                System.out.println(cm);
             }
         });
     }

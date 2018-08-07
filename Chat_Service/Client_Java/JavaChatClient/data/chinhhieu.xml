@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>chinh</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>chinh</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>hello</Message>
+  </block>
+<block id="2">
+    <CurrentUser>chinh</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>second chat</Message>
+  </block>
+<block id="3">
+    <CurrentUser>chinh</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>hello</Message>
+  </block>
+<block id="4">
+    <CurrentUser>chinh</CurrentUser>
+    <DestinationUser>hieu</DestinationUser>
+    <Message>thanks</Message>
+  </block>
+</PrivateMessage>
