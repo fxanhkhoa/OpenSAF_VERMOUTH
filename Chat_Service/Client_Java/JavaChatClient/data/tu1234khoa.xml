@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>tu1234</CurrentUser>
+    <DestinationUser>khoa</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser>tu1234</DestinationUser>
+    <Message>lalala</Message>
+  </block>
+<block id="2">
+    <CurrentUser>tu1234</CurrentUser>
+    <DestinationUser/>
+    <Message>hello up</Message>
+  </block>
+<block id="3">
+    <CurrentUser>tu1234</CurrentUser>
+    <DestinationUser/>
+    <Message/>
+  </block>
+<block id="4">
+    <CurrentUser>tu1234</CurrentUser>
+    <DestinationUser/>
+    <Message/>
+  </block>
+<block id="5">
+    <CurrentUser>tu1234</CurrentUser>
+    <DestinationUser/>
+    <Message/>
+  </block>
+</PrivateMessage>

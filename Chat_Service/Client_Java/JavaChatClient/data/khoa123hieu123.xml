@@ -35,4 +35,49 @@
     <DestinationUser/>
     <Message>jjd</Message>
   </block>
+<block id="7">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>chao</Message>
+  </block>
+<block id="8">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>aaa</Message>
+  </block>
+<block id="9">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>test</Message>
+  </block>
+<block id="10">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>ok</Message>
+  </block>
+<block id="11">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>ok</Message>
+  </block>
+<block id="12">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>ok</Message>
+  </block>
+<block id="13">
+    <CurrentUser>hieu123</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>chao anh</Message>
+  </block>
+<block id="14">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>noi it thoi :))</Message>
+  </block>
+<block id="15">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>hey man</Message>
+  </block>
 </PrivateMessage>

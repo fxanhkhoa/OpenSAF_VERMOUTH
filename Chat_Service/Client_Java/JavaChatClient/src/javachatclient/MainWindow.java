@@ -5,6 +5,7 @@
  */
 package javachatclient;
 
+import GUIPannel.BlackListPanel;
 import java.awt.GridLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -33,9 +34,6 @@ public class MainWindow extends javax.swing.JFrame {
     private String passROOM="";
     //
     /**/
-    
-    
-    
     public MainWindow() {
         initComps();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -69,6 +67,8 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuAccount = new javax.swing.JMenu();
         jMenuItemSignOut = new javax.swing.JMenuItem();
         jMenuItemChangePass = new javax.swing.JMenuItem();
+        /**/
+        jMenuBlackList = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -113,6 +113,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         jMenuAccount.add(jMenuItemChangePass);
+        /**/
+        jMenuBlackList.setText("Black List");
+        jMenuBlackList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuBlackListActionPerformed(evt);
+            }
+        });
+        jMenuAccount.add(jMenuBlackList);
 
         jMenuBar1.add(jMenuAccount);
 
@@ -137,6 +145,7 @@ public class MainWindow extends javax.swing.JFrame {
         jMenuAccount = new javax.swing.JMenu();
         jMenuItemSignOut = new javax.swing.JMenuItem();
         jMenuItemChangePass = new javax.swing.JMenuItem();
+        jMenuBlackList = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -195,6 +204,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         jMenuAccount.add(jMenuItemChangePass);
+
+        jMenuBlackList.setText("Black List");
+        jMenuBlackList.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuBlackListActionPerformed(evt);
+            }
+        });
+        jMenuAccount.add(jMenuBlackList);
 
         jMenuBar1.add(jMenuAccount);
 
@@ -278,6 +295,18 @@ public class MainWindow extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jMenuItemChangePassActionPerformed
 
+    private void jMenuBlackListActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuBlackListActionPerformed
+        // TODO add your handling code here:
+        pane = new BlackListPanel();
+        int iNewFriend = JOptionPane.showConfirmDialog(frame, pane, " BLACK LIST USER: "+GlobalStatic.myUserName, JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+        if(iNewFriend==JOptionPane.OK_OPTION){
+            System.err.println("OK this action BLACKLIST");
+        }
+        else{
+            System.err.println("Cancel this action BLACKLIST");
+        }
+    }//GEN-LAST:event_jMenuBlackListActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -320,6 +349,7 @@ public class MainWindow extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenuAccount;
     private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuBlackList;
     private javax.swing.JMenu jMenuFile;
     private javax.swing.JMenuItem jMenuItemChangePass;
     private javax.swing.JMenuItem jMenuItemSignOut;

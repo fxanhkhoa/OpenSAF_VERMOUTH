@@ -42,6 +42,9 @@ public class SignInPannel extends javax.swing.JPanel {
         imgThisImg = new ImageIcon(resizedImg);
         btnReconnect.setIcon(imgThisImg);
         btnReconnect.setEnabled(false);
+        btnReconnect.setToolTipText("Click button if auto reconnect fail ");
+        btnSignIn.setToolTipText("Click button to login ");
+        btnSignUp.setToolTipText("Click button if not account to login");
     }
     
     public void showReconBtn(){
@@ -55,6 +58,10 @@ public class SignInPannel extends javax.swing.JPanel {
     
     public void ClickRecon(){
         btnReconnect.doClick();
+    }
+    public void ClearText(){
+        txtUser.setText("");
+        txtPassF.setText("");
     }
 
     public void SetConnectStatus(int status){

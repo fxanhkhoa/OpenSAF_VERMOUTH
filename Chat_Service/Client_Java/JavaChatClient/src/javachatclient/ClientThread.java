@@ -62,6 +62,12 @@ public class ClientThread {
     
     public final int LISTUSEROK = 102;
     /*list room */
+    
+    
+    public final int REVCAP=43; // you are captian
+    public final int NOTROOM=44; // specific room have been deleted
+    
+    /**/
  
 
     public final int LISTROOMOK = 42; // 103
@@ -104,6 +110,9 @@ public class ClientThread {
     public final int ONEOUTROOM = 92;//209;
     /*REQUEST TO SERVER WHO IN THIS ROOM*/
     public final int REFRESHROOM=15;
+    /*REQUEST TO SERVER REPASS THIS ROOM*/
+    public final int REPASSROOMOK = 89;
+    public final int REPASSROOMFAIL = 90;
 /*----------------------------------------------------------------------------*/
     /* add to show list user & list room */
     
@@ -515,8 +524,8 @@ public class ClientThread {
             GlobalStatic.signinPannel.SetConnectStatus(1);
             
             ClearData();
-//            System.err.println("BF JOIN IN clientPannel");
             JFrame topFrame = (JFrame) SwingUtilities.getRootPane(GlobalStatic.signinPannel).getParent();
+            GlobalStatic.signinPannel.ClearText();
             GlobalStatic.signinPannel.setVisible(false);
             topFrame.add(GlobalStatic.clientPannel);
             GlobalStatic.clientPannel.setVisible(true);
@@ -533,9 +542,7 @@ public class ClientThread {
             topFrame.setResizable(false);
             topFrame.setLocationRelativeTo(null);
             topFrame.setSize(1000,625);
-            
-                        
-            //
+            /**/ //REQUEST SERVER TO RECEIVED LIST ROOM /**/
             RefreshRoomList();
             return SIGNINOK;
         }
@@ -553,13 +560,8 @@ public class ClientThread {
 */                
         else if (signoutSignal == 1){
             ClearData();
-//            sP.HideClientGUI();
-//            GlobalStatic.signinPannel.setVisible(true);
-            //ReconLog(); // No need to recon
-
             System.err.println("Sign out");
             signoutSignal = 0;
-            
             /* Clear all data of current user */
             // Clear list friend
             GlobalStatic.friendList.clear();
@@ -571,20 +573,18 @@ public class ClientThread {
             GlobalStatic.pPList.clear();
             // Clear all Chat Room GUI
             GlobalStatic.clientPannel.RemoveAllTab();
-//            sP.rGList.clear();
             JFrame topFrame = (JFrame) SwingUtilities.getRootPane(GlobalStatic.signinPannel).getParent();
             GlobalStatic.clientPannel.setVisible(false);
             topFrame.add(GlobalStatic.signinPannel);
             GlobalStatic.signinPannel.setVisible(true);
+            
             topFrame.pack();
-            /*#disable*/
+            /*#disable account menu bar*/
             GlobalStatic.mainWindow= (MainWindow) SwingUtilities.getRootPane(GlobalStatic.clientPannel).getParent();
             GlobalStatic.mainWindow.HideAccountBar();
-            
             Thread.sleep(500);
             return SIGNOUTOK;
         }
-        
 /*------------------------------END SIGN OUT SIGNAL------------------------------------*/                                
 /* 
 ==========================================================================
@@ -611,7 +611,8 @@ public class ClientThread {
                 JOptionPane.showMessageDialog (null, "Fail", "Fail", mcServer);
                 return SIGNUPFAIL;
             }        
-/*------------------------------END SIGN UP SIGNAL------------------------------------*/   
+/*------------------------------END SIGN UP SIGNAL------------------------------------*/ 
+
 /* 
 ==========================================================================
                         CHANGE PASS SIGNAL (#34,#35, request #11)
@@ -619,7 +620,8 @@ public class ClientThread {
 */                   
             if (temp == REPASSOK)
             {
-                ClearData();    
+                ClearData(); 
+                GlobalStatic.myPass=GlobalStatic.myTempPass;
                 int mcServer = JOptionPane.INFORMATION_MESSAGE;
                 JOptionPane.showMessageDialog (null, "Success", "Success", mcServer);
                 return REPASSOK;
@@ -642,6 +644,8 @@ public class ClientThread {
             Split();
 //            GlobalStatic.clientPannel.AddTextToBox(curUser, desUser, Message);
             GlobalStatic.AddTextToBoxPrivatePanel(curUser, curUser, Message);
+            GlobalStatic.SetHaveMessPrivatePanel(String.valueOf(curUser).trim(), 1);
+            GlobalStatic.clientPannel.Reload(GlobalStatic.sizeFriend);
             DataControl dataControl = new DataControl();
             try {
                 if (dataControl.CheckExistXMLFile(String.valueOf(curUser).trim()) == 0){
@@ -703,7 +707,7 @@ public class ClientThread {
         else if (temp == 998){
             return (int)998;
         }
-/*------------------------------LIST ONLINE BEGIN FRIST------------------------------------*/              
+/*------------------------------LIST ONLINE BEGIN FRIST #102------------------------------------*/              
         
         else if (temp == LISTUSEROK){
             System.err.println("RECEIVED LIST USER DATA OK");
@@ -809,9 +813,8 @@ public class ClientThread {
                 GlobalStatic.SetOwnerRoomGUI(idRoom);
                 System.err.println("CREATE ROOM SUCCESS + Setroom Owner " + GlobalStatic.nameRoomTemp);
             }
-            
+            GlobalStatic.SetPassRoomPanel(idRoom, GlobalStatic.passRoomTemp);
             GlobalStatic.clientPannel.ReloadRoom();
-//            GlobalStatic.AddToListInRoomGUI(idRoom, GlobalStatic.nameRoomTemp);
             ClearData();
             return ADDROOMOK;
         }
@@ -912,8 +915,6 @@ public class ClientThread {
         
         /*LOST DATA DUE TO NO FUNCTION OR CMD TO NOTIFY OTHER ,THIS KICKED'S MAN IN ROOM */
         else if (temp == HAVEKICK){
-            
-            int idROOM=GetSize();
             char[] kickedUser = new char[30];
                 Arrays.fill(kickedUser, '\0'); // fill array
                 for (int i = 0; i < 30; i++){
@@ -928,14 +929,12 @@ public class ClientThread {
                 System.err.println("YOU HAVE BEEN KICKED BY OWNER ");
             }
             else{
-                
-//                sP.RemoveToListInRoomGUI(idROOM,kUser);
                 ClearData();
                 System.err.println("ONE MAN GO TO HEAVEN ");
             }
             ClearData();
             System.err.println("ONE MAN GO TO HEAVEN ");
-            return 0;
+            return HAVEKICK;
         }
         /*-----------LET ME BEING ROOM #87-------*/
         else if (temp == LETROOMOK){
@@ -946,8 +945,8 @@ public class ClientThread {
             for (int i = 0; i < 30; i++){
                 acceptedUser[i] = recvData[8 + i];
             }
-            String sAcceptedUser=new String(acceptedUser).trim().replaceAll(" ", "");
-            System.out.println("Accepted usr: " + sAcceptedUser +" Myname :"+ GlobalStatic.myUserName);
+//            String sAcceptedUser=new String(acceptedUser).trim().replaceAll(" ", "");
+//            System.out.println("Accepted usr: " + sAcceptedUser +" Myname :"+ GlobalStatic.myUserName);
             {
                int mcServer = JOptionPane.INFORMATION_MESSAGE;
                JOptionPane.showMessageDialog (null, "YOU HAVE BEEN AT THIS ROOM ", "HEY GUYS", mcServer);
@@ -955,8 +954,9 @@ public class ClientThread {
                ClearData();
                String nameRoom=GlobalStatic.GetNameROOM(IDRoom);
                GlobalStatic.clientPannel.AddTabRoom(nameRoom, IDRoom);
-
-               return 0;   
+               GlobalStatic.SetPassRoomPanel(IDRoom, GlobalStatic.passRoomTemp);
+               
+               return LETROOMOK;   
             }
             
         }
@@ -970,7 +970,7 @@ public class ClientThread {
         else if (temp == PASSROOMOK){
             int mcServer = JOptionPane.INFORMATION_MESSAGE;
             JOptionPane.showMessageDialog (null, "YOUR ROOM'S PASSWORD HAVE BEEN CHANGE ", "HEY GUYS", mcServer);
-            System.err.println("YOU HAVE BEEN AT THIS ROOM ");
+            System.err.println("YOUR ROOM'S PASSWORD HAVE BEEN CHANGE ");
             ClearData();
             return 0;
         }
@@ -990,7 +990,6 @@ public class ClientThread {
                 JOptionPane.showMessageDialog(null, notify);
             }
             GlobalStatic.RemoveListRoomOnClientGUI(IDRoom);
-            
             System.err.println("YOUR ROOM'S "+IDRoom+ "HAVE BEEN DELETED");
             GlobalStatic.clientPannel.ReloadRoom();
             System.err.println("YOUR ROOM'S HAVE BEEN DELETED");
@@ -1025,6 +1024,21 @@ public class ClientThread {
             }
             System.out.println("Someone Out: " + String.valueOf(user).trim());
             GlobalStatic.RemoveToListInRoomGUI(idRoom, String.valueOf(user).trim());
+        }
+        /*/*-----------REPASS WITH ROOM (#89 #90)-------*/
+        else if (temp == REPASSROOMOK){
+            System.err.println("REPASS ROOM SUCCESS");
+            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+            JOptionPane.showMessageDialog (null, "SUCCESS", "SERVER: ", mcServer);
+            ClearData();
+            return 0;
+        }
+        else if (temp == REPASSROOMFAIL){
+            System.err.println("REPASS ROOM FAIL");
+            int mcServer = JOptionPane.ERROR_MESSAGE;
+            JOptionPane.showMessageDialog (null, "FAIL", "SERVER: ", mcServer);
+            ClearData();
+            return 0;
         }
 /*------------------------------END ROOM GUI FEATURE------------------------------------*/                                
         
@@ -1067,20 +1081,40 @@ public class ClientThread {
             return ROOMCREATE;
         }
 /*-----------------------------------------------------------------------------*/  
-        
-/*--------------------------------LIST ROOM BEGIN #103----------------------------------*/                                
+/* 
+==========================================================================
+                        BEING CAPTIAN  (#43)
+========================================================================== 
+*/                   
+        else if (temp == REVCAP){
+            System.out.println("RECAP");
+            int idRoom = GetSize();
+                
+            GlobalStatic.SetOwnerRoomGUI(idRoom);
+            GlobalStatic.clientPannel.ReloadRoom();
+            int mcServer = JOptionPane.INFORMATION_MESSAGE;
+            String nameRoom= GlobalStatic.GetNameROOM(idRoom);
+            JOptionPane.showMessageDialog (null, "YOU ARE OWNER ON ROOM : "+nameRoom , "SERVER ADMIN", mcServer);
+            ClearData();
+            return REVCAP;
+        }
+                   
+/*------------------------------END SET CAPTIAN  (#43) SIGNAL------------------------------------*/   
+            
+/*--------------------------------LIST ROOM BEGIN #42 replace for #103----------------------------------*/                                
         else if (temp == LISTROOMOK){
  
             
             System.err.println("RECEIVED DATA ROOM");
-
+//                System.err.println(recvData[0]);
             GlobalStatic.sizeRoom = GetSize();
+                System.out.println("Size in List Room OK " + GlobalStatic.sizeRoom);
 //            GlobalStatic.sizeRoom = GlobalStatic.sizeRoom >> 24;
             
-            for (int k = 508; k < 1024; k++){
-                    System.err.print(k);
-                    System.out.println((int)recvData[k]);
-                }
+//            for (int k = 508; k < 1024; k++){
+//                    System.err.print(k);
+//                    System.out.println((int)recvData[k]);
+//                }
             // Get data of Room
             for (int i = 0; i < GlobalStatic.sizeRoom; i++){
                 int id;
@@ -1093,24 +1127,17 @@ public class ClientThread {
                         + (recvData[9 + 500 * i] << 8) 
                         + (recvData[10+ 500 * i] << 16) 
                         + (recvData[11+ 500 * i] << 24));
-                
                 System.out.println("ID = " + id);
-                
                 for (int j = 0; j < 30; j++){
                     if (recvData[j + 16 + i * 500] == '\0')
                         break;
                     nameRoom[j] = recvData[j + 16 + i * 500];
-//                    System.out.print(recvData[j+16+i*197]);
                 }
-                
-                
-                
                 for (int j = 0; j < 30; j++){
                     if (recvData[j + 46 + i * 500] == '\0')
                         break;
                     pass[j] = recvData[j + 46 + i * 500];
                 }
-                
                 System.out.println(id);
                 System.out.println(String.valueOf(nameRoom));
                 System.out.println(String.valueOf(pass));
@@ -1119,9 +1146,6 @@ public class ClientThread {
 
             
             GlobalStatic.clientPannel.ReloadRoom();
-            
-            /* reload list friend after collect full data */
-            GlobalStatic.clientPannel.PerformRefreshClick();
             
             /* reload list room  */
             ClearData();
@@ -1151,67 +1175,57 @@ public class ClientThread {
             
             return OUTDONE;
         }
-/*--------------------------------CMD 2000---------------------------------*/                                
+/*--------------------------------CMD 2000 CATCH ERR??---------------------------------*/                                
         else if (temp == 2000){
             //System.exit(0);
             return 0;
         }
-            
         else if (temp == 124){
                 System.out.println("javachatclient.ClientThread.GetCommandCode() 124 OK");
         }
         return temp;
     }
-     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    public void Recon() throws InterruptedException{
-
-       while(timeToRecon<3){
-            if(GlobalStatic.connectionStatus){
-                 GlobalStatic.ClearAllData();
-                 System.err.println("CLEARING ALL DATA");
-                 SignIn(GlobalStatic.myUserName, GlobalStatic.myPass);
-                 GlobalStatic.clientPannel.PerformRefreshClick();
-                 System.err.println("SUCCESSED REFRESH AND RELOG");
-                 break;
-            }
-            else{
-                ConnectToServer();
-                timeToRecon++;
-                Thread.sleep(2000);
-            }
-       }
-                       System.err.println("OVERLOAD "+ timeToRecon);
-                GlobalStatic.clientPannel.showReconBtn();  
-                    GlobalStatic.signinPannel.showReconBtn();
-                    int mcServer = JOptionPane.INFORMATION_MESSAGE;
-                     JOptionPane.showMessageDialog (null, "Please click Reconect  ", "Can not auto reconnect", mcServer);
-       reconnect.stop();
-   }
-     
-    
-    
     /*
  
+    *Function : Recon 
+    *Description: Reconnect server
+    *Argument:  void
+    *Return:  
+    Note:  
+
+    */
+    public void Recon() throws InterruptedException{
+        while(timeToRecon<3){
+             if(GlobalStatic.connectionStatus){
+                  GlobalStatic.ClearAllData();
+                  System.err.println("CLEARING ALL DATA");
+                  SignIn(GlobalStatic.myUserName, GlobalStatic.myPass);
+                  GlobalStatic.clientPannel.PerformRefreshClick();
+                  System.err.println("SUCCESSED REFRESH AND RELOG");
+                  break;
+             }
+             else{
+                 ConnectToServer();
+                 timeToRecon++;
+                 Thread.sleep(2000);
+             }
+        }
+        System.err.println("OVERLOAD "+ timeToRecon);
+        GlobalStatic.clientPannel.showReconBtn();  
+        GlobalStatic.signinPannel.showReconBtn();
+        int mcServer = JOptionPane.INFORMATION_MESSAGE;
+        JOptionPane.showMessageDialog (null, "Please click Reconect  ", "Can not auto reconnect", mcServer);
+        reconnect.stop();
+   }
+    /*
     *Function : SignIn(String usr, String pass)
     *Description: Send block data to server
     *Argument:  String usr, String pass
     *Return: 1<-successful
     Note:  
-
     */
     public int SignIn(String usr, String pass)
     {
-        
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.Signin.ordinal();
         GlobalStatic.blockToSend.IDRoom = 0;
         GlobalStatic.blockToSend.ownUsername = usr;
@@ -1220,15 +1234,9 @@ public class ClientThread {
         GlobalStatic.blockToSend.roomPassword = "";
         GlobalStatic.blockToSend.message = "";
         GlobalStatic.blockToSend.mIDUser = 1;
-        System.out.print((GlobalStatic.blockToSend.command >> 0) & 0xFF);
-                            System.out.print((GlobalStatic.blockToSend.command >> 8) & 0xFF);
-                            System.out.print((GlobalStatic.blockToSend.command >> 16) & 0xFF);
-                            System.out.println((GlobalStatic.blockToSend.command >> 24) & 0xFF);
-        
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-      /*
+    /*
     Function name: LetMeBeInRoom()
     Description: LetMeBeInRoom
     Argument: int,String
@@ -1237,19 +1245,16 @@ public class ClientThread {
     */
     public int LetMeBeInRoom(int roomID, String passRoom)
     {
-        
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.RequestToRoom.ordinal();
         GlobalStatic.blockToSend.IDRoom = roomID;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
         GlobalStatic.blockToSend.desUsername = "";
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = passRoom;
-        GlobalStatic.blockToSend.message = "";
+        GlobalStatic.blockToSend.message = "USER: "+GlobalStatic.myUserName+ " WANT TO JOIN ROOM WITH ID :"+roomID;
         GlobalStatic.myIDRoom=roomID;
-        //sP.nameDesUser=desusr;
+        GlobalStatic.passRoomTemp = passRoom;
         return Send(GlobalStatic.blockToSend.GetText());
-        
-        
     }
     /*
     Function name: AddFriend()
@@ -1266,11 +1271,12 @@ public class ClientThread {
         GlobalStatic.blockToSend.desUsername = usr; // friend's name.
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = "";
-        GlobalStatic.blockToSend.message = "";
+        GlobalStatic.blockToSend.message = "USER: "+GlobalStatic.myUserName+ " WANT TO ADD THIS NAME "+usr+ " to FRIEND LIST";
         return Send(GlobalStatic.blockToSend.GetText());
     }
     /*
     Function name: SendPrivateMessage(String usr)
+    
     Description: Send message to a user
     Argument: String user, String message
     Return: int error code
@@ -1287,30 +1293,31 @@ public class ClientThread {
         GlobalStatic.blockToSend.message = message;
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-    public int ReFresh()
-    {
+    /*
+    *Function : ReFresh(String usr, String pass)
+    *Description: ReFresh
+    *Argument:  int
+    *Return: s
+    Note:  
+    */
+    public int ReFresh(){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.ReFresh.ordinal();//21
         GlobalStatic.blockToSend.IDRoom = 0;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
         GlobalStatic.blockToSend.desUsername = "";
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = "";
-        GlobalStatic.blockToSend.message = "";
+        GlobalStatic.blockToSend.message = "User : "+GlobalStatic.myUserName+" want to received a list user online";
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
     /*
- 
     *Function : SignUp(String usr, String pass)
     *Description: Send block data to server
     *Argument:  String usr, String pass 
     *Return: 1  <---- successful
     Note:  
-
     */
-    public int SignUp(String usr, String pass)
-    {
+    public int SignUp(String usr, String pass){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.Signup.ordinal();
         GlobalStatic.blockToSend.IDRoom = 0;
         GlobalStatic.blockToSend.ownUsername = usr;
@@ -1321,8 +1328,6 @@ public class ClientThread {
         signupSignal = 1;
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-
     /*
     Function name: AddFriendToRoom()
     Description: Add new user to a specific room
@@ -1331,20 +1336,17 @@ public class ClientThread {
     Note:
     */
     public int AddFriendToRoom(int roomID, String desusr){
-        
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.InviteToRoom.ordinal();
         GlobalStatic.blockToSend.IDRoom = roomID;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
         GlobalStatic.blockToSend.desUsername = desusr;
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = "";
-        GlobalStatic.blockToSend.message = "";
+        GlobalStatic.blockToSend.message = "User : "+GlobalStatic.myUserName+" want to add friend: "+desusr+ " to ROOM WITH ID: "+roomID;
         GlobalStatic.myIDRoom = roomID;
         GlobalStatic.nameDesUser = desusr;
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-    
     /*
     Function name: RemoveFriendFromRoom(String usr)
     Description: Send Remove friend command to server
@@ -1352,7 +1354,6 @@ public class ClientThread {
     Return: Int
     Note:
     */
-    
     public int RemoveFriendFromRoom(String desusr, int roomID, String roomPass){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.KickFromRoom.ordinal();
         GlobalStatic.blockToSend.IDRoom = roomID;
@@ -1360,13 +1361,11 @@ public class ClientThread {
         GlobalStatic.blockToSend.desUsername = desusr;
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = "";
-        GlobalStatic.blockToSend.message = "";
+        GlobalStatic.blockToSend.message = "User : "+GlobalStatic.myUserName+" want to remove friend: "+desusr+ " on ROOM";
         GlobalStatic.myIDRoom = roomID;
         GlobalStatic.nameDesUser = desusr;
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-    
     /*
     Function name: SendMsgToRoom()
     Description: Send message to a specific room
@@ -1383,10 +1382,7 @@ public class ClientThread {
         GlobalStatic.blockToSend.roomPassword = "";
         GlobalStatic.blockToSend.message = msg;
         return Send(GlobalStatic.blockToSend.GetText()); 
-    
     }
-    
-    
     /*
     Function name: TerminateRoom()
     Description: TerminateRoom
@@ -1394,11 +1390,7 @@ public class ClientThread {
     Return: Int
     Note:
     */
-    
-    /**/
-    
-    public int TerminateRoom(int roomID)
-    {
+    public int TerminateRoom(int roomID){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.DeleteRoom.ordinal();
         GlobalStatic.blockToSend.IDRoom = roomID;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
@@ -1408,12 +1400,16 @@ public class ClientThread {
         GlobalStatic.blockToSend.message = "User: " + GlobalStatic.myUserName + " WANT TO TERMINATE ROOM "+ roomID;
         GlobalStatic.nameOwner = GlobalStatic.myUserName;
         GlobalStatic.idRoomOwner = roomID;
-//        sP.idROOM=roomID;
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-    public int ReFreshROOMGUI(int idROOM)
-    {
+    /*
+    Function name: ReFreshROOMGUI()
+    Description: ReFresh LIST ROOMGUI
+    Argument: int
+    Return: Int
+    Note:
+    */
+    public int ReFreshROOMGUI(int idROOM){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.RefreshList.ordinal();//15
         GlobalStatic.blockToSend.IDRoom = idROOM;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
@@ -1424,35 +1420,33 @@ public class ClientThread {
         GlobalStatic.idRefreshROOM = idROOM;
         return Send(GlobalStatic.blockToSend.GetText());
     }
-
-        
-    public int AddNewRoom(String nameROOM, String passROOM)
-    {
+    /*
+    Function name: AddNewRoom(String nameROOM, String passROOM)
+    Description: CREATE New Room  
+    Argument: int
+    Return: Int
+    Note:
+    */
+    public int AddNewRoom(String nameROOM, String passROOM){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.CreateRoom.ordinal();
         GlobalStatic.blockToSend.IDRoom = 0;// not appect on SERVER
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
         GlobalStatic.blockToSend.desUsername = nameROOM;// ROOM NAME 
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = passROOM;
-        GlobalStatic.blockToSend.message = "";
-        //System.out.println(blockToSend.ownUsername.length());
+        GlobalStatic.blockToSend.message = "USER: "+GlobalStatic.myUserName+ " WANT TO CREATE ROOM WITH ROOMNAME "+nameROOM+ " and PASS "+ passROOM;
         GlobalStatic.passRoomTemp = passROOM;
         GlobalStatic.nameRoomTemp = nameROOM;
-
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
     /*
- 
     *Function : SignOut()
     *Description: Send block data to server
     *Argument:  int
     *Return: 1  <---- successful
     Note:  
-
     */
-    public int SignOut()
-    {
+    public int SignOut(){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.SignOut.ordinal();
         GlobalStatic.blockToSend.IDRoom = 0;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
@@ -1460,13 +1454,9 @@ public class ClientThread {
         GlobalStatic.blockToSend.ownPassword = GlobalStatic.myPass;
         GlobalStatic.blockToSend.roomPassword = "";
         GlobalStatic.blockToSend.message = "DANG XUAT USER : "+GlobalStatic.myUserName;
-        
         signoutSignal = 1;
-        System.err.println("sign out signal : "+signoutSignal );
-        
         return Send(GlobalStatic.blockToSend.GetText());
     }
-
     /*
     Function name: Repass
     Description: Repass - 11 , send block to server
@@ -1474,8 +1464,41 @@ public class ClientThread {
     Return: Send block to server
     Note:
     */
-    public int RePassUser(String passU)
-    {
+    public int AddToBlackList(String desur){
+        GlobalStatic.blockToSend.command = ProtocolCS.commandCode.AddBlack.ordinal();//16
+        GlobalStatic.blockToSend.IDRoom = 0;
+        GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
+        GlobalStatic.blockToSend.desUsername = desur;
+        GlobalStatic.blockToSend.ownPassword = "";
+        GlobalStatic.blockToSend.roomPassword = "";
+        GlobalStatic.blockToSend.message = "USER: "+GlobalStatic.myUserName+ " WANT TO ADD: "+desur+ " TO BLACK LIST";
+        return Send(GlobalStatic.blockToSend.GetText());
+    }
+    /*
+    Function name: Repass
+    Description: Repass - 11 , send block to server
+    Argument: Int
+    Return: Send block to server
+    Note:
+    */
+    public int RemoveFromBlackList(String desur){
+        GlobalStatic.blockToSend.command = ProtocolCS.commandCode.RemoveBlack.ordinal();//17
+        GlobalStatic.blockToSend.IDRoom = 0;
+        GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
+        GlobalStatic.blockToSend.desUsername = desur;
+        GlobalStatic.blockToSend.ownPassword = "";
+        GlobalStatic.blockToSend.roomPassword = "";
+        GlobalStatic.blockToSend.message = "USER: "+GlobalStatic.myUserName+ " WANT TO REMOVE: "+desur+ " FROM BLACK LIST";
+        return Send(GlobalStatic.blockToSend.GetText());
+    }
+    /*
+    Function name: Repass
+    Description: Repass - 11 , send block to server
+    Argument: Int
+    Return: Send block to server
+    Note:
+    */
+    public int RePassUser(String passU){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.RePass.ordinal();//11
         GlobalStatic.blockToSend.IDRoom = 0;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
@@ -1483,13 +1506,18 @@ public class ClientThread {
         GlobalStatic.blockToSend.ownPassword = passU;
         GlobalStatic.blockToSend.roomPassword = "";
         GlobalStatic.blockToSend.message = "USER: "+GlobalStatic.myUserName+ " WANT TO CHANGE PASS";
+        GlobalStatic.myTempPass=passU;
+        
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-    /**/
-    
-    public int RefreshRoom(int roomID)
-    {
+    /*
+    Function name: RefreshRoom(int roomID)
+    Description: Refresh list user in Room on ROOM PAN
+    Argument: Int
+    Return: int
+    Note:
+    */
+    public int RefreshRoom(int roomID){
         GlobalStatic.blockToSend.command = ProtocolCS.commandCode.RefreshList.ordinal();
         GlobalStatic.blockToSend.IDRoom = roomID;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
@@ -1500,33 +1528,64 @@ public class ClientThread {
         GlobalStatic.idRefreshROOM=roomID;
         return Send(GlobalStatic.blockToSend.GetText());
     }
-    
-    
-    public int RefreshRoomList()
-    {
-        System.out.println("Sent");
+    /*
+    Function name: RefreshRoom(int roomID)
+    Description: Refresh list Room on Client PAN
+    Argument: Int
+    Return: int
+    Note:
+    */
+    public int RefreshRoomList(){
+        System.out.println("Sent REFRESH ROOM LIST");
         GlobalStatic.blockToSend.command = LISTROOMOK;
         GlobalStatic.blockToSend.IDRoom = 0;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
         GlobalStatic.blockToSend.desUsername = "";
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = "";
-        GlobalStatic.blockToSend.message = "LISTROOM OK";
+        GlobalStatic.blockToSend.message = "User : "+GlobalStatic.myUserName+" want to refresh room  to received a list room";
         GlobalStatic.idRefreshROOM=0;
+        GlobalStatic.roomList.clear();
+//        GlobalStatic.sizeRoom = 0;
         return Send(GlobalStatic.blockToSend.GetText());
     }
     
-    public int IOutRoom(int id)
-    {
-        System.out.println("Sent");
+    /*
+    Function name: IOutRoom(int id)
+    Description: Notify server user have left on specific room.
+    Argument: Int
+    Return: int
+    Note:
+    */
+    public int IOutRoom(int id){
+        System.out.println("Sent IOutRoom");
         GlobalStatic.blockToSend.command = 14;
         GlobalStatic.blockToSend.IDRoom = id;
         GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
         GlobalStatic.blockToSend.desUsername = "";
         GlobalStatic.blockToSend.ownPassword = "";
         GlobalStatic.blockToSend.roomPassword = "";
-        GlobalStatic.blockToSend.message = "LISTROOM OK";
+        GlobalStatic.blockToSend.message = "User : "+GlobalStatic.myUserName+ " HAVE LEFT ROOM WITH ID USER: "+id;
         GlobalStatic.idRefreshROOM=0;
+        return Send(GlobalStatic.blockToSend.GetText());
+    }
+    /*
+    Function name: IOutRoom(int id)
+    Description: Notify server user have left on specific room.
+    Argument: Int
+    Return: int
+    Note:
+    */
+    public int RePassRoom(int idRoom, String passRoom){
+        System.out.println("RePassRoom");
+        GlobalStatic.blockToSend.command = ProtocolCS.commandCode.RePassRoom.ordinal();
+        GlobalStatic.blockToSend.IDRoom = idRoom;
+        GlobalStatic.blockToSend.ownUsername = GlobalStatic.myUserName;
+        GlobalStatic.blockToSend.desUsername = "";
+        GlobalStatic.blockToSend.ownPassword = "";
+        GlobalStatic.blockToSend.roomPassword = passRoom;
+        GlobalStatic.blockToSend.message = "User : "+GlobalStatic.myUserName+ " WANT TO REPASS: "+ passRoom+" ROOM  WITH ID ROOM: "+idRoom;
+        //GlobalStatic.idRefreshROOM=0;
         return Send(GlobalStatic.blockToSend.GetText());
     }
 }

@@ -26,12 +26,12 @@ public class ProtocolCS{
         SignOut,//9
         TerminateRoom,//10 -not use
         RePass,//11 - doi PASS USER
-        a12,//12
+        RePassRoom,//12
         RequestToRoom,//13- xin vao room
         QuitRoom,//14
         RefreshList,//15
-        a16,//16
-        a17,//17
+        AddBlack,//16
+        RemoveBlack,//17
         a18,//18
         a19,//19
         RequestFriend,//20

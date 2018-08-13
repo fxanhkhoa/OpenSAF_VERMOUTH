@@ -19,25 +19,29 @@ Features
 -----  
 
 
-- [x] Client & Server AMF  
+- [x] Client & Server AMF & IMM   
 
 - [x] Sign Up, Sign In & Sign Out  
 
 - [x] Chat Private & Chat Room  
 
+- [x] Account menu(Sign Out/ Change Pass)  
 
+- [x] Features on Chat Private(Add Friend/Create Room/ History local private chat)  
+
+- [x] Features on Chat Room available in Owner(Who create this room)(Add/Kick user on this room or Terminate this room )  
   
-- [x] Auto Reconnect  
+- [x] Auto Reconnect(Switch over/Fail,...)  
   
-- [x] Auto Refresh Online User  
+- [x] Auto Refresh Online UserList & RoomList   
   
 
 -----
- Future  
+ FUTURE  
 -----  
-Will finish at Sprint 3.
 
-- [ ] Integrate IMM  
+
+- [ ] Continuous Integration  
 
 ----- 
 About VERMOUTH

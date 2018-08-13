@@ -5,13 +5,21 @@
  */
 package GUIPannel;
 
+import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import javachatclient.GlobalStatic;
 import javachatclient.Struct.OnlineUserRenderer;
 import javachatclient.Struct.UserStruct;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 
 /**
  *
@@ -34,8 +42,17 @@ public class RoomPannel extends javax.swing.JPanel {
     public int status;
     public int isOwner = 0;
     public int indexOfTab;
+    public String passROOM="";
         
     public HashSet<UserStruct> userRoomList = new HashSet<UserStruct>();
+    /*multi input*/
+    private JFrame frame;
+    private JPanel pane;
+    private JTextField nameROOMField,nameUserField;
+    private JPasswordField passROOMField,passCURField,passNEWField;
+    private String nameROOM="";
+    
+    
      /**
      * End line
      */
@@ -46,16 +63,57 @@ public class RoomPannel extends javax.swing.JPanel {
         this.Name = Name;
         this.IDROOM = IDROOM;
         this.status = status;
-        lbRoomName.setText(Name);
+        /*SET ROOMNAME*/
+        
+//        String nameRoom = "<html><span style='font-size:20px'>"+Name+"</span></html>";
+//        lbRoomName.setText(nameRoom);
         
         /**/
         btnAddUser.setEnabled(false);
         btnKickUser.setEnabled(false);
         btnTerminate.setEnabled(false);
+        btnRePass.setEnabled(false);
         
          /**/
         listUser.setModel(new DefaultListModel());
         listModel = new DefaultListModel();
+        /**/
+        String Path = System.getProperty("user.dir");
+        ImageIcon imgThisImg = new ImageIcon(Path + "/images/plus.png");
+        Image img = imgThisImg.getImage();
+        Image resizedImg = img.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
+        imgThisImg = new ImageIcon(resizedImg);
+        btnAddUser.setIcon(imgThisImg);
+        /*icon kick*/
+        ImageIcon imgThisImgKick = new ImageIcon(Path + "/images/kick.png");
+        Image imgKick = imgThisImgKick.getImage();
+        Image resizedImgKick = imgKick.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
+        imgThisImgKick = new ImageIcon(resizedImgKick);
+        btnKickUser.setIcon(imgThisImgKick);
+        /*icon Delete*/
+        ImageIcon imgThisImgDelete = new ImageIcon(Path + "/images/delete.png");
+        Image imgDelete = imgThisImgDelete.getImage();
+        Image resizedImgDelete = imgDelete.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
+        imgThisImgDelete = new ImageIcon(resizedImgDelete);
+        btnTerminate.setIcon(imgThisImgDelete);
+        /*icon Refresh*/ 
+        ImageIcon imgThisImgRe = new ImageIcon(Path + "/images/refresh.png");
+        Image imgRe = imgThisImgRe.getImage();
+        Image resizedImgRe = imgRe.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
+        imgThisImgRe = new ImageIcon(resizedImgRe);
+        btnRefresh.setIcon(imgThisImgRe);
+        /*icon Refresh*/
+        ImageIcon imgThisImgRePass = new ImageIcon(Path + "/images/pass.png");
+        Image imgRePass = imgThisImgRePass.getImage();
+        Image resizedImgRePass = imgRePass.getScaledInstance(20, 20, java.awt.Image.SCALE_SMOOTH);
+        imgThisImgRePass = new ImageIcon(resizedImgRePass);
+        btnRePass.setIcon(imgThisImgRePass);
+        /*hint*/
+        btnAddUser.setToolTipText("Click button if you want to Add Specific User in this Room ");
+        btnKickUser.setToolTipText("Click button if you want to Kick Specific User in this Room ");
+        btnRePass.setToolTipText("Click button if you want to Change pass in this Room ");
+        btnTerminate.setToolTipText("Click button if you want to Delete this Room ");
+        btnRefresh.setToolTipText("Click button if you want to refresh this curent User in this Room ");
     }
 
     /**
@@ -67,7 +125,6 @@ public class RoomPannel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lbRoomName = new javax.swing.JLabel();
         lbHostName = new javax.swing.JLabel();
         btnAddUser = new javax.swing.JButton();
         btnKickUser = new javax.swing.JButton();
@@ -78,11 +135,9 @@ public class RoomPannel extends javax.swing.JPanel {
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         txtContent = new javax.swing.JTextArea();
-        jLabel3 = new javax.swing.JLabel();
         btnTerminate = new javax.swing.JButton();
         btnRefresh = new javax.swing.JButton();
-
-        lbRoomName.setText("ROOM");
+        btnRePass = new javax.swing.JButton();
 
         lbHostName.setText("HOST");
 
@@ -119,8 +174,6 @@ public class RoomPannel extends javax.swing.JPanel {
         txtContent.setRows(5);
         jScrollPane1.setViewportView(txtContent);
 
-        jLabel3.setText("ROOM ID");
-
         btnTerminate.setText("Terminate");
         btnTerminate.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -135,6 +188,13 @@ public class RoomPannel extends javax.swing.JPanel {
             }
         });
 
+        btnRePass.setText("Change Room's Pass");
+        btnRePass.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnRePassActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -144,9 +204,15 @@ public class RoomPannel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(lbHostName)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel2)
-                        .addGap(268, 268, 268))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jLabel2)
+                                .addGap(268, 268, 268))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(btnRePass)
+                                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -161,29 +227,23 @@ public class RoomPannel extends javax.swing.JPanel {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(65, 65, 65)
                                 .addComponent(jLabel1)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 85, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtChat, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 388, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addGap(58, 58, 58)
-                                .addComponent(lbRoomName, javax.swing.GroupLayout.PREFERRED_SIZE, 124, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(54, 54, 54))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 56, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtChat)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE))
+                        .addGap(23, 23, 23))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(lbHostName)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lbRoomName, javax.swing.GroupLayout.PREFERRED_SIZE, 43, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(jLabel2)
-                        .addComponent(jLabel3)))
-                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lbHostName)
+                            .addComponent(btnRePass))
+                        .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(btnAddUser)
                             .addComponent(btnTerminate))
@@ -194,12 +254,15 @@ public class RoomPannel extends javax.swing.JPanel {
                         .addGap(16, 16, 16)
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 17, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(108, 108, 108))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jScrollPane1)
                         .addGap(18, 18, 18)
                         .addComponent(txtChat, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -213,6 +276,9 @@ public class RoomPannel extends javax.swing.JPanel {
     public void RefreshClick(){
         btnRefresh.doClick();
     }
+    public void SetPassRoom(String passRoom){
+        this.passROOM = passRoom;
+    }
     
     public void SetButton()
     {
@@ -222,6 +288,7 @@ public class RoomPannel extends javax.swing.JPanel {
                 btnAddUser.setEnabled(false);
                 btnKickUser.setEnabled(false);
                 btnTerminate.setEnabled(false);
+                btnRePass.setEnabled(false);
                 
             } catch (Exception e) {
             }
@@ -232,6 +299,7 @@ public class RoomPannel extends javax.swing.JPanel {
                 btnAddUser.setEnabled(true);
                 btnKickUser.setEnabled(true);
                 btnTerminate.setEnabled(true);
+                btnRePass.setEnabled(true);
                 
             } catch (Exception e) {
             }
@@ -362,19 +430,51 @@ public class RoomPannel extends javax.swing.JPanel {
         System.err.println("REQUEST SERVER TO RECEIVED A LIST ON ROOM ID "+this.IDROOM);
     }//GEN-LAST:event_btnRefreshActionPerformed
 
+    private void btnRePassActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRePassActionPerformed
+        // TODO add your handling code here:
+        {
+            /*GET MULTI INPUT */
+            pane = new JPanel();
+            pane.setLayout(new GridLayout(0, 2, 2, 2));
+            passCURField = new JPasswordField(29);
+            passNEWField = new JPasswordField(29);
+            pane.add(new JLabel("Fill current Password"));
+            pane.add(passCURField);
+            pane.add(new JLabel("Set NEW Password"));
+            pane.add(passNEWField);
+
+            int option = JOptionPane.showConfirmDialog(frame, pane, "Please FILL ALL", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE);
+            if (option == JOptionPane.OK_OPTION) {
+
+                String passCUR = passCURField.getText();
+                String passNEW = passNEWField.getText();
+                if(passCUR.equals(GlobalStatic.passRoomTemp)){
+                    GlobalStatic.clientThread.RePassRoom(this.IDROOM,passNEW);
+                }
+                else{
+                    int mcServer = JOptionPane.ERROR_MESSAGE;
+                    JOptionPane.showMessageDialog (null, "PASSWORD NOT MATCH", "ERROR", mcServer);
+                    System.err.println("NOT ACCESS ");
+                }
+            }
+            else{
+                System.err.println("Cancel action");
+            }
+        }
+    }//GEN-LAST:event_btnRePassActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddUser;
     private javax.swing.JButton btnKickUser;
+    private javax.swing.JButton btnRePass;
     private javax.swing.JButton btnRefresh;
     private javax.swing.JButton btnTerminate;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JLabel lbHostName;
-    private javax.swing.JLabel lbRoomName;
     private javax.swing.JList<String> listUser;
     private javax.swing.JTextField txtChat;
     private javax.swing.JTextArea txtContent;

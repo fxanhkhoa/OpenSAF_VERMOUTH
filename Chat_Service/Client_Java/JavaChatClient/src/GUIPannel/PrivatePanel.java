@@ -103,6 +103,11 @@ public class PrivatePanel extends javax.swing.JPanel {
         jScrollPane3 = new javax.swing.JScrollPane();
         txtContent = new javax.swing.JTextArea();
 
+        txtChat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                txtChatMouseClicked(evt);
+            }
+        });
         txtChat.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyPressed(java.awt.event.KeyEvent evt) {
                 txtChatKeyPressed(evt);
@@ -158,8 +163,15 @@ public class PrivatePanel extends javax.swing.JPanel {
                 JOptionPane.showMessageDialog (null, "Select 1 user man!!!!", "Warning", mcServer);
             }
             txtContent.setCaretPosition(txtContent.getDocument().getLength());
+            GlobalStatic.SetHaveMessPrivatePanel(nameTab, 0);
+            GlobalStatic.clientPannel.Reload(GlobalStatic.sizeFriend);
         }
     }//GEN-LAST:event_txtChatKeyPressed
+
+    private void txtChatMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtChatMouseClicked
+        GlobalStatic.SetHaveMessPrivatePanel(nameTab, 0);
+        GlobalStatic.clientPannel.Reload(GlobalStatic.sizeFriend);
+    }//GEN-LAST:event_txtChatMouseClicked
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

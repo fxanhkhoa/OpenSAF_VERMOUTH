@@ -40,6 +40,8 @@ public class GlobalStatic {
     
     public static String myUserName;
     public static String myPass;
+    /*temp pass*/
+    public static String myTempPass;
     public static ProtocolCS blockToSend;
     
     //For List
@@ -195,7 +197,11 @@ public class GlobalStatic {
         return 1;
     }
     
-    
+    /*
+    ********************************************************************
+              FUNCION FOR ROOM
+    ********************************************************************
+    */
     
     public static int CheckOwnerRoomGUI(int IDROOM){
         for (RoomPannel rP: rPList){
@@ -215,6 +221,18 @@ public class GlobalStatic {
         }
         return 7;
     } 
+   
+   // ROOMPANEL
+   
+   public static int SetPassRoomPanel(int idROOM, String passRoom){
+        for (RoomPannel rP: rPList){
+            if (rP.IDROOM == idROOM){
+                rP.passROOM = passRoom;
+                return 1;
+            }
+        }
+        return 7;
+    }
     
     //Use For Room PANEL
     public static int AddToListInRoomGUI(int id, String userName){
@@ -254,13 +272,12 @@ public class GlobalStatic {
         for (RoomPannel rP: rPList){
             if (rP.Name.equals(nameRoom)){
                 GlobalStatic.clientThread.IOutRoom(rP.IDROOM);
+                System.out.println("javachatclient.GlobalStatic.SeftOutRoom "+rP.IDROOM);
                 rPList.remove(rP);
                 return;
             }
         }
     }
-   
-    
     public static String GetNameROOM(int idROOM){
         for(RoomStruct rS: roomList){
             if(rS.idRoom==idROOM){
@@ -298,7 +315,6 @@ public class GlobalStatic {
                 return 0;
             }
         }
-        
         // Not in List so Add one
         pPList.add(new PrivatePanel(tabName));
         System.out.println("Add one new PrivatePanel " + tabName);
@@ -336,6 +352,15 @@ public class GlobalStatic {
             if (pP.GetNameTab().equals(String.valueOf(tabName).trim())){
 //                System.out.println("Get dc roi: " + pP.GetNameTab());
                 pP.AddToTextBox(String.valueOf(curUser).trim(), String.valueOf(text).trim());
+                return;
+            }
+        }
+    }
+    
+    public static void SetHaveMessPrivatePanel(String user, int status){
+        for (UserStruct uS: friendList){
+            if (uS.userName.equals(user)){
+                uS.haveMessStatus = status;
                 return;
             }
         }

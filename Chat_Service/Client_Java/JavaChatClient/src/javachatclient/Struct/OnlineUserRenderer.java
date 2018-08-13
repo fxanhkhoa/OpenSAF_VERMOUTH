@@ -48,6 +48,13 @@ public class OnlineUserRenderer implements ListCellRenderer{
             //renderer.setBackground(Color.gray);
         }
         
+        if (uS.haveMessStatus == 1){
+            renderer.setBackground(Color.CYAN);
+        }
+        else {
+            renderer.setBackground(Color.WHITE);
+        }
+        
         return renderer;
     }
 

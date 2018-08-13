@@ -675,4 +675,9 @@
     <DestinationUser/>
     <Message>a</Message>
   </block>
+<block id="135">
+    <CurrentUser>khoa</CurrentUser>
+    <DestinationUser/>
+    <Message>asdasd</Message>
+  </block>
 </PrivateMessage>
