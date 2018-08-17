@@ -439,7 +439,11 @@ public class ClientPannel extends javax.swing.JPanel {
         
         int statusNEWROOM=1005;
 
-        if (evt.getClickCount() % 2==0){
+        if (evt.getClickCount() % 2== 0){
+            if(listRoom.getModel().getSize()== 0 ){
+                System.err.println("Empty List");
+            }
+            else{
             String nameRoom =String.valueOf(listRoom.getSelectedValue());
             int roomID = GlobalStatic.GetIDROOM(nameRoom);
             System.out.println("ROOM ID WHEN CLICKED LIST:" +roomID);
@@ -488,7 +492,7 @@ public class ClientPannel extends javax.swing.JPanel {
                 System.out.println("CHECK ROOM AVAILABLE : "+ statusNEWROOM);
             }
             //System.err.println(String.valueOf(listRoom.getSelectedValue()));
-
+            }
         }
     }//GEN-LAST:event_listRoomMouseClicked
 private void initTabComponent(int i) {
@@ -539,8 +543,11 @@ private void initTabComponent(int i) {
         int flag = 1;
         
         if (evt.getClickCount() % 2==0){
-            System.out.println("GUIPannel.ClientPannel.listUserPrvMouseClicked()");
             String nameTab =String.valueOf(listUserPrv.getSelectedValue());
+            if(listUserPrv.getSelectedValue() == null ){
+                System.err.println("Empty Selected");
+            }
+            else{
             int exist = GlobalStatic.UpdatePrivatePanelList(nameTab);
             PrivatePanel pP = GlobalStatic.GetPrivatePanel(nameTab);
             if (exist == 1){
@@ -548,50 +555,9 @@ private void initTabComponent(int i) {
                 System.out.println(TabMain.indexOfComponent(pP));
                 pP.indexOfTab = TabMain.indexOfComponent(pP);
                 initTabComponent(pP.indexOfTab);
-//                try {
-//                    JList changedList = (JList)evt.getSource();
-//                    if (listUserPrv == changedList){
-//                        
-//                        //txtContent.setText("");
-//                        System.err.println(String.valueOf(listUserPrv.getSelectedValue()));
-//                        Map<String, MessageStruct> dataMap = new HashMap<String, MessageStruct>();
-//                        dataMap = dataControl.GetList(String.valueOf(listUserPrv.getSelectedValue()));
-//                        //for (int i = 0; i < dataMap.size(); i++){
-//                            for (String key: dataMap.keySet()){
-//                                MessageStruct ms = new MessageStruct();
-//                                ms = dataMap.get(key);
-//                                //System.out.println(sP.GetUserName());
-//                                //System.out.println(ms.desUsr + "z");
-//                                if (ms.desUsr.equals(GlobalStatic.myUserName)){
-//                                    pP.AddToTextBox_String(ms.curUsr + ": " + ms.Message + "\n");
-//                                }
-//                                else {
-//                                    pP.AddToTextBox_String(ms.Message + "\n");
-//                                }
-//                            }
-//                        }
-//                    System.out.println("gogogo");
-//                    flag = 1;
-//                } catch (Exception e) {
-//                    flag = 0;
-//                }
-//
-//                if (flag == 0){
-//                    try {
-//                        if (dataControl.CheckExistXMLFile(String.valueOf(listUserPrv.getSelectedValue())) == 0){
-//                            dataControl.curUsr = GlobalStatic.myUserName;
-//                            dataControl.desUsr = String.valueOf(listUserPrv.getSelectedValue());
-//                            dataControl.numberOfElement = 0;
-//                            dataControl.Message = "1st created";
-//                            dataControl.CreateXMLFile(String.valueOf(listUserPrv.getSelectedValue()));
-//                        }
-//                    } catch (Exception e) {
-//                    }
-//
-//                }
             }
-            
             exist = 0;
+        }
         }
         
     }//GEN-LAST:event_listUserPrvMouseClicked

@@ -9,6 +9,7 @@ import javachatclient.Struct.MessageStruct;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import javachatclient.GlobalStatic;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -37,7 +38,7 @@ public class DataControl {
     public String curUsr;
     public String Message;
     public int numberOfElement;
-    private Map<String, MessageStruct> datamap= new HashMap<String, MessageStruct>(); 
+    private Map<String, MessageStruct> datamap= new TreeMap<String, MessageStruct>(); 
     private String Path;
     
     public DataControl() {
@@ -238,8 +239,9 @@ public class DataControl {
     Note:  
 
     */
-    public Map<String, MessageStruct> GetList(String NameOfFile){
+    public Map<Integer, MessageStruct> GetList(String NameOfFile){
         try {
+            Map<Integer, MessageStruct> datamapint = new HashMap<Integer, MessageStruct>();
             datamap.clear();
             BuildPath(NameOfFile);
             
@@ -253,7 +255,8 @@ public class DataControl {
             NodeList nodeList = rootElement.getChildNodes();
             if (nodeList != null){
                 int length = nodeList.getLength();
-                for (int i = 0; i < length; i++){
+//                for (int i = 0; i <length; i++){
+                for (int i = length-1; i >= 0; i--){ //for JTextArea ()
                     if (nodeList.item(i).getNodeType() == Node.ELEMENT_NODE){
                         Element el = (Element) nodeList.item(i);
                         if (el.getNodeName().contains("block")){
@@ -264,11 +267,13 @@ public class DataControl {
                             ms.desUsr = el.getElementsByTagName("DestinationUser").item(0).getTextContent();
                             ms.Message = el.getElementsByTagName("Message").item(0).getTextContent();
                             datamap.put(id, ms);
+                            datamapint.put(Integer.valueOf(id), ms);
                         }
                     }
                 }
             }
-            return datamap;
+//            Map<String, MessageStruct> treeMap = new TreeMap<String, MessageStruct>(datamap);
+            return datamapint;
         } catch (Exception e) {
             return null;
         }

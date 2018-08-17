@@ -69,8 +69,9 @@ public class ButtonTabComponent extends JPanel {
             int i = pane.indexOfTabComponent(ButtonTabComponent.this);
             if (i != -1) {
                 System.out.println("javachatclient.ButtonTabComponent.TabButton.actionPerformed() " + pane.getTitleAt(i));
-                GlobalStatic.RemovePrivatePanelList(pane.getTitleAt(i));
                 GlobalStatic.SeftOutRoom(pane.getTitleAt(i));
+                GlobalStatic.RemovePrivatePanelList(pane.getTitleAt(i));
+                GlobalStatic.clientPannel.PerformRefreshClick();
                 pane.remove(i);
             }
         }

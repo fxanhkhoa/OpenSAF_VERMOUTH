@@ -15,4 +15,34 @@
     <DestinationUser/>
     <Message>hey man</Message>
   </block>
+<block id="3">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>hey hey</Message>
+  </block>
+<block id="4">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>googg</Message>
+  </block>
+<block id="5">
+    <CurrentUser>shawry</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>al�</Message>
+  </block>
+<block id="6">
+    <CurrentUser>shawry</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>hello</Message>
+  </block>
+<block id="7">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>thay ko</Message>
+  </block>
+<block id="8">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>ko thay thi chiu</Message>
+  </block>
 </PrivateMessage>

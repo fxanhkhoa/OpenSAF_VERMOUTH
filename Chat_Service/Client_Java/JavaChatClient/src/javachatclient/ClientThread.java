@@ -658,7 +658,7 @@ public class ClientThread {
             } catch (Exception e) {
             }
             
-            if (String.valueOf(desUser).contains(GlobalStatic.myUserName)){
+            if (String.valueOf(desUser).trim().equals(GlobalStatic.myUserName)){
 
                 // Add to local databases
                 System.out.println(String.valueOf(curUser).trim());
@@ -952,7 +952,11 @@ public class ClientThread {
                JOptionPane.showMessageDialog (null, "YOU HAVE BEEN AT THIS ROOM ", "HEY GUYS", mcServer);
                System.err.println("YOU HAVE BEEN AT THIS ROOM ");
                ClearData();
-               String nameRoom=GlobalStatic.GetNameROOM(IDRoom);
+               String nameRoom = GlobalStatic.GetNameROOM(IDRoom);
+                System.out.println("Name room = " + nameRoom);
+               GlobalStatic.InitRoomGUI(nameRoom, IDRoom);
+               GlobalStatic.AddToListInRoomGUI(IDRoom, GlobalStatic.myUserName);
+               
                GlobalStatic.clientPannel.AddTabRoom(nameRoom, IDRoom);
                GlobalStatic.SetPassRoomPanel(IDRoom, GlobalStatic.passRoomTemp);
                

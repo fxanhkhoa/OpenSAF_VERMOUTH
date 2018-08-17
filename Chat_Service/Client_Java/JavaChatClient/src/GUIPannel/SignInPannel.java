@@ -15,6 +15,11 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 import jdk.nashorn.internal.objects.Global;
 
 /**
@@ -45,6 +50,28 @@ public class SignInPannel extends javax.swing.JPanel {
         btnReconnect.setToolTipText("Click button if auto reconnect fail ");
         btnSignIn.setToolTipText("Click button to login ");
         btnSignUp.setToolTipText("Click button if not account to login");
+        
+        /* Iconf for Refresh */
+        
+//        Icon imgIcon = new ImageIcon(this.getClass().getResource("ajax-loader.gif"));
+//        JLabel label = new JLabel(imgIcon);
+//        label.setBounds(668, 43, 46, 14); // for example, you can use your own values
+//        frame.getContentPane().add(label);
+        
+        ImageIcon imgAbout = new ImageIcon(Path + "/images/vermouth.gif");
+        int width = 200;
+        int height = 75;
+        imgAbout.setImage(imgAbout.getImage().getScaledInstance(width, height, Image.SCALE_DEFAULT));
+        lbAbout.setIcon(imgAbout);
+        lbAbout.setText("");
+        
+        ImageIcon imgSU = new ImageIcon(Path + "/images/new.gif");
+        int widthSU = 50;
+        int heightSU = 50;
+        imgSU.setImage(imgSU.getImage().getScaledInstance(widthSU, heightSU, Image.SCALE_DEFAULT));
+        lbSignUp.setIcon(imgSU);
+        
+        
     }
     
     public void showReconBtn(){
@@ -92,12 +119,12 @@ public class SignInPannel extends javax.swing.JPanel {
 
         btnSignIn = new javax.swing.JButton();
         btnSignUp = new javax.swing.JButton();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
+        lbSignUp = new javax.swing.JLabel();
+        lbAbout = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         txtUser = new javax.swing.JTextField();
-        jLabel5 = new javax.swing.JLabel();
+        lbLogo = new javax.swing.JLabel();
         txtPassF = new javax.swing.JPasswordField();
         btnReconnect = new javax.swing.JButton();
 
@@ -115,15 +142,15 @@ public class SignInPannel extends javax.swing.JPanel {
             }
         });
 
-        jLabel2.setText("Need an account? Register now!!!");
+        lbSignUp.setText("Need an account? Register now!!!");
 
-        jLabel1.setText("Powered by VERMOUNTH");
+        lbAbout.setText("Powered by VERMOUNTH");
 
         jLabel3.setText("Username");
 
         jLabel4.setText("Password");
 
-        jLabel5.setText("WELCOME BACK");
+        lbLogo.setText("WELCOME BACK");
 
         txtPassF.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -150,7 +177,7 @@ public class SignInPannel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel2)
+                        .addComponent(lbSignUp)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnSignUp))
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
@@ -161,7 +188,7 @@ public class SignInPannel extends javax.swing.JPanel {
                                 .addGroup(layout.createSequentialGroup()
                                     .addComponent(jLabel3)
                                     .addGap(49, 49, 49)
-                                    .addComponent(jLabel5)
+                                    .addComponent(lbLogo)
                                     .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(btnReconnect, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
@@ -177,7 +204,7 @@ public class SignInPannel extends javax.swing.JPanel {
                         .addComponent(btnSignIn, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(128, 128, 128))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addComponent(lbAbout)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -191,7 +218,7 @@ public class SignInPannel extends javax.swing.JPanel {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel5)
+                            .addComponent(lbLogo)
                             .addComponent(btnReconnect))
                         .addGap(18, 18, 18)))
                 .addComponent(txtUser, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -204,9 +231,9 @@ public class SignInPannel extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnSignUp)
-                    .addComponent(jLabel2))
+                    .addComponent(lbSignUp))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jLabel1)
+                .addComponent(lbAbout)
                 .addGap(6, 6, 6))
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -305,11 +332,11 @@ public class SignInPannel extends javax.swing.JPanel {
     private javax.swing.JButton btnReconnect;
     private javax.swing.JButton btnSignIn;
     private javax.swing.JButton btnSignUp;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel lbAbout;
+    private javax.swing.JLabel lbLogo;
+    private javax.swing.JLabel lbSignUp;
     private javax.swing.JPasswordField txtPassF;
     private javax.swing.JTextField txtUser;
     // End of variables declaration//GEN-END:variables

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<PrivateMessage>
+  <block id="0">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser>hieupham</DestinationUser>
+    <Message>1st created</Message>
+  </block>
+<block id="1">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>hello there</Message>
+  </block>
+<block id="2">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>i am single</Message>
+  </block>
+<block id="3">
+    <CurrentUser>hieupham</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>:O non</Message>
+  </block>
+<block id="4">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>ok anything to demo ????</Message>
+  </block>
+<block id="5">
+    <CurrentUser>hieupham</CurrentUser>
+    <DestinationUser>khoa123</DestinationUser>
+    <Message>is this save?</Message>
+  </block>
+<block id="6">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>switch swap kill die server, next coming soon .......</Message>
+  </block>
+<block id="7">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>next video</Message>
+  </block>
+<block id="8">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>thank you</Message>
+  </block>
+<block id="9">
+    <CurrentUser>khoa123</CurrentUser>
+    <DestinationUser/>
+    <Message>and good bye</Message>
+  </block>
+</PrivateMessage>

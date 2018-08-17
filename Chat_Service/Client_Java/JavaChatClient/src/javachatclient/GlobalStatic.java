@@ -269,8 +269,10 @@ public class GlobalStatic {
     }
     
     public static void SeftOutRoom(String nameRoom){
+//        System.out.println("javachatclient.GlobalStatic.SeftOutRoom() + nameroom = " + nameRoom);
         for (RoomPannel rP: rPList){
-            if (rP.Name.equals(nameRoom)){
+//            System.out.println("javachatclient.GlobalStatic.SeftOutRoom() + eachname = " + rP.Name);
+            if (rP.Name.trim().equals(nameRoom)){
                 GlobalStatic.clientThread.IOutRoom(rP.IDROOM);
                 System.out.println("javachatclient.GlobalStatic.SeftOutRoom "+rP.IDROOM);
                 rPList.remove(rP);
@@ -333,6 +335,8 @@ public class GlobalStatic {
         return 1;
     }
     
+//    public static int 
+    
     // For Private Panel
     public static PrivatePanel GetPrivatePanel(String tabName){
         for (PrivatePanel pP: pPList){
@@ -352,6 +356,9 @@ public class GlobalStatic {
             if (pP.GetNameTab().equals(String.valueOf(tabName).trim())){
 //                System.out.println("Get dc roi: " + pP.GetNameTab());
                 pP.AddToTextBox(String.valueOf(curUser).trim(), String.valueOf(text).trim());
+                /**/
+                String msg= String.valueOf(curUser).trim()+" : "+ String.valueOf(text).trim();
+                pP.RecvSetAlign(" "+msg+  "\n");
                 return;
             }
         }
