@@ -1,9 +1,10 @@
 #pragma once
 #include "user.h"
 #include "func.h"
+#include "immOM.h"
+#include "oi.h"
 //using namespace std;
 extern mutex mu;
-extern mutex mu_lock_file;
 extern volatile int state;
 class server
 {
@@ -11,8 +12,8 @@ private:
   static server *sv;
   set<id *> list_online;
   set<room *> list_room;
-  int listen_sock;
-  int server_stanby_sock;
+  //int listen_sock;
+
   pollfd list_poll_connected[10000];
   stack<int> empty_connected_pos;
   int connected_size;
@@ -23,17 +24,16 @@ private:
   server();
   void pollfd_push(pollfd *l, stack<int> &c, int &size, pollfd val);
   void pollfd_erase(pollfd *l, stack<int> &c, int &size, int pos);
-  // block_data send_to_standby;
+  int listen_sock;
+
 public:
+  int server_stanby_sock;
   static server *get_instance(); //xx
 
   void *listen_connect();
 
   /*add a new room*/
   bool add_room(room *r); //xx
-
-  /*load all user from file to map*/
-  void load_data();
 
   /*tao moi 1 user, thanh cong tra ve con tro user, that bai(user da ton tai) tra ve NULL*/
   user *create_new_user(const char *u_name, const char *u_pass); //xx
@@ -47,7 +47,7 @@ public:
   bool remove_room(int r_id, const char *u_name);
 
   /*xoa 1 id trong list online*/
-  bool remove_id(id *u);
+
   id *remove_id(int fd);
 
   /*luong chat*/
@@ -56,12 +56,23 @@ public:
   /*lay user name tu socket*/
   id *get_id_from_fd(int fd);
 
-  void trans_data_to_standby_sv();
+  //void trans_data_to_standby_sv();
 
-  void send_data_to_login_user(int sock);
+  static void send_data_to_login_user(int sock,server *const sv);
 
+  void send_room_stanby();
   //gui cho toan bo set user online
   void send_to_world(void *buf);
 
   void stand_by();
+
+  void load_r(void *buf);
+  void reconnect_complete(id *u);
+  void send_list_friend(int sock);
+
+  SaAisErrorT edit_passw(const char *user_name, const char *pass);
+  //void send_us_stanby();
+  SaAisErrorT add_friend(const char *u_name, const char *friend_name, int flag = 1);
+  void sync_room();
+  static void load_user_data();
 };

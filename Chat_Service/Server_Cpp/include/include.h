@@ -33,4 +33,13 @@
 #include <ctype.h>
 #include <saImm.h>
 #include <saImmOm.h>
+#include <saImmOi.h>
+#include <unordered_set>
 using namespace std;
+struct immObject
+{
+    char *obj_name;
+    vector<char *> attr_name;
+    vector<int> val_type;
+    vector<vector<void *>> val;
+};

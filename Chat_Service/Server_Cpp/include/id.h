@@ -14,7 +14,7 @@ class id
  
     int sock;
     std::set<room*> room_list;
-    int xxx;
+    
 
   public:
     friend bool operator<(id x,id y);
@@ -31,18 +31,19 @@ class id
     bool invite_friend(const char *u_name,int ID_room);//xx
     /*thoat khoi mot phong thuoc list room*/
     bool quit_room(room *r);//xx
+
     /*dua room r vao list room*/
     void add_room(room *r);//xx
     /*id muon vo phong id_room*/
     bool join_room(int ID_room, const char *pass);//xx
     /*xoa ten trong tat ca cac room, xoa ra khoi ds dang online (chua xong)*/
-    void log_out();
-    
+  // void log_out();
+    void set_sock(int s);
     
     /*Moi lam them*/
     bool kick_out(const char *user_name,int ID_room);//xx
 
-
+    
     ~id();
 
 };

@@ -11,8 +11,10 @@ bool operator<(id x, id y)
 room *id::create_new_room(const char *r_name, const char *passwd) //ok
 {
     room *r = new room(r_name, this->u, passwd);
-    if (r)
+    if (r){
         r->add_people(this);
+        this->add_room(r);
+    }
     return r;
 }
 
@@ -24,19 +26,23 @@ id::id(user *_u, int _sock)
 }
 bool id::remove_room(room *r) //ok da dung`
 {
-    for (set<room *>::iterator it = this->room_list.begin(); it != this->room_list.end(); ++it)
+
+    set<room *>::iterator it = room_list.find(r);
+    if (it != room_list.end())
     {
-        if (*it == r)
-        {
-            this->room_list.erase(it);
-            return true;
-        }
+        room_list.erase(it);
+        return true;
     }
+
     return false;
 }
 int id::get_key()
 {
     return sock;
+}
+void id::set_sock(int s)
+{
+    sock = s;
 }
 bool id::quit_room(room *r)
 {
@@ -51,7 +57,6 @@ bool id::quit_room(room *r)
             return true;
         }
     }
-    cout << "tui bay viet sai ham quit_room (ip.cpp) roi\n";
     return false;
 }
 
@@ -93,12 +98,6 @@ user *id::get_user()
     return this->u;
 }
 
-void id::log_out()
-{
-    for (auto &c : this->room_list)
-        c->remove_people(this);
-}
-
 bool id::kick_out(const char *user_name, int room_ID)
 {
     server *sv = server::get_instance();
@@ -119,6 +118,12 @@ bool id::kick_out(const char *user_name, int room_ID)
 
 id::~id()
 {
+    syslog(6,"cho vo huy id sz room = %d",room_list.size());
+
     for (auto &c : room_list)
+    {
+        syslog(6,"%d",c->get_key());
         c->remove_people(this);
+    }
 }
+

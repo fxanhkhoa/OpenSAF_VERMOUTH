@@ -19,7 +19,11 @@ class List
         {
             left = right = NULL;
         }
-        Node(const char *k, const char *p, int _i = 0) : key(k, p, _i)
+        Node(const char *k, const char *p, int _i) : key(k, p, _i)
+        {
+            left = right = NULL;
+        }
+        Node(const char *k, const char *p) : key(k, p)
         {
             left = right = NULL;
         }
@@ -40,6 +44,10 @@ class List
     List()
     {
         root = NULL;
+    }
+    bool empty()
+    {
+        return !root;
     }
     T *insert(T key)
     {
@@ -166,29 +174,7 @@ class List
         }
         return NULL;
     }
-    void map_to_file(const char *file_name)
-    {
-        mu_lock_file.lock();
-        fstream f(file_name, ios::out | ios::binary);
-        f_map(f, root);
-        f.close();
-        mu_lock_file.unlock();
-    }
-    List(const char *file_name)
-    {
-        root = NULL;
-        T tmp;
-        mu_lock_file.lock();
-        fstream f(file_name, ios::in | ios::binary);
-
-        while (!f.eof())
-        {
-            f.read((char *)(&tmp), sizeof(T));
-            insert(tmp);
-        }
-        f.close();
-        mu_lock_file.unlock();
-    }
+   
 
     void remove(T k)
     {
@@ -290,46 +276,40 @@ class List
         } xx;
         xx.get(vec, root);
     }
-    void load(const char *file_name)
+    void to_vector(vector<T *> &vec)
     {
-        syslog(6, "vo load file");
-        root = NULL;
-        T tmp;
-        //int len;
-        mu_lock_file.lock();
-        fstream f(file_name, ios::in | ios::binary);
-        //FILE *f = fopen(file_name, "rb");
-
-        syslog(6, "vo load file 1");
-        while (!f.eof())
+        struct h
         {
-            //  syslog(6, "vo load file 2");
-            f.read((char *)(&tmp), sizeof(T));
-            // fread(&tmp, sizeof(T), 1, f);
-            insert(tmp);
-        }
-        f.close();
-        //fclose(f);
-        syslog(6, "vo load file 3");
-        mu_lock_file.unlock();
+            void get(vector<T *> &vec, Node *r)
+            {
+                if (r)
+                {
+                    vec.push_back(&(r->key));
+                    get(vec, r->left);
+                    get(vec, r->right);
+                }
+            }
+        } xx;
+        xx.get(vec, root);
     }
+    
     int get_max_ID()
     {
         struct h
         {
-            static int get(Node *r)
+            static void get(Node *r,int &m)
             {
                 if (r)
                 {
-                    if (r->right)
-                    {
-                        return get(r->right);
-                    }
-                    else
-                        return r->key.get_id();
+                    get(r->left, m);
+                    get(r->right, m);
+                    int mm = r->key.get_id();
+                    if (mm > m)
+                        m = mm;
                 }
             }
         };
-        return h::get(root);
+        int res = 0;
+        return h::get(root, res), res;
     }
 };

@@ -1,6 +1,7 @@
 #pragma once
 #include "include.h"
-//using namespace std;
+#include <vector>
+using namespace std;
 class room;
 class id;
 #include "room.h"
@@ -10,7 +11,7 @@ class user
 private:
   char user_name[30];
   char pass[30];
-  int sex;
+  unordered_set<user *> *f_list;
   int u_ID;
   // id *u;
   // static int user_id;
@@ -31,4 +32,10 @@ public:
   friend bool operator==(user x, user y);
   void show();
   int get_id();
+  void get_name_pass_id(void *res);
+  void set_pass(const char *p);
+  void add_friend(user *f);
+  bool is_friend(user *f);
+  unordered_set<user *> *get_friend_list();
+  void get_friend_list(vector<string> &v);
 };

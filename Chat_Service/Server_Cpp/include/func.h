@@ -1,12 +1,11 @@
 #pragma once
 #include "include.h"
 
-//using namespace std;
+
 int connect_to_sv(const char *host, int port = 8888);
 int open_listening_socket(int _port);
 
-// template <class T>
-// int binarySearch(T arr[], int l, int r, int x);
+
 struct block_data
 {
     int cmd; //lenh
