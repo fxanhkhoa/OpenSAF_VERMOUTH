@@ -251,38 +251,38 @@ id *server::remove_id(int fd)
     return NULL;
 }
 
-void server::send_us_stanby()
-{
-    struct _US
-    {
-        char u_name[30];
-        char u_pass[30];
-        int u_id;
-    };
-    struct dat
-    {
-        int cmd;
-        int sz;
+// void server::send_us_stanby()
+// {
+//     struct _US
+//     {
+//         char u_name[30];
+//         char u_pass[30];
+//         int u_id;
+//     };
+//     struct dat
+//     {
+//         int cmd;
+//         int sz;
 
-        _US d[15];
-        char xxx[56];
-    };
-    vector<user *> v;
-    user_data.to_vector(v);
-    dat buf;
-    buf.cmd = 1011;
-    buf.sz = 0;
-    for (int i = 0; i < v.size(); ++i)
-    {
-        if (buf.sz == 15)
-        {
-            send(server_stanby_sock, &buf, 1024, 0);
-            buf.sz = 0;
-        }
-        v[i]->get_name_pass_id(&(buf.d[buf.sz++]));
-    }
-    send(server_stanby_sock, &buf, 1024, 0);
-}
+//         _US d[15];
+//         char xxx[56];
+//     };
+//     vector<user *> v;
+//     user_data.to_vector(v);
+//     dat buf;
+//     buf.cmd = 1010;
+//     buf.sz = 0;
+//     for (int i = 0; i < v.size(); ++i)
+//     {
+//         if (buf.sz == 15)
+//         {
+//             send(server_stanby_sock, &buf, 1024, 0);
+//             buf.sz = 0;
+//         }
+//         v[i]->get_name_pass_id(&(buf.d[buf.sz++]));
+//     }
+//     send(server_stanby_sock, &buf, 1024, 0);
+// }
 
 ///////Doi mat khau
 SaAisErrorT server::edit_passw(const char *user_name, const char *pass)
@@ -463,12 +463,12 @@ void *server::listen_connect()
                     continue;
                 }
 
-                if (buf.cmd == 1010)
-                {
-                    thread ss(&server::send_us_stanby, this);
-                    ss.detach();
-                    continue;
-                }
+                // if (buf.cmd == 1010)
+                // {
+                //     thread ss(&server::send_us_stanby, this);
+                //     ss.detach();
+                //     continue;
+                // }
 
                 if (buf.cmd == 1015)
                 {
@@ -660,6 +660,7 @@ void server::send_list_friend(int sock)
         }
         strcpy(buf.data[buf.size].n, c.c_str());
         buf.data[buf.size++].id = user_data.search(c.c_str())->get_id();
+        syslog(6, "%s", c.c_str());
     }
     send(sock, &buf, 1024, 0);
     syslog(6, "end send friend list thread");
@@ -693,8 +694,8 @@ void *server::chat_client()
     block_data buf;
     thread *th;
     room *r;
-    user *p_us;
-    id *p_id, *p_id2;
+    user *p_us, *p_us2;
+    id *p_id;
     list_poll_connected[0].fd = 0;
     list_poll_connected[0].events = POLLIN;
     connected_size = 1;
@@ -730,7 +731,7 @@ void *server::chat_client()
                 //client ngat ket noi...
                 //xoa client khoi list id online
                 p_id = remove_id(list_poll_connected[i].fd);
-
+                syslog(6, " close connection");
                 if (p_id)
                 {
                     //gui thong bao den toan client cho biet co nguoi vua thoat
@@ -815,7 +816,7 @@ void *server::chat_client()
 
                     buf.cmd = 108;
                     send_to_world(&buf);
-
+                    buf.cmd = 6;
                     send(server_stanby_sock, &buf, 1024, 0);
                 }
                 else
@@ -1023,15 +1024,17 @@ void *server::chat_client()
                 }
                 break;
             case 14: //Thoat phong
+                syslog(6, "user %s, thoat khoi phong %d", buf.sender_username, buf.room_id);
                 r = this->get_room_from_ID(buf.room_id);
                 p_id = this->get_id_from_name(buf.sender_username);
                 if (!p_id)
                     break;
+                syslog(6, "14-1");
                 if (r && r->check_belong_room(p_id))
                 {
                     if (r->get_user_onl().size() != 1)
                     {
-
+                        syslog(6, "14-2");
                         p_id->quit_room(r);
                         //Thog bao thoat phong thanh cong
                         buf.cmd = 93;
@@ -1072,13 +1075,24 @@ void *server::chat_client()
                     send(list_poll_connected[i].fd, &buf, 1024, 0);
                     break;
                 }
+                p_us = user_data.search(buf.recver_usename);
+                p_us2 = user_data.search(buf.sender_username);
+                if (p_us->is_friend(p_us2))
+                {
+                    buf.cmd = 30;
+                    send(list_poll_connected[i].fd, &buf, 1024, 0);
+                    break;
+                }
                 if (add_friend(buf.sender_username, buf.recver_usename) == 1 && add_friend(buf.recver_usename, buf.sender_username) == 1)
                 {
-                    p_id = get_id_from_name(buf.sender_username);
-                    p_id2 = get_id_from_name(buf.recver_usename);
-                    p_id->get_user()->add_friend(p_id2->get_user());
-                    p_id2->get_user()->add_friend(p_id->get_user());
+
+                    p_us->add_friend(p_us2);
+                    p_us2->add_friend(p_us);
                     buf.cmd = 31;
+                    if (server_stanby_sock > 0)
+                    {
+                        send(server_stanby_sock, &buf, 1024, 0);
+                    }
                 }
                 else
                 {
@@ -1113,7 +1127,7 @@ void *server::chat_client()
                 send_to_world(&buf);
                 break;
             case 42:
-                th = new thread(&server::send_data_to_login_user, list_poll_connected[i].fd,this);
+                th = new thread(&server::send_data_to_login_user, list_poll_connected[i].fd, this);
                 th->detach();
             default:
                 break;
@@ -1144,7 +1158,7 @@ id *server::get_id_from_fd(int fd)
 }
 
 /*gui du lieu cho client khi no vua dang nhap thanh cong*/
-void server::send_data_to_login_user(int sock,server *const sv)
+void server::send_data_to_login_user(int sock, server *const sv)
 {
     struct udata
     {
@@ -1177,6 +1191,7 @@ void server::send_data_to_login_user(int sock,server *const sv)
     };
 
     block_user t;
+    memset(&t, 0, 1024);
     t.size = 0;
     t.cmd = 102;
     for (auto &c : sv->list_online)
@@ -1184,8 +1199,8 @@ void server::send_data_to_login_user(int sock,server *const sv)
         if (t.size == 33)
         {
             send(sock, &t, 1024, 0);
-            
-            memset(&t,0,1024);
+
+            memset(&t, 0, 1024);
             t.size = 0;
         }
         strcpy(t.data[t.size].n, c->get_user()->get_username());
@@ -1205,6 +1220,7 @@ void server::send_data_to_login_user(int sock,server *const sv)
         if (r->size == 2)
         {
             send(sock, r, 1024, 0);
+            memset(r, 0, 1024);
             r->size = 0;
         }
         c->get_room_data(&(r->data[r->size]));
@@ -1220,9 +1236,9 @@ void server::send_to_world(void *buf)
     // syslog(6, "%s\n", p->recver_usename);
     // syslog(6, "%s\n", p->sender_username);
     // syslog(6, "%s\n", p->room_pass);
-    for (auto &c : list_online)
+    for (int i = 0; i < connected_size; ++i)
     {
-        send(c->get_key(), buf, 1024, 0);
+        send(list_poll_connected[i].fd, buf, 1024, 0);
     }
 }
 
@@ -1319,11 +1335,11 @@ void server::stand_by()
             syslog(6, "connected to active server");
         }
     }
-    if (state == 2 && user_data.empty())
-    {
-        buf.cmd = 1010; //chua co data trong user_data
-        send(server_stanby_sock, &buf, 1024, 0);
-    }
+    // if (state == 2 && user_data.empty())
+    // {
+    //     buf.cmd = 1010; //chua co data trong user_data
+    //     send(server_stanby_sock, &buf, 1024, 0);
+    // }
     if (state == 2 && list_room.empty())
     {
         buf.cmd = 1015; //chua co room nao
@@ -1334,7 +1350,7 @@ void server::stand_by()
     fds[0].fd = server_stanby_sock;
     fds[0].events = POLLIN;
     int rc;
-
+    user *p_us1, *p_us2;
     while (state == 2)
     {
         rc = poll(fds, 1, 5);
@@ -1405,10 +1421,12 @@ void server::stand_by()
             case 6: //xoa room
                 for (set<room *>::iterator it = list_room.begin(); it != list_room.end(); ++it)
                 {
+                    syslog(6, "room %s bi xoa", (*it)->get_room_name());
                     if ((*it)->get_key() == buf.room_id)
                     {
                         delete (*it);
                         list_room.erase(it);
+                        send_to_world(&buf);
                         break;
                     }
                 }
@@ -1494,10 +1512,17 @@ void server::stand_by()
                 server_stanby_sock = -1;
 
                 syslog(6, "1009 end stand-by thread");
-                return;
+                goto H;
                 //break;
-            case 1011: //nhan data user
+            case 31: //co nguoi ket ban thanh cong
+                p_us1 = user_data.search(buf.recver_usename);
+                p_us2 = user_data.search(buf.sender_username);
+                p_us1->add_friend(p_us2);
+                p_us2->add_friend(p_us1);
                 break;
+            // case 1010: //nhan data user
+
+            //     break;
             default:
                 break;
             }
@@ -1510,6 +1535,9 @@ void server::stand_by()
         close(server_stanby_sock);
         server_stanby_sock = -1;
     }
+H:
+    while (state == 2)
+        ;
     syslog(6, "end stand-by thread");
 }
 void server::load_r(void *buf)

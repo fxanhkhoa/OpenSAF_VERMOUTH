@@ -71,7 +71,7 @@ public:
   void send_list_friend(int sock);
 
   SaAisErrorT edit_passw(const char *user_name, const char *pass);
-  void send_us_stanby();
+  //void send_us_stanby();
   SaAisErrorT add_friend(const char *u_name, const char *friend_name, int flag = 1);
   void sync_room();
   static void load_user_data();

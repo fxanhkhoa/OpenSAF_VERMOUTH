@@ -99,9 +99,12 @@ bool room::remove_people(id *u)
     {
         if ((*it) == u)
         {
+           // syslog(6,"quit room 1");
             this->user_onl.erase(it);
-            if (id_user.find(u->get_user()->get_id()) != id_user.end())
+            if (id_user.find(u->get_user()->get_id()) != id_user.end()){
                 this->id_user.erase(id_user.find(u->get_user()->get_id()));
+                // syslog(6,"quit room 2");
+            }
             if (this->user_onl.size())
             {
                 if (captain == u->get_user())
@@ -112,16 +115,24 @@ bool room::remove_people(id *u)
                 block_data buf;
                 buf.cmd = 41;
                 strcpy(buf.sender_username, captain->get_username());
+                //syslog(6,"captain moi %s",buf.sender_username);
                 buf.room_id = this->room_id;
                 buf.u_id = id_captain;
                 send(server::get_instance()->server_stanby_sock, &buf, 1024, 0);
+                // syslog(6,"quit room 3");
+                buf.cmd = 43;
+                send((*this->user_onl.begin())->get_key(), &buf, 1024, 0);
+               //  syslog(6,"quit room 4");
             }
             else
             {
                 captain = NULL;
                 this->id_captain = 0;
                 server::get_instance()->remove_room(this->room_id, NULL);
-
+                block_data buf;
+                buf.cmd = 6;
+                buf.room_id = this->room_id;
+                server::get_instance()->send_to_world(&buf);
                 this->~room();
             }
 

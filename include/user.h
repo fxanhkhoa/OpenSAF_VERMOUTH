@@ -35,6 +35,7 @@ public:
   void get_name_pass_id(void *res);
   void set_pass(const char *p);
   void add_friend(user *f);
+  bool is_friend(user *f);
   unordered_set<user *> *get_friend_list();
   void get_friend_list(vector<string> &v);
 };

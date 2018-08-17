@@ -109,3 +109,13 @@ void user::get_friend_list(vector<string> &v)
         v.push_back(c->get_username());
     }
 }
+bool user::is_friend(user *f)
+{
+    if(f_list->find(f) != f_list->end())
+    {
+        syslog(6,"da la ban");
+        return true;
+    }
+    syslog(6,"chua la ban");
+    return false;
+}
